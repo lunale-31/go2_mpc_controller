@@ -11,7 +11,7 @@ RUN if ! id -u $USER_UID >/dev/null 2>&1; then \
     fi
 # Add sudo support for the non-root user
 RUN apt-get update && \
-    apt-get install -y sudo apt-utils && \
+    apt-get install -y sudo apt-utils ssh && \
     echo "$USERNAME ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/$USERNAME && \
     chmod 0440 /etc/sudoers.d/$USERNAME
 
@@ -46,7 +46,7 @@ RUN echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> ~/.bashrc
 RUN echo "source ~/unitree_ros2/cyclonedds_ws/install/setup.bash" >> ~/.bashrc
 ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 
-# Uncomment the following lines if the network interface is not selected automatically.
+# Uncomment the following lines if the network interface is not selected automatically. 
 # If necessary, change the network interface name from eth0.
-ARG NETWORK_IF=eth0
+# ARG NETWORK_IF=eth0
 # ENV CYCLONEDDS_URI='<CycloneDDS><Domain><General><Interfaces><NetworkInterface name="$NETWORK_IF" priority="default" multicast="default" /></Interfaces></General></Domain></CycloneDDS>'

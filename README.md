@@ -23,9 +23,39 @@ If everything is configured correctly, you will receive this (or a similar) outp
 ```
 192.168.123.0/24 dev eth0 proto kernel scope link src 192.168.123.99 metric 100 
 ```
-Note that depending on your hardware, the interface name (here: `eth0`) might differ (e.g., `ethX` or `enpXsY`, where `X` and `Y` are numeric).
+Note that depending on your hardware, the interface name (here: `eth0`) might differ (e.g., `ethX` or `enpXsY`, where `X` and `Y` are numeric). 
+Remember or write that name down for troubleshooting.
 
-TODO: Continue.
-```
+Now, you can query the list of ROS 2 topics provided by the robot dog. 
+Run the following command.
+```bash
 ros2 topic list
+```
+If everything is working as intended, you will receive a long list of ROS 2 topics:
+```
+/api/arm/request
+/api/assistant_recorder/request
+/api/assistant_recorder/response
+/api/audiohub/request
+/api/audiohub/response
+/api/bashrunner/request
+/api/bashrunner/response
+/api/config/request
+/api/config/response
+[...]
+/uwbstate
+/uwbswitch
+/videohub/inner
+/webrtcreq
+/webrtcres
+/wirelesscontroller
+/wirelesscontroller_unprocessed
+/xfk_webrtcreq
+/xfk_webrtcres
+```
+
+If this is not the case, try explicitly selecting the network interface by running the following command before re-running `ros2 topic list`. 
+You might have to replace `eth0` by the name of the network interface connected to the robot.
+```bash
+export CYCLONEDDS_URI='<CycloneDDS><Domain><General><Interfaces><NetworkInterface name="eth0" priority="default" multicast="default" /></Interfaces></General></Domain></CycloneDDS>'
 ```
