@@ -14,7 +14,7 @@ static const std::string RESPONSE_TOPIC = "/lowstate";
 using namespace std::chrono_literals;
 
 namespace interface {
-    LowLevelControl::LowLevelControl(rclcpp::Node *node) {
+    LowLevelControl::LowLevelControl(const rclcpp::Node::SharedPtr &node) : node_(node) {
         // Initialize low command
         low_command_ = std::make_unique<unitree_go::msg::LowCmd>();
         low_command_->head = {0xFE, 0xEF};
@@ -22,7 +22,6 @@ namespace interface {
         low_command_->gpio = 0;
 
         // Initialize publisher and subscriber
-        node_ = node;
         publisher_ = node->create_publisher<unitree_go::msg::LowCmd>(REQUEST_TOPIC, 10);
         subscription_ = node->create_subscription<unitree_go::msg::LowState>(
             RESPONSE_TOPIC, 10,

@@ -15,7 +15,7 @@
 namespace interface {
     class LowLevelControl {
     public:
-        explicit LowLevelControl(rclcpp::Node *node);
+        explicit LowLevelControl(const rclcpp::Node::SharedPtr &node);
 
         [[nodiscard]] lowlevel::Leg &frontLeft() const;
 
@@ -36,7 +36,7 @@ namespace interface {
 
         void update_state(const unitree_go::msg::LowState &state) const;
 
-        rclcpp::Node *node_;
+        rclcpp::Node::SharedPtr node_;
         rclcpp::Publisher<unitree_go::msg::LowCmd>::SharedPtr publisher_;
         rclcpp::Subscription<unitree_go::msg::LowState>::SharedPtr subscription_;
 

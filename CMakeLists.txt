@@ -44,30 +44,35 @@ find_package(rosidl_default_generators REQUIRED)
 
 # define executables
 add_executable(
-        highlevel
-        src/interface/HighLevelControl.cpp
-        src/main.cpp
-)
-
-add_executable(
         stand-up
-        src/interface/HighLevelControl.cpp
         src/entrypoints/stand-up.cpp
+        src/interface/HighLevelControl.cpp
+        src/interface/highlevel/UnitreeApi.cpp
 )
 
 add_executable(
         sit-down
-        src/interface/HighLevelControl.cpp
         src/entrypoints/sit-down.cpp
+        src/interface/HighLevelControl.cpp
+        src/interface/highlevel/UnitreeApi.cpp
 )
 
 add_executable(
         lowlevel
-        src/nodes/StandHeightController.cpp
         src/entrypoints/lowlevel.cpp
+        src/controllers/StandHeightController.cpp
         src/interface/lowlevel/Motor.cpp
         src/interface/lowlevel/Leg.cpp
         src/interface/LowLevelControl.cpp
+        src/interface/HighLevelControl.cpp
+        src/interface/highlevel/UnitreeApi.cpp
+)
+
+add_executable(
+        monitor
+        src/entrypoints/monitor.cpp
+        src/interface/HighLevelControl.cpp
+        src/interface/highlevel/UnitreeApi.cpp
 )
 
 # define IDL interfaces
@@ -75,14 +80,14 @@ rosidl_generate_interfaces(${PROJECT_NAME}
         "interfaces/srv/StandHeight.srv"
 )
 
-ament_target_dependencies(highlevel ${DEPENDENCY_LIST})
 ament_target_dependencies(stand-up ${DEPENDENCY_LIST})
 ament_target_dependencies(sit-down ${DEPENDENCY_LIST})
 ament_target_dependencies(lowlevel ${DEPENDENCY_LIST})
+ament_target_dependencies(monitor ${DEPENDENCY_LIST})
 
 install(
         TARGETS
-        highlevel stand-up
+        stand-up sit-down
         ARCHIVE DESTINATION "lib"
         LIBRARY DESTINATION "lib"
         RUNTIME DESTINATION "bin"
