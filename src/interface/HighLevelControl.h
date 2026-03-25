@@ -10,10 +10,10 @@ namespace interface
     public:
         explicit HighLevelControl(const rclcpp::Node::SharedPtr& node);
 
-        std::future<unitree_api::msg::Response::SharedPtr> damp();
-        std::future<unitree_api::msg::Response::SharedPtr> stop_move();
-        std::future<unitree_api::msg::Response::SharedPtr> stand_up();
-        std::future<unitree_api::msg::Response::SharedPtr> sit_down();
+        std::future<const unitree_api::msg::Response::SharedPtr> damp();
+        std::future<const unitree_api::msg::Response::SharedPtr> stop_move();
+        std::future<const unitree_api::msg::Response::SharedPtr> stand_up();
+        std::future<const unitree_api::msg::Response::SharedPtr> sit_down();
     };
 } // interface
 

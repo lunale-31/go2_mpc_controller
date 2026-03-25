@@ -4,18 +4,15 @@
 
 #include "HighLevelControl.h"
 #include <string>
-#include <chrono>
 
+// define API topic (/api/API_TOPIC/request, /api/API_TOPIC/response)
 static const std::string API_TOPIC = "sport";
-static const std::string RESPONSE_TOPIC = "/api/sport/response";
 
+// define Unitree API ids
 static constexpr int64_t API_ID_DAMP = 1001;
 static constexpr int64_t API_ID_STOP_MOVE = 1003;
 static constexpr int64_t API_ID_STAND_UP = 1004;
 static constexpr int64_t API_ID_SIT_DOWN = 1005;
-
-using namespace std::chrono_literals;
-static constexpr auto RESPONSE_TIMEOUT = 500ms;
 
 namespace interface
 {
@@ -24,22 +21,22 @@ namespace interface
         // empty
     }
 
-    std::future<unitree_api::msg::Response::SharedPtr> HighLevelControl::damp()
+    std::future<const unitree_api::msg::Response::SharedPtr> HighLevelControl::damp()
     {
         return call_api(API_ID_DAMP);
     }
 
-    std::future<unitree_api::msg::Response::SharedPtr> HighLevelControl::stop_move()
+    std::future<const unitree_api::msg::Response::SharedPtr> HighLevelControl::stop_move()
     {
         return call_api(API_ID_STOP_MOVE);
     }
 
-    std::future<unitree_api::msg::Response::SharedPtr> HighLevelControl::stand_up()
+    std::future<const unitree_api::msg::Response::SharedPtr> HighLevelControl::stand_up()
     {
         return call_api(API_ID_STAND_UP);
     }
 
-    std::future<unitree_api::msg::Response::SharedPtr> HighLevelControl::sit_down()
+    std::future<const unitree_api::msg::Response::SharedPtr> HighLevelControl::sit_down()
     {
         return call_api(API_ID_SIT_DOWN);
     }
