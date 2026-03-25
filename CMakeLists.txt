@@ -27,6 +27,7 @@ set(
         rclcpp
         std_msgs
         rosbag2_cpp
+        yaml-cpp
 )
 
 # find dependencies
@@ -37,6 +38,7 @@ find_package(unitree_api REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(rosbag2_cpp REQUIRED)
+find_package(yaml-cpp REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
