@@ -7,17 +7,7 @@ namespace controllers::standheight::states {
         (void)controller;
 
         // Load config from params.yaml
-        YAML::Node config = YAML::LoadFile("../params.yaml");
-        max_q = config["max_q"].as<float>();
-        t_max_q = config["t_max_q"].as<float>();
-        min_q = config["min_q"].as<float>();
-        t_min_q = config["t_min_q"].as<float>();
-        dq_pos = config["dq_pos"].as<float>();
-        dq_neg = config["dq_neg"].as<float>();
-        kp = config["kp"].as<float>();
-        kd = config["kd"].as<float>();
-        tau = config["tau"].as<float>();
-
+        auto config = YAML::LoadFile("../params.yaml");
         auto pid_config = config["leg_balancer"];
         pid_ = std::make_unique<common::PidController>(
             pid_config["kp"].as<float>(),
@@ -25,35 +15,17 @@ namespace controllers::standheight::states {
             pid_config["kd"].as<float>()
         );
         setpoint_ = pid_config["setpoint"].as<float>();
+        tau_min_ = pid_config["tau_min"].as<float>();
+        tau_max_ = pid_config["tau_max"].as<float>();
     }
 
     void LegBalancer::timer_tick(Controller *controller) {
-        /*
-        t_ += dt_;
-        if (t_ >= 2 * M_PI)
-            t_ -= 2 * M_PI;
-
-        float pos = (cos(t_) + 1.0) / 2.0; // yields 0.0 <= pos <= 1.0
-
-        float target_q = (1.0 - pos) * min_q + pos * max_q;
-
-        // old code
-        auto &calf = controller->low_level_control()->backRight().calf();
-        calf.mode(0x1);
-        calf.q(target_q);
-        calf.dq(!move_forwards_ ? dq_pos : dq_neg);
-        calf.kp(kp);
-        calf.kd(kd);
-        calf.tau(tau);
-        controller->low_level_control()->publish();
-
-        // */
         auto &calf = controller->low_level_control()->backRight().calf();
 
         float current = calf.state().q;
         float signal = pid_->control(setpoint_, current, 0.02f);
 
-        signal = std::clamp(signal, -15.0f, 15.0f);
+        signal = std::clamp(signal, tau_min_, tau_max_);
 
         calf.mode(0x1);
         calf.q(0.0);

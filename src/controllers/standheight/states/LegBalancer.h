@@ -14,18 +14,11 @@ namespace controllers::standheight::states {
         void timer_tick(Controller *controller) override;
 
     private:
-        bool move_forwards_ = false;
-        float target_q_ = INFINITY;
-
-        // time
-        float t_ = 0;                          // current time
-        const float dt_ = 2 * M_PI / 5 * 0.02; // one revolution every five seconds, at 20ms tick rate
-
-        // parameters
-        float max_q, t_max_q, min_q, t_min_q, dq_pos, dq_neg, kp, kd, tau;
-
         // pid controller
         float setpoint_;
         std::unique_ptr<common::PidController> pid_;
+
+        // signal boundaries
+        float tau_min_, tau_max_;
     };
 } // namespace controllers::standheight::states
