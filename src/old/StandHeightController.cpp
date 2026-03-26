@@ -1,7 +1,3 @@
-//
-// Created by ubuntu on 3/23/26.
-//
-
 #include "StandHeightController.h"
 #include <chrono>
 #include <common/go_constants.h>

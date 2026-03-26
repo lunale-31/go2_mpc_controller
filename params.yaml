@@ -1,17 +1,7 @@
-max_q: -0.9
-t_max_q: -1.1
-min_q: -2.8
-t_min_q: -2.7
-dq_pos: 0.0
-dq_neg: -1.0
-kp: 0.0
-kd: 0.0
-tau: -3.0
-
 leg_balancer:
-  kp: 500.0
-  ki: 10.0
-  kd: 20.0
+  kp: 1200.0
+  ki: 300.0
+  kd: 50.0
   tau_min: -15.0
   tau_max: 15.0 
   setpoint: -1.9

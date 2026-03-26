@@ -1,22 +1,15 @@
-//
-// Created by ubuntu on 3/23/26.
-//
+#pragma once
 
-#ifndef RTSC_UNITREE_ROS2_STANDHEIGHT_H
-#define RTSC_UNITREE_ROS2_STANDHEIGHT_H
 #include <rclcpp/node.hpp>
 
 #include "../interface/LowLevelControl.h"
 #include "../interface/MotionSwitcher.h"
 
-namespace controllers
-{
-    class StandHeightController
-    {
+namespace controllers {
+    class StandHeightController {
     public:
         // Base class for state machine states
-        class StandHeightState
-        {
+        class StandHeightState {
         public:
             virtual void timer_tick(StandHeightController *controller) = 0;
         };
@@ -24,9 +17,9 @@ namespace controllers
         StandHeightController(const rclcpp::Node::SharedPtr &node);
         void switch_state(const std::shared_ptr<StandHeightState> &next);
 
-        rclcpp::Node::SharedPtr& node();
-        interface::LowLevelControl::SharedPtr& low_level_control();
-        interface::MotionSwitcher::SharedPtr& motion_switcher();
+        rclcpp::Node::SharedPtr &node();
+        interface::LowLevelControl::SharedPtr &low_level_control();
+        interface::MotionSwitcher::SharedPtr &motion_switcher();
 
     private:
         void timer_tick();
@@ -39,6 +32,4 @@ namespace controllers
         interface::LowLevelControl::SharedPtr low_level_control_;
         interface::MotionSwitcher::SharedPtr motion_switcher_;
     };
-} // nodes
-
-#endif // RTSC_UNITREE_ROS2_STANDHEIGHT_H
+} // namespace controllers

@@ -1,9 +1,5 @@
-//
-// Created by ubuntu on 3/20/26.
-//
+#pragma once
 
-#ifndef RTSC_UNITREE_ROS2_GO_CONSTANTS_H
-#define RTSC_UNITREE_ROS2_GO_CONSTANTS_H
 #include <cstdint>
 
 namespace common::constants
@@ -38,5 +34,3 @@ namespace common::constants
         LEG_MAX_INDEX = BACK_LEFT_INDEX,
         MOTOR_MAX_INDEX = BL_CALF;
 }
-
-#endif //RTSC_UNITREE_ROS2_GO_CONSTANTS_H

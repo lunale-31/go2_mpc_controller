@@ -1,30 +1,25 @@
-//
-// Created by ubuntu on 3/20/26.
-//
-
-#ifndef RTSC_UNITREE_ROS2_GO_CRC32_H
-#define RTSC_UNITREE_ROS2_GO_CRC32_H
+#pragma once
 
 #include <cstring>
 
-#include "unitree_go/msg/low_cmd.hpp"
 #include "unitree_go/msg/bms_cmd.hpp"
+#include "unitree_go/msg/low_cmd.hpp"
 #include "unitree_go/msg/motor_cmd.hpp"
 
 typedef struct {
-    uint8_t off;  // off 0xA5
+    uint8_t off; // off 0xA5
     std::array<uint8_t, 3> reserve;
 } BmsCmd;
 
 typedef struct {
-    uint8_t mode;  // desired working mode
-    float q;       // desired angle (unit: radian)
-    float dq;      // desired velocity (unit: radian/second)
-    float tau;     // desired output torque (unit: N.m)
-    float Kp;      // desired position stiffness (unit: N.m/rad )
-    float Kd;      // desired velocity stiffness (unit: N.m/(rad/s) )
+    uint8_t mode; // desired working mode
+    float q;      // desired angle (unit: radian)
+    float dq;     // desired velocity (unit: radian/second)
+    float tau;    // desired output torque (unit: N.m)
+    float Kp;     // desired position stiffness (unit: N.m/rad )
+    float Kd;     // desired velocity stiffness (unit: N.m/(rad/s) )
     std::array<uint32_t, 3> reserve;
-} MotorCmd;  // motor control
+} MotorCmd; // motor control
 
 typedef struct {
     std::array<uint8_t, 2> head;
@@ -45,7 +40,7 @@ typedef struct {
     uint32_t crc;
 } LowCmd;
 
-inline uint32_t crc32_core(const uint32_t* ptr, const uint32_t len) {
+inline uint32_t crc32_core(const uint32_t *ptr, const uint32_t len) {
     uint32_t xbit = 0;
     uint32_t data = 0;
     uint32_t CRC32 = 0xFFFFFFFF;
@@ -59,7 +54,8 @@ inline uint32_t crc32_core(const uint32_t* ptr, const uint32_t len) {
                 CRC32 ^= dwPolynomial;
             } else
                 CRC32 <<= 1;
-            if (data & xbit) CRC32 ^= dwPolynomial;
+            if (data & xbit)
+                CRC32 ^= dwPolynomial;
 
             xbit >>= 1;
         }
@@ -67,7 +63,7 @@ inline uint32_t crc32_core(const uint32_t* ptr, const uint32_t len) {
     return CRC32;
 }
 
-inline void set_crc(unitree_go::msg::LowCmd& msg) {
+inline void set_crc(unitree_go::msg::LowCmd &msg) {
     LowCmd raw{};
     memcpy(&raw.head[0], &msg.head[0], 2);
 
@@ -95,14 +91,12 @@ inline void set_crc(unitree_go::msg::LowCmd& msg) {
 
     memcpy(&raw.wirelessRemote[0], &msg.wireless_remote[0], 40);
 
-    memcpy(&raw.led[0], &msg.led[0], 12);  // go2
+    memcpy(&raw.led[0], &msg.led[0], 12); // go2
     memcpy(&raw.fan[0], &msg.fan[0], 2);
-    raw.gpio = msg.gpio;  // go2
+    raw.gpio = msg.gpio; // go2
 
     raw.reserve = msg.reserve;
 
-    raw.crc = crc32_core(reinterpret_cast<uint32_t*>(&raw), (sizeof(LowCmd) >> 2) - 1);
+    raw.crc = crc32_core(reinterpret_cast<uint32_t *>(&raw), (sizeof(LowCmd) >> 2) - 1);
     msg.crc = raw.crc;
 }
-
-#endif //RTSC_UNITREE_ROS2_GO_CRC32_H

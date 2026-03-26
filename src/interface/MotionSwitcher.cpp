@@ -1,7 +1,3 @@
-//
-// Created by ubuntu on 3/23/26.
-//
-
 #include "MotionSwitcher.h"
 #include <nlohmann/json.hpp>
 #include <string>

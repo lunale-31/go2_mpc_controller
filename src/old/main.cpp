@@ -1,7 +1,3 @@
-//
-// Created by ubuntu on 3/23/26.
-//
-
 #include <memory>
 #include <rclcpp/node.hpp>
 #include <rclcpp/executors.hpp>
