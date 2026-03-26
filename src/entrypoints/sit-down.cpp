@@ -36,7 +36,7 @@ int main(const int argc, char* argv[])
     {
     case rclcpp::FutureReturnCode::SUCCESS:
         {
-            const bool future_result = future.get()->header.status.code == 0;
+            const bool future_result = future.get();
             result = future_result ? 0 : 1;
             RCLCPP_INFO(node->get_logger(), "Received result %s", future_result ? "SUCCESS" : "FAILURE");
             break;

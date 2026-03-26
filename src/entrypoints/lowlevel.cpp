@@ -13,7 +13,6 @@
 #include <unitree_go/msg/low_cmd.hpp>
 #include <common/go_constants.h>
 
-
 using namespace std::chrono_literals;
 
 /**
@@ -21,7 +20,7 @@ using namespace std::chrono_literals;
  * @param argc Number of program arguments
  * @param argv Program arguments
  */
-int main(const int argc, char* argv[])
+int main(const int argc, char *argv[])
 {
     rclcpp::init(argc, argv);
 
@@ -32,11 +31,12 @@ int main(const int argc, char* argv[])
 
     // disable high-level controller
     std::this_thread::sleep_for(200ms);
-    high_command.stop_move();
+    high_command.sit_down();
 
+    // /*
     const auto subscription = node->create_subscription<unitree_go::msg::LowCmd>(
         "/lowcmd", 10, [node](const unitree_go::msg::LowCmd &msg)
-        { 
+        {
             // if (msg.motor_cmd[common::constants::BR_HIP].q == 0.0f) return;
 
             RCLCPP_INFO(node->get_logger(),
@@ -58,6 +58,8 @@ int main(const int argc, char* argv[])
                       msg.motor_cmd[common::constants::BR_CALF].tau,
                       msg.motor_cmd[common::constants::BR_CALF].kp,
                       msg.motor_cmd[common::constants::BR_CALF].kd); });
+
+    // */
 
     // execute
     rclcpp::executors::MultiThreadedExecutor executor;

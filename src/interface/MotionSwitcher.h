@@ -1,5 +1,5 @@
-#ifndef RTSC_UNITREE_ROS2_HIGHLEVELCONTROL_H
-#define RTSC_UNITREE_ROS2_HIGHLEVELCONTROL_H
+#ifndef RTSC_UNITREE_ROS2_MOTIONSWITCHER_H
+#define RTSC_UNITREE_ROS2_MOTIONSWITCHER_H
 
 #include "highlevel/UnitreeApi.h"
 
@@ -10,9 +10,11 @@ namespace interface
     public:
         explicit MotionSwitcher(const rclcpp::Node::SharedPtr& node);
 
-        std::future<const unitree_api::msg::Response::SharedPtr> get_silent();
-        std::future<const unitree_api::msg::Response::SharedPtr> set_silent(bool silent);
+        std::future<bool> get_silent();
+        std::future<bool> set_silent(bool silent);
+
+        using SharedPtr = std::shared_ptr<MotionSwitcher>;
     };
 } // interface
 
-#endif //RTSC_UNITREE_ROS2_HIGHLEVELCONTROL_H
+#endif //RTSC_UNITREE_ROS2_MOTIONSWITCHER_H

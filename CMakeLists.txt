@@ -61,11 +61,11 @@ add_executable(
         lowlevel
         src/entrypoints/lowlevel.cpp
         src/controllers/StandHeightController.cpp
+        src/interface/LowLevelControl.cpp
         src/interface/lowlevel/Motor.cpp
         src/interface/lowlevel/Leg.cpp
-        src/interface/highlevel/UnitreeApi.cpp
-        src/interface/LowLevelControl.cpp
         src/interface/HighLevelControl.cpp
+        src/interface/highlevel/UnitreeApi.cpp
         src/interface/MotionSwitcher.cpp
 )
 
