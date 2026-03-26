@@ -2,11 +2,11 @@
 // Created by ubuntu on 3/23/26.
 //
 
-#include <memory>
 #include <chrono>
-#include <string>
-#include <rclcpp/node.hpp>
+#include <memory>
 #include <rclcpp/executors.hpp>
+#include <rclcpp/node.hpp>
+#include <string>
 
 #include "../interface/HighLevelControl.h"
 
@@ -17,8 +17,7 @@ using namespace std::chrono_literals;
  * @param argc Number of program arguments
  * @param argv Program arguments
  */
-int main(const int argc, char* argv[])
-{
+int main(const int argc, char *argv[]) {
     rclcpp::init(argc, argv);
 
     // create node and executor
@@ -33,10 +32,8 @@ int main(const int argc, char* argv[])
     // run the actual command and collect result
     auto future = high_command.stand_up();
     int result = 2;
-    switch (executor.spin_until_future_complete(future, 1000ms))
-    {
-        case rclcpp::FutureReturnCode::SUCCESS:
-        {
+    switch (executor.spin_until_future_complete(future, 1000ms)) {
+        case rclcpp::FutureReturnCode::SUCCESS: {
             const bool future_result = future.get();
             result = future_result ? 0 : 1;
             RCLCPP_INFO(node->get_logger(), "Received result %s", future_result ? "SUCCESS" : "FAILURE");

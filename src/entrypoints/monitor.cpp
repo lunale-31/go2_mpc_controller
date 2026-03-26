@@ -2,14 +2,14 @@
 // Created by ubuntu on 3/23/26.
 //
 
-#include <memory>
 #include <chrono>
-#include <rclcpp/node.hpp>
+#include <common/go_constants.h>
+#include <memory>
 #include <rclcpp/executors.hpp>
-#include <unitree_go/msg/low_cmd.hpp>
+#include <rclcpp/node.hpp>
 #include <unitree_api/msg/request.hpp>
 #include <unitree_api/msg/response.hpp>
-#include <common/go_constants.h>
+#include <unitree_go/msg/low_cmd.hpp>
 
 #include "../interface/HighLevelControl.h"
 
@@ -20,8 +20,7 @@ using namespace std::chrono_literals;
  * @param argc Number of program arguments
  * @param argv Program arguments
  */
-int main(const int argc, char *argv[])
-{
+int main(const int argc, char *argv[]) {
     rclcpp::init(argc, argv);
 
     // create node and subscribe to /lowcmd
@@ -30,8 +29,7 @@ int main(const int argc, char *argv[])
     std::this_thread::sleep_for(200ms);
     // /*
     auto subscription = node->create_subscription<unitree_go::msg::LowCmd>(
-        "/lowcmd", 10, [node](const unitree_go::msg::LowCmd &msg)
-        { 
+        "/lowcmd", 10, [node](const unitree_go::msg::LowCmd &msg) { 
             if (msg.motor_cmd[common::constants::BL_HIP].q == 0.0f) return;
 
             RCLCPP_INFO(node->get_logger(),
@@ -71,21 +69,19 @@ int main(const int argc, char *argv[])
     // run stand up command
     auto future = high_command.sit_down();
     int result = 2;
-    switch (executor.spin_until_future_complete(future, 1000ms))
-    {
-    case rclcpp::FutureReturnCode::SUCCESS:
-    {
-        const bool future_result = future.get();
-        result = future_result ? 0 : 1;
-        RCLCPP_INFO(node->get_logger(), "Received result %s", future_result ? "SUCCESS" : "FAILURE");
-        break;
-    }
-    case rclcpp::FutureReturnCode::TIMEOUT:
-        RCLCPP_ERROR(node->get_logger(), "Ran into timeout.");
-        break;
-    case rclcpp::FutureReturnCode::INTERRUPTED:
-        RCLCPP_ERROR(node->get_logger(), "Node got interrupted.");
-        break;
+    switch (executor.spin_until_future_complete(future, 1000ms)) {
+        case rclcpp::FutureReturnCode::SUCCESS: {
+            const bool future_result = future.get();
+            result = future_result ? 0 : 1;
+            RCLCPP_INFO(node->get_logger(), "Received result %s", future_result ? "SUCCESS" : "FAILURE");
+            break;
+        }
+        case rclcpp::FutureReturnCode::TIMEOUT:
+            RCLCPP_ERROR(node->get_logger(), "Ran into timeout.");
+            break;
+        case rclcpp::FutureReturnCode::INTERRUPTED:
+            RCLCPP_ERROR(node->get_logger(), "Node got interrupted.");
+            break;
     }
 
     executor.spin();

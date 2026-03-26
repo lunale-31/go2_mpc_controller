@@ -2,16 +2,15 @@
 // Created by ubuntu on 3/23/26.
 //
 
-#include <memory>
 #include <chrono>
-#include <rclcpp/node.hpp>
+#include <memory>
 #include <rclcpp/executors.hpp>
+#include <rclcpp/node.hpp>
 
-#include "../controllers/StandHeightController.h"
-#include "../interface/HighLevelControl.h"
+#include "../controllers/standheight/Controller.h"
 
-#include <unitree_go/msg/low_cmd.hpp>
 #include <common/go_constants.h>
+#include <unitree_go/msg/low_cmd.hpp>
 
 using namespace std::chrono_literals;
 
@@ -20,23 +19,18 @@ using namespace std::chrono_literals;
  * @param argc Number of program arguments
  * @param argv Program arguments
  */
-int main(const int argc, char *argv[])
-{
+int main(const int argc, char *argv[]) {
     rclcpp::init(argc, argv);
 
     // create controller
     const rclcpp::Node::SharedPtr node = std::make_shared<rclcpp::Node>("stand_height_node");
-    controllers::StandHeightController controller(node);
-    interface::HighLevelControl high_command(node);
+    controllers::standheight::Controller controller(node);
 
-    // disable high-level controller
     std::this_thread::sleep_for(200ms);
-    high_command.sit_down();
 
     // /*
     const auto subscription = node->create_subscription<unitree_go::msg::LowCmd>(
-        "/lowcmd", 10, [node](const unitree_go::msg::LowCmd &msg)
-        {
+        "/lowcmd", 10, [node](const unitree_go::msg::LowCmd &msg) {
             // if (msg.motor_cmd[common::constants::BR_HIP].q == 0.0f) return;
 
             RCLCPP_INFO(node->get_logger(),

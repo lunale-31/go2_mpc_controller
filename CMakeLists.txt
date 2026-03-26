@@ -60,7 +60,10 @@ add_executable(
 add_executable(
         lowlevel
         src/entrypoints/lowlevel.cpp
-        src/controllers/StandHeightController.cpp
+        src/controllers/standheight/Controller.cpp
+        src/controllers/standheight/states/LegBalancer.cpp
+        src/controllers/standheight/states/MotionSwitcherCheck.cpp
+        src/controllers/standheight/states/MotionSwitcherSet.cpp
         src/interface/LowLevelControl.cpp
         src/interface/lowlevel/Motor.cpp
         src/interface/lowlevel/Leg.cpp
@@ -76,6 +79,13 @@ add_executable(
         src/interface/highlevel/UnitreeApi.cpp
 )
 
+add_executable(
+        motion-switcher
+        src/entrypoints/motion-switcher.cpp
+        src/interface/MotionSwitcher.cpp
+        src/interface/highlevel/UnitreeApi.cpp
+)
+
 # define IDL interfaces
 rosidl_generate_interfaces(${PROJECT_NAME}
         "interfaces/srv/StandHeight.srv"
@@ -85,6 +95,7 @@ ament_target_dependencies(stand-up ${DEPENDENCY_LIST})
 ament_target_dependencies(sit-down ${DEPENDENCY_LIST})
 ament_target_dependencies(lowlevel ${DEPENDENCY_LIST})
 ament_target_dependencies(monitor ${DEPENDENCY_LIST})
+ament_target_dependencies(motion-switcher ${DEPENDENCY_LIST})
 
 install(
         TARGETS
