@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Controller.h"
+#include "../../../common/PidController.h"
 
 namespace controllers::standheight::states {
     /**
@@ -22,5 +23,9 @@ namespace controllers::standheight::states {
 
         // parameters
         float max_q, t_max_q, min_q, t_min_q, dq_pos, dq_neg, kp, kd, tau;
+
+        // pid controller
+        float setpoint_;
+        std::unique_ptr<common::PidController> pid_;
     };
 } // namespace controllers::standheight::states

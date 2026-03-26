@@ -17,9 +17,18 @@ namespace controllers::standheight::states {
         kp = config["kp"].as<float>();
         kd = config["kd"].as<float>();
         tau = config["tau"].as<float>();
+
+        auto pid_config = config["leg_balancer"];
+        pid_ = std::make_unique<common::PidController>(
+            pid_config["kp"].as<float>(),
+            pid_config["ki"].as<float>(),
+            pid_config["kd"].as<float>()
+        );
+        setpoint_ = pid_config["setpoint"].as<float>();
     }
 
     void LegBalancer::timer_tick(Controller *controller) {
+        /*
         t_ += dt_;
         if (t_ >= 2 * M_PI)
             t_ -= 2 * M_PI;
@@ -36,6 +45,22 @@ namespace controllers::standheight::states {
         calf.kp(kp);
         calf.kd(kd);
         calf.tau(tau);
+        controller->low_level_control()->publish();
+
+        // */
+        auto &calf = controller->low_level_control()->backRight().calf();
+
+        float current = calf.state().q;
+        float signal = pid_->control(setpoint_, current, 0.02f);
+
+        signal = std::clamp(signal, -15.0f, 15.0f);
+
+        calf.mode(0x1);
+        calf.q(0.0);
+        calf.dq(0.0);
+        calf.kp(0.0);
+        calf.kd(0.0);
+        calf.tau(signal);
         controller->low_level_control()->publish();
     }
 

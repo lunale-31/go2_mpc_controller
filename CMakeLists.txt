@@ -60,6 +60,7 @@ add_executable(
 add_executable(
         lowlevel
         src/entrypoints/lowlevel.cpp
+        src/common/PidController.cpp
         src/controllers/standheight/Controller.cpp
         src/controllers/standheight/states/LegBalancer.cpp
         src/controllers/standheight/states/MotionSwitcherCheck.cpp

@@ -9,10 +9,15 @@ namespace controllers::standheight::states {
         RCLCPP_INFO(
             controller->node()->get_logger(),
             "Requesting motion to be turned off.");
-        motion_switch_result_ = controller->motion_switcher()->set_silent(true);
     }
 
     void MotionSwitcherSet::timer_tick(Controller *controller) {
+        if (!request_sent_) {
+            motion_switch_result_ = controller->motion_switcher()->set_silent(true);
+            request_sent_ = true;
+            return;
+        }
+        
         RCLCPP_INFO(controller->node()->get_logger(), "Waiting...");
         if (motion_switch_result_.wait_for(100ns) == std::future_status::ready) {
             bool success = motion_switch_result_.get();

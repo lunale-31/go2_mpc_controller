@@ -13,6 +13,7 @@ namespace controllers::standheight::states {
         void timer_tick(Controller *controller) override;
 
     private:
+        bool request_sent_ = false;
         std::future<bool> motion_switch_check_result_;
     };
 } // namespace controllers::standheight::states

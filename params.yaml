@@ -7,3 +7,11 @@ dq_neg: -1.0
 kp: 0.0
 kd: 0.0
 tau: -3.0
+
+leg_balancer:
+  kp: 500.0
+  ki: 10.0
+  kd: 20.0
+  tau_min: -15.0
+  tau_max: 15.0 
+  setpoint: -1.9
