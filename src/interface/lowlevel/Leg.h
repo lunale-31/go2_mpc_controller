@@ -1,9 +1,4 @@
-//
-// Created by ubuntu on 3/23/26.
-//
-
-#ifndef RTSC_UNITREE_ROS2_LEG_H
-#define RTSC_UNITREE_ROS2_LEG_H
+#pragma once
 
 #include "Motor.h"
 
@@ -23,6 +18,4 @@ namespace interface::lowlevel {
         Motor &thigh_;
         Motor &calf_;
     };
-}
-
-#endif //RTSC_UNITREE_ROS2_LEG_H
+} // namespace interface::lowlevel

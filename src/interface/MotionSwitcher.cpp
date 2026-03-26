@@ -2,11 +2,9 @@
 // Created by ubuntu on 3/23/26.
 //
 
-
-
 #include "MotionSwitcher.h"
-#include <string>
 #include <nlohmann/json.hpp>
+#include <string>
 using json = nlohmann::json;
 
 // define API topic (/api/API_TOPIC/request, /api/API_TOPIC/response)
@@ -20,25 +18,21 @@ static bool check_status_code(const unitree_api::msg::Response::SharedPtr &msg) 
     return msg->header.status.code == 0;
 }
 
-namespace interface
-{
-    MotionSwitcher::MotionSwitcher(const rclcpp::Node::SharedPtr &node) : UnitreeApi(API_TOPIC, node)
-    {
+namespace interface {
+    MotionSwitcher::MotionSwitcher(const rclcpp::Node::SharedPtr &node) : UnitreeApi(API_TOPIC, node) {
         // empty
     }
 
-    std::future<bool> MotionSwitcher::get_silent()
-    {
-        auto transformer = [] (const unitree_api::msg::Response::SharedPtr &msg) {
+    std::future<bool> MotionSwitcher::get_silent() {
+        auto transformer = [](const unitree_api::msg::Response::SharedPtr &msg) {
             json resp = json::parse(msg->data);
             return resp["silent"].get<bool>();
         };
         return call_api_and_transform<bool>(API_GET_SILENT, transformer);
     }
 
-    std::future<bool> MotionSwitcher::set_silent(bool silent)
-    {
+    std::future<bool> MotionSwitcher::set_silent(bool silent) {
         json req = {{"silent", silent}};
         return call_api_and_transform<bool>(API_SET_SILENT, check_status_code, req.dump());
     }
-} // interface
+} // namespace interface

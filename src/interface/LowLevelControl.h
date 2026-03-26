@@ -1,16 +1,11 @@
-//
-// Created by ubuntu on 3/23/26.
-//
-
-#ifndef RTSC_UNITREE_ROS2_LOWLEVELCONTROL_H
-#define RTSC_UNITREE_ROS2_LOWLEVELCONTROL_H
+#pragma once
 
 #include <rclcpp/node.hpp>
 #include <unitree_go/msg/low_cmd.hpp>
 #include <unitree_go/msg/low_state.hpp>
 
-#include "lowlevel/Motor.h"
 #include "lowlevel/Leg.h"
+#include "lowlevel/Motor.h"
 
 namespace interface {
     class LowLevelControl {
@@ -48,6 +43,4 @@ namespace interface {
         std::mutex command_mtx_;
         std::unique_ptr<unitree_go::msg::LowCmd> low_command_;
     };
-} // interface
-
-#endif //RTSC_UNITREE_ROS2_LOWLEVELCONTROL_H
+} // namespace interface

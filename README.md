@@ -196,12 +196,23 @@ cmake ..
 cmake --build . -j4
 ```
 
-If everything succeeded, you can now run the following commands:
+If everything succeeded, you can now run the following commands to interact with the dog:
 ```bash
 ./sit-down
 ./stand-up
 ```
 
 ## Structure of this Repository
+The code in this repository is seperated into several directories.
 
-TODO
+- 📂 **include**: Additional headers and libraries used in this repository (e.g. for JSON and CRC)
+- 📂 **interfaces**: Interfaces for ROS2 communication
+- 📂 **src**: Application source code
+    - 📂 **common**: Self-contained utilities that are used in different parts (e.g., the PID controller implementation) 
+    - 📂 **controllers**: Robot controllers
+        - 📂 **standheight**: Stand height controller
+            - 📂 **states**: State machine used in stand height controller
+    - 📂 **entrypoints**: `main()` functions for the binaries 
+    - 📂 **interface**: Wrappers for robot interaction
+    - 📂 **old**: Old code snippets waiting for deletion
+- 📂 **theory**: Notes and scratchpad code

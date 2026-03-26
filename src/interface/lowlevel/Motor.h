@@ -1,9 +1,4 @@
-//
-// Created by ubuntu on 3/23/26.
-//
-
-#ifndef RTSC_UNITREE_ROS2_MOTOR_H
-#define RTSC_UNITREE_ROS2_MOTOR_H
+#pragma once
 
 #include <unitree_go/msg/motor_cmd.hpp>
 #include <unitree_go/msg/motor_state.hpp>
@@ -37,5 +32,3 @@ namespace interface::lowlevel {
         std::mutex &mtx_;
     };
 }
-
-#endif //RTSC_UNITREE_ROS2_MOTOR_H

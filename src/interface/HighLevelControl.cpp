@@ -18,30 +18,24 @@ static bool check_status_code(const unitree_api::msg::Response::SharedPtr &msg) 
     return msg->header.status.code == 0;
 }
 
-namespace interface
-{
-    HighLevelControl::HighLevelControl(const rclcpp::Node::SharedPtr &node) : UnitreeApi(API_TOPIC, node)
-    {
+namespace interface {
+    HighLevelControl::HighLevelControl(const rclcpp::Node::SharedPtr &node) : UnitreeApi(API_TOPIC, node) {
         // empty
     }
 
-    std::future<bool> HighLevelControl::damp()
-    {
+    std::future<bool> HighLevelControl::damp() {
         return call_api_and_transform<bool>(API_ID_DAMP, check_status_code);
     }
 
-    std::future<bool> HighLevelControl::stop_move()
-    {
+    std::future<bool> HighLevelControl::stop_move() {
         return call_api_and_transform<bool>(API_ID_STOP_MOVE, check_status_code);
     }
 
-    std::future<bool> HighLevelControl::stand_up()
-    {
+    std::future<bool> HighLevelControl::stand_up() {
         return call_api_and_transform<bool>(API_ID_STAND_UP, check_status_code);
     }
 
-    std::future<bool> HighLevelControl::sit_down()
-    {
+    std::future<bool> HighLevelControl::sit_down() {
         return call_api_and_transform<bool>(API_ID_SIT_DOWN, check_status_code);
     }
-} // interface
+} // namespace interface

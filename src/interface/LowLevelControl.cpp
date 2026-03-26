@@ -25,8 +25,7 @@ namespace interface {
         publisher_ = node->create_publisher<unitree_go::msg::LowCmd>(REQUEST_TOPIC, 10);
         subscription_ = node->create_subscription<unitree_go::msg::LowState>(
             RESPONSE_TOPIC, 10,
-            std::bind(&LowLevelControl::update_state, this, std::placeholders::_1)
-        );
+            std::bind(&LowLevelControl::update_state, this, std::placeholders::_1));
 
         // Initialize motors and legs
         initialize_motors();
@@ -60,23 +59,19 @@ namespace interface {
         legs_[common::constants::FRONT_LEFT_INDEX] = std::make_unique<lowlevel::Leg>(
             *motors_[common::constants::FL_HIP],
             *motors_[common::constants::FL_THIGH],
-            *motors_[common::constants::FL_CALF]
-        );
+            *motors_[common::constants::FL_CALF]);
         legs_[common::constants::FRONT_RIGHT_INDEX] = std::make_unique<lowlevel::Leg>(
             *motors_[common::constants::FR_HIP],
             *motors_[common::constants::FR_THIGH],
-            *motors_[common::constants::FR_CALF]
-        );
+            *motors_[common::constants::FR_CALF]);
         legs_[common::constants::BACK_LEFT_INDEX] = std::make_unique<lowlevel::Leg>(
             *motors_[common::constants::BL_HIP],
             *motors_[common::constants::BL_THIGH],
-            *motors_[common::constants::BL_CALF]
-        );
+            *motors_[common::constants::BL_CALF]);
         legs_[common::constants::BACK_RIGHT_INDEX] = std::make_unique<lowlevel::Leg>(
             *motors_[common::constants::BR_HIP],
             *motors_[common::constants::BR_THIGH],
-            *motors_[common::constants::BR_CALF]
-        );
+            *motors_[common::constants::BR_CALF]);
     }
 
     void LowLevelControl::update_state(const unitree_go::msg::LowState &state) const {
@@ -93,4 +88,4 @@ namespace interface {
         set_crc(*low_command_);
         publisher_->publish(*low_command_);
     }
-} // interface
+} // namespace interface

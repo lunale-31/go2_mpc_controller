@@ -1,14 +1,11 @@
-#ifndef RTSC_UNITREE_ROS2_HIGHLEVELCONTROL_H
-#define RTSC_UNITREE_ROS2_HIGHLEVELCONTROL_H
+#pragma once
 
 #include "highlevel/UnitreeApi.h"
 
-namespace interface
-{
-    class HighLevelControl : highlevel::UnitreeApi
-    {
+namespace interface {
+    class HighLevelControl : highlevel::UnitreeApi {
     public:
-        explicit HighLevelControl(const rclcpp::Node::SharedPtr& node);
+        explicit HighLevelControl(const rclcpp::Node::SharedPtr &node);
 
         std::future<bool> damp();
         std::future<bool> stop_move();
@@ -17,6 +14,4 @@ namespace interface
 
         using SharedPtr = std::shared_ptr<HighLevelControl>;
     };
-} // interface
-
-#endif //RTSC_UNITREE_ROS2_HIGHLEVELCONTROL_H
+} // namespace interface
