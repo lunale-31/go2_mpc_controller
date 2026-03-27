@@ -1,21 +1,34 @@
 #pragma once
 
-#include "Motor.h"
+#include "Joint.h"
 
 namespace interface::lowlevel {
     class Leg {
     public:
-        Leg(Motor &hip, Motor &thigh, Motor &calf);
+        /**
+         * Constructor.
+         * Only to be invoked by the LowLevelControl constructor.
+         */
+        Leg(Joint &hip, Joint &thigh, Joint &calf);
 
-        Motor &hip() const;
+        /**
+         * Gets the hip (top-most) joint.
+         */
+        Joint &hip() const;
 
-        Motor &thigh() const;
+        /**
+         * Gets the thigh (middle) joint.
+         */
+        Joint &thigh() const;
 
-        Motor &calf() const;
+        /**
+         * Gets the calf (lower-most) joint.
+         */
+        Joint &calf() const;
 
     private:
-        Motor &hip_;
-        Motor &thigh_;
-        Motor &calf_;
+        Joint &hip_;
+        Joint &thigh_;
+        Joint &calf_;
     };
 } // namespace interface::lowlevel

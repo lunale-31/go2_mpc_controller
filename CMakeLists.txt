@@ -66,7 +66,7 @@ add_executable(
         src/controllers/standheight/states/MotionSwitcherCheck.cpp
         src/controllers/standheight/states/MotionSwitcherSet.cpp
         src/interface/LowLevelControl.cpp
-        src/interface/lowlevel/Motor.cpp
+        src/interface/lowlevel/Joint.cpp
         src/interface/lowlevel/Leg.cpp
         src/interface/HighLevelControl.cpp
         src/interface/highlevel/UnitreeApi.cpp

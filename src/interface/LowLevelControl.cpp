@@ -47,7 +47,7 @@ namespace interface {
     void LowLevelControl::initialize_motors() {
         // initialize motors
         for (uint8_t i = 0; i <= common::constants::MOTOR_MAX_INDEX; ++i) {
-            motors_[i] = std::make_unique<lowlevel::Motor>(low_command_->motor_cmd[i], command_mtx_);
+            motors_[i] = std::make_unique<lowlevel::Joint>(low_command_->motor_cmd[i], command_mtx_);
         }
     }
 

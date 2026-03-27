@@ -5,21 +5,40 @@
 #include <unitree_go/msg/low_state.hpp>
 
 #include "lowlevel/Leg.h"
-#include "lowlevel/Motor.h"
+#include "lowlevel/Joint.h"
 
 namespace interface {
     class LowLevelControl {
     public:
+        /**
+         * Constructor.
+         * @param node A reference to a ROS2 node used to interface with the robot.
+         */
         explicit LowLevelControl(const rclcpp::Node::SharedPtr &node);
 
+        /**
+         * Gets the front-left leg.
+         */
         [[nodiscard]] lowlevel::Leg &frontLeft() const;
 
+        /**
+         * Gets the front-right leg.
+         */
         [[nodiscard]] lowlevel::Leg &frontRight() const;
 
+        /**
+         * Gets the back-left leg.
+         */
         [[nodiscard]] lowlevel::Leg &backLeft() const;
 
+        /**
+         * Gets the back-right leg.
+         */
         [[nodiscard]] lowlevel::Leg &backRight() const;
 
+        /**
+         * Sends all current joint commands to the robot. 
+         */
         void publish();
 
         using SharedPtr = std::shared_ptr<LowLevelControl>;
@@ -36,7 +55,7 @@ namespace interface {
         rclcpp::Subscription<unitree_go::msg::LowState>::SharedPtr subscription_;
 
         // motors and locks
-        std::unique_ptr<lowlevel::Motor> motors_[12];
+        std::unique_ptr<lowlevel::Joint> motors_[12];
         std::unique_ptr<lowlevel::Leg> legs_[4];
 
         // command

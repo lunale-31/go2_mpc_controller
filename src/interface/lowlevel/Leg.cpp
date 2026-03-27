@@ -1,19 +1,19 @@
 #include "Leg.h"
 
 namespace interface::lowlevel {
-    Motor &Leg::hip() const {
+    Joint &Leg::hip() const {
         return hip_;
     }
 
-    Motor &Leg::thigh() const {
+    Joint &Leg::thigh() const {
         return thigh_;
     }
 
-    Motor &Leg::calf() const {
+    Joint &Leg::calf() const {
         return calf_;
     }
 
-    Leg::Leg(Motor &hip, Motor &thigh, Motor &calf) : hip_(hip), thigh_(thigh), calf_(calf) {
+    Leg::Leg(Joint &hip, Joint &thigh, Joint &calf) : hip_(hip), thigh_(thigh), calf_(calf) {
         // empty
     }
 } // namespace interface::lowlevel
