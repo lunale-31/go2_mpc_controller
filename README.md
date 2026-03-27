@@ -15,6 +15,7 @@ Once you have the requirements set up, you can proceed to the [Compiling the Cod
 ## Structure of this Repository
 The code in this repository is seperated into several directories.
 
+- 📂 **docs**: Documentation and guides
 - 📂 **include**: Additional headers and libraries used in this repository (e.g. for JSON and CRC)
 - 📂 **interfaces**: Interfaces for ROS2 communication
 - 📂 **src**: Application source code
