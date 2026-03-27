@@ -8,7 +8,7 @@ This mode requires to have the inbuilt controller of the robot to bee turned off
 
 ## Switching the Inbuilt Controller On or Off
 The inbuilt motion controller can be controlled via the [Motion Switcher Service Interface](https://support.unitree.com/home/en/developer/Motion%20Switcher%20Service%20Interface).
-We provide the [MotionSwitcher class](../../src/interface/MotionSwitcher.h) as a wrapper for this.
+We provide the [`MotionSwitcher` class](../../src/interface/MotionSwitcher.h) as a wrapper for this.
 In Unitree's terminology, the inbuilt controller can be _turned silent_ (`MotionSwitcher::set_silent(true)`) to disable it, or _unsilenced_ (`MotionSwitcher::set_silent(false)`) to reenable it.
 For this change to take effect, the robot must be restarted (i.e., powered off and back on entirely).
 If the inbuilt controller is silenced, the robot will _not_ stand up when turned on.

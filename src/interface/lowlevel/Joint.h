@@ -33,13 +33,13 @@ namespace interface::lowlevel {
 
         /**
          * Sets the desired joint angle, controlled by the internal PD controller.
-         * @param val The desired angle.
+         * @param val The desired angle, in radians.
          */
         void q(float val) const;
 
         /**
          * Sets the desired joint angular velocity, controlled by the internal PD controller.
-         * @param val The desired angular velocity.
+         * @param val The desired angular velocity, in radians per second.
          */
         void dq(float val) const;
 

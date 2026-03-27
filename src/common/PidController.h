@@ -7,7 +7,7 @@ namespace common {
     class PidController {
     public:
         /**
-         * Constructor
+         * Constructor.
          * @param kp The proportional gain
          * @param ki The integral gain
          * @param kd The derivative gain
@@ -15,7 +15,7 @@ namespace common {
         PidController(const float kp, const float ki, const float kd);
 
         /**
-         * Computes the control signal
+         * Computes the control signal.
          * @param setpoint The setpoint (target value)
          * @param current The current value
          * @param dt The time delta

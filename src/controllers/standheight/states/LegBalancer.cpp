@@ -23,7 +23,7 @@ namespace controllers::standheight::states {
         auto &calf = controller->low_level_control()->backRight().calf();
 
         float current = calf.state().q;
-        float signal = pid_->control(setpoint_, current, 0.02f);
+        float signal = pid_->control(setpoint_, current, 0.002f);
 
         signal = std::clamp(signal, tau_min_, tau_max_);
 

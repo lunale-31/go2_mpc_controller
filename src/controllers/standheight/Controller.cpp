@@ -11,7 +11,7 @@ namespace controllers::standheight {
         motion_switcher_ = std::make_shared<interface::MotionSwitcher>(node);
 
         // Initialize timer
-        timer_ = node_->create_wall_timer(20ms, std::bind(&Controller::timer_tick, this));
+        timer_ = node_->create_wall_timer(2ms, std::bind(&Controller::timer_tick, this));
 
         /*
         auto low_state_subscription_ = node_->create_subscription<unitree_go::msg::LowState>(
