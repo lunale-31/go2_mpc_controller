@@ -6,13 +6,21 @@ namespace common {
         reset();
     }
 
-    float PidController::control(const float setpoint, const float current, const float dt) {
-        const float error = setpoint - current;
+    void PidController::setpoint(const float setpoint) {
+        setpoint_ = setpoint;
+    }
+
+    float PidController::setpoint() {
+        return setpoint_;
+    }
+
+    float PidController::control(const float current, const float dt) {
+        const float error = setpoint_ - current;
         const float derivative = dt > 0.0f ? (error - prev_error_) / dt : 0.0f;
         acc_error_ += error * dt;
         const float signal = error * kp_ + acc_error_ * ki_ + derivative * kd_; 
         prev_error_ = error;
-        return signal * dt;
+        return signal;
     }
 
     void PidController::reset() {

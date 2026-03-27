@@ -15,7 +15,6 @@ namespace controllers::standheight::states {
 
     private:
         // pid controller
-        float setpoint_;
         std::unique_ptr<common::PidController> pid_;
 
         // signal boundaries

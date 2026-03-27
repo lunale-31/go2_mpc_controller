@@ -79,8 +79,7 @@ namespace interface {
 
     void LowLevelControl::publish() {
         std::lock_guard guard(command_mtx_);
-        // TODO: Prepare and send low-level motor commands here
-        RCLCPP_WARN(node_->get_logger(), "Publishing to the robot: tau = %f", low_command_->motor_cmd[common::constants::BR_CALF].tau);
+        // RCLCPP_WARN(node_->get_logger(), "Publishing to the robot: tau = %f", low_command_->motor_cmd[common::constants::BR_CALF].tau);
         set_crc(*low_command_);
         publisher_->publish(*low_command_);
     }

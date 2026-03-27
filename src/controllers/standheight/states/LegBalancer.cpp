@@ -14,7 +14,7 @@ namespace controllers::standheight::states {
             pid_config["ki"].as<float>(),
             pid_config["kd"].as<float>()
         );
-        setpoint_ = pid_config["setpoint"].as<float>();
+        pid_->setpoint(pid_config["setpoint"].as<float>());
         tau_min_ = pid_config["tau_min"].as<float>();
         tau_max_ = pid_config["tau_max"].as<float>();
     }
@@ -23,10 +23,15 @@ namespace controllers::standheight::states {
         auto &calf = controller->low_level_control()->backRight().calf();
 
         float current = calf.state().q;
-        float signal = pid_->control(setpoint_, current, 0.002f);
+        float signal = pid_->control(current, 0.002f /* seconds */); // 2 ms period
+
+        RCLCPP_INFO(
+            controller->node()->get_logger(),
+            "Current pos: %.4f | Error: %.4f | Signal: %.4f", 
+            current, current - pid_->setpoint(), signal
+        );
 
         signal = std::clamp(signal, tau_min_, tau_max_);
-
         calf.mode(0x1);
         calf.q(0.0);
         calf.dq(0.0);

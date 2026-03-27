@@ -15,12 +15,22 @@ namespace common {
         PidController(const float kp, const float ki, const float kd);
 
         /**
+         * Updates the setpoint.
+         * @param setpoint The new setpoint
+         */
+        void setpoint(const float setpoint);
+
+        /**
+         * Gets the current setpoint.
+         */
+        float setpoint();
+
+        /**
          * Computes the control signal.
-         * @param setpoint The setpoint (target value)
          * @param current The current value
          * @param dt The time delta
          */
-        float control(const float setpoint, const float current, const float dt);
+        float control(const float current, const float dt);
 
         /**
          * Resets the internal state of the PID controller
@@ -36,5 +46,8 @@ namespace common {
 
         // Accumulated error
         float acc_error_;
+
+        // Setpoint
+        float setpoint_ = 0.0f;
     };
 } // namespace common

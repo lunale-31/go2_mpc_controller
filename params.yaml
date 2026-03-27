@@ -1,7 +1,28 @@
 leg_balancer:
-  kp: 1200.0
-  ki: 300.0
-  kd: 50.0
+  kp: 20.0
+  ki: 6.0
+  kd: 1.0
   tau_min: -15.0
   tau_max: 15.0 
   setpoint: -1.9
+  hip:
+    kp: 3.0
+    ki: 0.003
+    kd: 1.0
+    tau_min: -15.0
+    tau_max: 15.0 
+    setpoint: 0.0
+  thigh:
+    kp: 3.0
+    ki: 0.003
+    kd: 1.0
+    tau_min: -15.0
+    tau_max: 15.0 
+    setpoint: 0.3
+  calf:
+    kp: 3.0
+    ki: 0.003
+    kd: 1.0
+    tau_min: -15.0
+    tau_max: 15.0 
+    setpoint: -1.4
