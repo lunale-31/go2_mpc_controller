@@ -61,6 +61,8 @@ namespace interface::lowlevel {
          */
         void tau(float val) const;
 
+        using SharedPtr = std::shared_ptr<Joint>;
+
     private:
         unitree_go::msg::MotorCmd &motor_cmd_;
         unitree_go::msg::MotorState state_;

@@ -19,22 +19,22 @@ namespace interface {
         /**
          * Gets the front-left leg.
          */
-        [[nodiscard]] lowlevel::Leg &frontLeft() const;
+        [[nodiscard]] lowlevel::Leg::SharedPtr &frontLeft();
 
         /**
          * Gets the front-right leg.
          */
-        [[nodiscard]] lowlevel::Leg &frontRight() const;
+        [[nodiscard]] lowlevel::Leg::SharedPtr &frontRight();
 
         /**
          * Gets the back-left leg.
          */
-        [[nodiscard]] lowlevel::Leg &backLeft() const;
+        [[nodiscard]] lowlevel::Leg::SharedPtr &backLeft();
 
         /**
          * Gets the back-right leg.
          */
-        [[nodiscard]] lowlevel::Leg &backRight() const;
+        [[nodiscard]] lowlevel::Leg::SharedPtr &backRight();
 
         /**
          * Sends all current joint commands to the robot. 
@@ -55,8 +55,8 @@ namespace interface {
         rclcpp::Subscription<unitree_go::msg::LowState>::SharedPtr subscription_;
 
         // motors and locks
-        std::unique_ptr<lowlevel::Joint> motors_[12];
-        std::unique_ptr<lowlevel::Leg> legs_[4];
+        lowlevel::Joint::SharedPtr motors_[12];
+        lowlevel::Leg::SharedPtr legs_[4];
 
         // command
         std::mutex command_mtx_;

@@ -28,46 +28,46 @@ namespace interface {
         initialize_legs();
     }
 
-    lowlevel::Leg &LowLevelControl::frontLeft() const {
-        return *legs_[common::constants::FRONT_LEFT_INDEX];
+    lowlevel::Leg::SharedPtr &LowLevelControl::frontLeft() {
+        return legs_[common::constants::FRONT_LEFT_INDEX];
     }
 
-    lowlevel::Leg &LowLevelControl::frontRight() const {
-        return *legs_[common::constants::FRONT_RIGHT_INDEX];
+    lowlevel::Leg::SharedPtr &LowLevelControl::frontRight() {
+        return legs_[common::constants::FRONT_RIGHT_INDEX];
     }
 
-    lowlevel::Leg &LowLevelControl::backLeft() const {
-        return *legs_[common::constants::BACK_LEFT_INDEX];
+    lowlevel::Leg::SharedPtr &LowLevelControl::backLeft() {
+        return legs_[common::constants::BACK_LEFT_INDEX];
     }
 
-    lowlevel::Leg &LowLevelControl::backRight() const {
-        return *legs_[common::constants::BACK_RIGHT_INDEX];
+    lowlevel::Leg::SharedPtr &LowLevelControl::backRight() {
+        return legs_[common::constants::BACK_RIGHT_INDEX];
     }
 
     void LowLevelControl::initialize_motors() {
         // initialize motors
         for (uint8_t i = 0; i <= common::constants::MOTOR_MAX_INDEX; ++i) {
-            motors_[i] = std::make_unique<lowlevel::Joint>(low_command_->motor_cmd[i], command_mtx_);
+            motors_[i] = std::make_shared<lowlevel::Joint>(low_command_->motor_cmd[i], command_mtx_);
         }
     }
 
     void LowLevelControl::initialize_legs() {
-        legs_[common::constants::FRONT_LEFT_INDEX] = std::make_unique<lowlevel::Leg>(
-            *motors_[common::constants::FL_HIP],
-            *motors_[common::constants::FL_THIGH],
-            *motors_[common::constants::FL_CALF]);
-        legs_[common::constants::FRONT_RIGHT_INDEX] = std::make_unique<lowlevel::Leg>(
-            *motors_[common::constants::FR_HIP],
-            *motors_[common::constants::FR_THIGH],
-            *motors_[common::constants::FR_CALF]);
-        legs_[common::constants::BACK_LEFT_INDEX] = std::make_unique<lowlevel::Leg>(
-            *motors_[common::constants::BL_HIP],
-            *motors_[common::constants::BL_THIGH],
-            *motors_[common::constants::BL_CALF]);
-        legs_[common::constants::BACK_RIGHT_INDEX] = std::make_unique<lowlevel::Leg>(
-            *motors_[common::constants::BR_HIP],
-            *motors_[common::constants::BR_THIGH],
-            *motors_[common::constants::BR_CALF]);
+        legs_[common::constants::FRONT_LEFT_INDEX] = std::make_shared<lowlevel::Leg>(
+            motors_[common::constants::FL_HIP],
+            motors_[common::constants::FL_THIGH],
+            motors_[common::constants::FL_CALF]);
+        legs_[common::constants::FRONT_RIGHT_INDEX] = std::make_shared<lowlevel::Leg>(
+            motors_[common::constants::FR_HIP],
+            motors_[common::constants::FR_THIGH],
+            motors_[common::constants::FR_CALF]);
+        legs_[common::constants::BACK_LEFT_INDEX] = std::make_shared<lowlevel::Leg>(
+            motors_[common::constants::BL_HIP],
+            motors_[common::constants::BL_THIGH],
+            motors_[common::constants::BL_CALF]);
+        legs_[common::constants::BACK_RIGHT_INDEX] = std::make_shared<lowlevel::Leg>(
+            motors_[common::constants::BR_HIP],
+            motors_[common::constants::BR_THIGH],
+            motors_[common::constants::BR_CALF]);
     }
 
     void LowLevelControl::update_state(const unitree_go::msg::LowState &state) const {
