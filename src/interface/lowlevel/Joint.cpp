@@ -1,4 +1,4 @@
-#include "Motor.h"
+#include "Joint.h"
 
 namespace interface::lowlevel {
     void Joint::mode(const int val) const {
