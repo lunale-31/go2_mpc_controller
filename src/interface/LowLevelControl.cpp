@@ -44,6 +44,10 @@ namespace interface {
         return legs_[common::constants::BACK_RIGHT_INDEX];
     }
 
+    lowlevel::Leg::SharedPtr &LowLevelControl::leg(unsigned index) {
+        return legs_[index];
+    }
+
     void LowLevelControl::initialize_motors() {
         // initialize motors
         for (uint8_t i = 0; i <= common::constants::MOTOR_MAX_INDEX; ++i) {
@@ -79,7 +83,7 @@ namespace interface {
 
     void LowLevelControl::publish() {
         std::lock_guard guard(command_mtx_);
-        // RCLCPP_WARN(node_->get_logger(), "Publishing to the robot: tau = %f", low_command_->motor_cmd[common::constants::BR_CALF].tau);
+        // RCLCPP_WARN(node_->get_logger(), "Publishing to the robot: tau = %f", low_command_->motor_cmd[common::constants::FR_CALF].tau);
         set_crc(*low_command_);
         publisher_->publish(*low_command_);
     }

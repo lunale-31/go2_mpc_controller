@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 
 namespace common {
     /**
@@ -36,6 +37,9 @@ namespace common {
          * Resets the internal state of the PID controller
          */
         void reset();
+
+        using SharedPtr = std::shared_ptr<PidController>;
+        using UniquePtr = std::unique_ptr<PidController>;
 
     private:
         // PID gains

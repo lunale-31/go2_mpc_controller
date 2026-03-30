@@ -1,7 +1,41 @@
 leg_balancer:
-  tau_min: -25.0
-  tau_max: 25.0
+  tau_min: -10.0
+  tau_max: 10.0
 
+  hip:
+    setpoint: 0.0
+    position:
+      kp: 8.0
+      ki: 0.3
+      kd: 1.0
+    velocity:
+      kp: 1.0
+      ki: 0.3
+      kd: 0.0
+
+  thigh:
+    setpoint: 0.3
+    position:
+      kp: 8.0
+      ki: 0.3
+      kd: 1.0
+    velocity:
+      kp: 1.0
+      ki: 0.3
+      kd: 0.0
+
+  calf:
+    setpoint: -1.4
+    position:
+      kp: 8.0
+      ki: 0.3
+      kd: 1.0
+    velocity:
+      kp: 1.0
+      ki: 0.3
+      kd: 0.0
+
+old:
   hip:
     kp: 14.0
     ki: 2.0

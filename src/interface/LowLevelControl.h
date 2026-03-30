@@ -37,6 +37,11 @@ namespace interface {
         [[nodiscard]] lowlevel::Leg::SharedPtr &backRight();
 
         /**
+         * Gets a leg by index.
+         */
+        lowlevel::Leg::SharedPtr &leg(unsigned index);
+
+        /**
          * Sends all current joint commands to the robot. 
          */
         void publish();

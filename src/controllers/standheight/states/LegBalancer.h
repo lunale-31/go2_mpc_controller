@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../Controller.h"
-#include "../../../common/PidController.h"
+#include "../controller/CascadedJointController.h"
 
 namespace controllers::standheight::states {
     /**
@@ -17,14 +17,21 @@ namespace controllers::standheight::states {
         // signal boundaries
         float tau_min_, tau_max_;
 
+        // cascaded PID controllers
+        controller::CascadedJointController::UniquePtr hip_controllers_[4];
+        controller::CascadedJointController::UniquePtr thigh_controllers_[4];
+        controller::CascadedJointController::UniquePtr calf_controllers_[4];
+
+        /*
         // joints
         interface::lowlevel::Joint::SharedPtr hip_joints_[4];
         interface::lowlevel::Joint::SharedPtr thigh_joints_[4];
         interface::lowlevel::Joint::SharedPtr calf_joints_[4];
 
         // pid controllers
-        std::unique_ptr<common::PidController> hip_pids_[4];
-        std::unique_ptr<common::PidController> thigh_pids_[4];
-        std::unique_ptr<common::PidController> calf_pids_[4];
+        common::PidController::UniquePtr hip_pids_[4];
+        common::PidController::UniquePtr thigh_pids_[4];
+        common::PidController::UniquePtr calf_pids_[4];
+        */
     };
 } // namespace controllers::standheight::states

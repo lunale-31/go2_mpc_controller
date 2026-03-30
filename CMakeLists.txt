@@ -65,6 +65,7 @@ add_executable(
         src/controllers/standheight/states/LegBalancer.cpp
         src/controllers/standheight/states/MotionSwitcherCheck.cpp
         src/controllers/standheight/states/MotionSwitcherSet.cpp
+        src/controllers/standheight/controller/CascadedJointController.cpp
         src/interface/LowLevelControl.cpp
         src/interface/lowlevel/Joint.cpp
         src/interface/lowlevel/Leg.cpp
