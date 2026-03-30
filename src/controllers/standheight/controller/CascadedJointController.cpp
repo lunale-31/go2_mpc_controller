@@ -1,6 +1,7 @@
 #include "CascadedJointController.h"
-
 #include <cstdio>
+
+#define INNER_LOOP_FACTOR 10
 
 namespace controllers::standheight::controller {
 
@@ -14,16 +15,24 @@ namespace controllers::standheight::controller {
 
     void CascadedJointController::control(float dt) {
         auto state = joint_->state();
-        const float velo_setpoint = position_pid_->control(state.q, dt);
-        velocity_pid_->setpoint(velo_setpoint);
+        
+        if (inner_count_ == 0) {
+            const float velo_setpoint = position_pid_->control(state.q, dt * INNER_LOOP_FACTOR);
+            velocity_pid_->setpoint(velo_setpoint);
+        }
+
+        if (++inner_count_ == INNER_LOOP_FACTOR) {
+            inner_count_ = 0;
+        }
+
         const float torque_signal = velocity_pid_->control(state.dq, dt);
         const float bounded_torque = std::clamp(torque_signal, tau_min_, tau_max_);
         printf(
-            "q_curr: %+.4f, q_sp: %+.4f, dq_curr: %+.4f, dq_sp: %+.4f, tau_raw: %+.4f, tau_bound %+.4f\n",
+            "q_curr: %+.4f, q_sp: %+.4f  |  dq_curr: %+.4f, dq_sp: %+.4f  |  tau_raw: %+.4f, tau_bound %+.4f\n",
             state.q, 
             position_pid_->setpoint(),
             state.dq,
-            velo_setpoint,
+            velocity_pid_->setpoint(),
             torque_signal,
             bounded_torque
         );

@@ -35,5 +35,7 @@ namespace controllers::standheight::controller {
         common::PidController::UniquePtr position_pid_;
         common::PidController::UniquePtr velocity_pid_;
         float tau_min_, tau_max_; // torque bounds
+
+        unsigned inner_count_ = 0;
     };
 } // namespace controllers::standheight::controller

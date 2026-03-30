@@ -48,6 +48,10 @@ namespace controllers::standheight::states {
         const float setpoint_thigh = thigh_config["setpoint"].as<float>();
         const float setpoint_calf = calf_config["setpoint"].as<float>();
 
+        hips_enabled_ = hip_config["enabled"].as<bool>();
+        thighs_enabled_ = thigh_config["enabled"].as<bool>();
+        calfs_enabled_ = calf_config["enabled"].as<bool>();
+
         // initialize cascaded controllers
         auto &llc = controller->low_level_control();
         for (int i = 0; i < 4; ++i) {
@@ -57,37 +61,34 @@ namespace controllers::standheight::states {
             hip_controllers_[i] = std::make_unique<controller::CascadedJointController>(
                 leg->hip(),
                 setpoint_hip,
-                cjc_config_hip
-            );
+                cjc_config_hip);
 
             // thigh
             thigh_controllers_[i] = std::make_unique<controller::CascadedJointController>(
                 leg->thigh(),
                 setpoint_thigh,
-                cjc_config_thigh
-            );
-            
+                cjc_config_thigh);
+
             // calf
             calf_controllers_[i] = std::make_unique<controller::CascadedJointController>(
                 leg->calf(),
                 setpoint_calf,
-                cjc_config_calf
-            );
+                cjc_config_calf);
         }
     }
 
     void LegBalancer::timer_tick(Controller *controller) {
         for (int i = 0; i < 4; ++i) {
-            hip_controllers_[i]->control(0.02f /* seconds */);
-            //thigh_controllers_[i]->control(0.02f /* seconds */);
-            //calf_controllers_[i]->control(0.02f /* seconds */);
+            if (hips_enabled_) hip_controllers_[i]->control(0.02f /* seconds */);
+            if (thighs_enabled_) thigh_controllers_[i]->control(0.02f /* seconds */);
+            if (calfs_enabled_) calf_controllers_[i]->control(0.02f /* seconds */);
         }
 
         // hip_controllers_[0]->control(0.02);
         // thigh_controllers_[0]->control(0.02);
-        calf_controllers_[common::constants::BACK_LEFT_INDEX]->control(0.02);
+        // calf_controllers_[common::constants::BACK_LEFT_INDEX]->control(0.02);
 
-        controller->low_level_control()->backLeft()->calf()->tau(0.0);
+        // controller->low_level_control()->backLeft()->calf()->tau(0.0);
         controller->low_level_control()->publish();
     }
 

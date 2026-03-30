@@ -3,36 +3,39 @@ leg_balancer:
   tau_max: 10.0
 
   hip:
+    enabled: true
     setpoint: 0.0
     position:
-      kp: 8.0
-      ki: 0.3
-      kd: 1.0
+      kp: 5.0
+      ki: 0.2
+      kd: 0.0
     velocity:
       kp: 1.0
-      ki: 0.3
+      ki: 0.0
       kd: 0.0
 
   thigh:
+    enabled: true
     setpoint: 0.3
     position:
-      kp: 8.0
-      ki: 0.3
-      kd: 1.0
+      kp: 5.0
+      ki: 0.2
+      kd: 0.0
     velocity:
       kp: 1.0
-      ki: 0.3
+      ki: 0.0
       kd: 0.0
 
   calf:
+    enabled: true
     setpoint: -1.4
     position:
-      kp: 8.0
-      ki: 0.3
-      kd: 1.0
+      kp: 5.0
+      ki: 0.2
+      kd: 0.0
     velocity:
       kp: 1.0
-      ki: 0.3
+      ki: 0.0
       kd: 0.0
 
 old:

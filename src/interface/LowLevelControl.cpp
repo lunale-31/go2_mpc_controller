@@ -76,7 +76,7 @@ namespace interface {
 
     void LowLevelControl::update_state(const unitree_go::msg::LowState &state) const {
         // Distribute motor state to motor wrappers
-        for (int i = 0; i < common::constants::MOTOR_MAX_INDEX; ++i) {
+        for (int i = 0; i <= common::constants::MOTOR_MAX_INDEX; ++i) {
             this->motors_[i]->state(state.motor_state[i]);
         }
     }

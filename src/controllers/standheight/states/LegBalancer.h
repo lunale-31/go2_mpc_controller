@@ -22,6 +22,9 @@ namespace controllers::standheight::states {
         controller::CascadedJointController::UniquePtr thigh_controllers_[4];
         controller::CascadedJointController::UniquePtr calf_controllers_[4];
 
+        // controller enabled?
+        bool hips_enabled_, thighs_enabled_, calfs_enabled_;
+
         /*
         // joints
         interface::lowlevel::Joint::SharedPtr hip_joints_[4];
