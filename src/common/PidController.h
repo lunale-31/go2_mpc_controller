@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include <cmath>
 
 namespace common {
     /**
@@ -31,7 +32,7 @@ namespace common {
          * @param current The current value
          * @param dt The time delta
          */
-        float control(const float current, const float dt);
+        float control(const float current, const float dt, const float signal_min = -INFINITY, const float signal_max = INFINITY);
 
         /**
          * Resets the internal state of the PID controller

@@ -19,25 +19,24 @@ namespace controllers::standheight::controller {
         if (inner_count_ == 0) {
             const float velo_setpoint = position_pid_->control(state.q, dt * INNER_LOOP_FACTOR);
             velocity_pid_->setpoint(velo_setpoint);
+            // velocity_pid_->setpoint(0.3);
         }
 
         if (++inner_count_ == INNER_LOOP_FACTOR) {
             inner_count_ = 0;
         }
 
-        const float torque_signal = velocity_pid_->control(state.dq, dt);
-        const float bounded_torque = std::clamp(torque_signal, tau_min_, tau_max_);
+        const float torque_signal = velocity_pid_->control(state.dq, dt, tau_min_, tau_max_);
         printf(
-            "q_curr: %+.4f, q_sp: %+.4f  |  dq_curr: %+.4f, dq_sp: %+.4f  |  tau_raw: %+.4f, tau_bound %+.4f\n",
+            "q_curr: %+.4f, q_sp: %+.4f  |  dq_curr: %+.4f, dq_sp: %+.4f  |  tau: %+.4f\n",
             state.q, 
             position_pid_->setpoint(),
             state.dq,
             velocity_pid_->setpoint(),
-            torque_signal,
-            bounded_torque
+            torque_signal
         );
         joint_->mode(1);
-        joint_->tau(bounded_torque);
+        joint_->tau(torque_signal);
     }
 
 } // namespace controllers::standheight::controller

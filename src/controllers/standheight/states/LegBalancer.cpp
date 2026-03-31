@@ -84,8 +84,8 @@ namespace controllers::standheight::states {
             if (calfs_enabled_) calf_controllers_[i]->control(0.02f /* seconds */);
         }
 
-        // hip_controllers_[0]->control(0.02);
-        // thigh_controllers_[0]->control(0.02);
+        // hip_controllers_[common::constants::BACK_RIGHT_INDEX]->control(0.02);
+        // thigh_controllers_[common::constants::BACK_RIGHT_INDEX]->control(0.02);
         // calf_controllers_[common::constants::BACK_LEFT_INDEX]->control(0.02);
 
         // controller->low_level_control()->backLeft()->calf()->tau(0.0);

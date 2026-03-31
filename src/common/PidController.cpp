@@ -14,11 +14,20 @@ namespace common {
         return setpoint_;
     }
 
-    float PidController::control(const float current, const float dt) {
+    float PidController::control(const float current, const float dt, const float signal_min, const float signal_max) {
         const float error = setpoint_ - current;
         const float derivative = dt > 0.0f ? (error - prev_error_) / dt : 0.0f;
-        acc_error_ += error * dt;
-        const float signal = error * kp_ + acc_error_ * ki_ + derivative * kd_; 
+        float signal = error * kp_ + (acc_error_ + error * dt) * ki_ + derivative * kd_; 
+        
+        // clamp signal and prevent wind-up
+        if (signal > signal_max) {
+            signal = signal_max;
+        } if (signal < signal_min) {
+            signal = signal_min;
+        } else {
+            acc_error_ += error * dt;
+        }
+        
         prev_error_ = error;
         return signal;
     }
