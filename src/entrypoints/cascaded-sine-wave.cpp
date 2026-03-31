@@ -26,9 +26,11 @@ private:
     double tau_min_, tau_max_;
 
     // state
-    common::PidController::SharedPtr pid_;
-    float factor_;
+    common::PidController::SharedPtr pos_pid_;
+    common::PidController::SharedPtr velo_pid_;
+    float pos_min_, pos_max_;
     float current_ = 0.0f, step_, stop_;
+    unsigned outer_factor_, outer_current_;
 
     // startup time
     unsigned startup_ = 400;
@@ -42,48 +44,55 @@ public:
         // initialize low-level control and timer
         llc_ = std::make_shared<interface::LowLevelControl>(node);
         timer_ = node->create_wall_timer(control_period, std::bind(&Monitor::timer_tick, this));
-        
+
         // read config
-        auto config = YAML::LoadFile("../params.yaml")["sine_wave"];
+        auto config = YAML::LoadFile("../params.yaml")["cascaded_sine_wave"];
         tau_min_ = config["tau_min"].as<float>();
         tau_max_ = config["tau_max"].as<float>();
-        factor_ = config["factor"].as<float>();
-        auto period_samples = config["period_samples"].as<unsigned>();
-        auto periods = config["periods"].as<unsigned>();
+        pos_min_ = config["pos_min"].as<float>();
+        pos_max_ = config["pos_max"].as<float>();
+        outer_factor_ = config["outer_factor"].as<unsigned>();
+        unsigned period_samples = config["period_samples"].as<unsigned>();
+        unsigned periods = config["periods"].as<unsigned>();
 
         step_ = (2.0f * M_PI) / static_cast<float>(period_samples);
         stop_ = 2.0f * M_PI * static_cast<float>(periods);
 
-        // initialize pid controller
-        pid_ = std::make_shared<common::PidController>(
-            config["kp"].as<float>(),
-            config["ki"].as<float>(),
-            config["kd"].as<float>());
+        // initialize pid controllers
+        pos_pid_ = std::make_shared<common::PidController>(
+            config["position"]["kp"].as<float>(),
+            config["position"]["ki"].as<float>(),
+            config["position"]["kd"].as<float>());
+
+        velo_pid_ = std::make_shared<common::PidController>(
+            config["velocity"]["kp"].as<float>(),
+            config["velocity"]["ki"].as<float>(),
+            config["velocity"]["kd"].as<float>());
 
         // initialize plot file
         logfile_ = fopen(config["logfile"].as<std::string>().c_str(), "w");
-        fprintf(logfile_, "dq_r,dq,error,q,tau_est,signal\n");
+        fprintf(logfile_, "q_r,q,q_error,dq_r,dq,dq_error,signal\n");
 
         // bring calf to start position
-        auto &calf = llc_->backLeft()->calf();
-        calf->mode(0);
+        auto calf = llc_->backLeft()->calf();
+        calf->mode(1);
         calf->kp(60.0);
         calf->kd(5.0);
         calf->q(-1.85);
 
         // fixate hip
-        auto &hip = llc_->backLeft()->hip();
+        auto hip = llc_->backLeft()->hip();
         hip->mode(1);
         hip->kp(60.0);
         hip->kd(5.0);
         hip->q(0.0);
 
         // fixate thigh
-        auto &thigh = llc_->backLeft()->thigh();
+        auto thigh = llc_->backLeft()->thigh();
         thigh->mode(0);
         thigh->kp(60.0);
         thigh->kd(5.0);
-        thigh->q(-1.4);
+        thigh->q(3.4);
 
         joint_ = calf;
     }
@@ -105,19 +114,27 @@ public:
         }
 
         const auto &state = joint_->state();
+        pos_pid_->setpoint((sin(current_) + 1.0f) / 2.0f * (pos_max_ - pos_min_) + pos_min_);
+        if (outer_current_ == 0) {
+            const float velocity_setpoint = pos_pid_->control(state.q, 0.002f * outer_factor_);
+            velo_pid_->setpoint(velocity_setpoint);
+        }
+        if (++outer_current_ >= outer_factor_) {
+            outer_current_ = 0;
+        }
 
-        pid_->setpoint(sin(current_) * factor_);
-        auto torque_signal = pid_->control(state.dq, 0.002, tau_min_, tau_max_);
+        const float torque_signal = velo_pid_->control(state.dq, 0.002f, tau_min_, tau_max_);
 
         // write state to plot file
         fprintf(
             logfile_,
-            "%f, %f, %f, %f, %f, %f\n",
-            pid_->setpoint(),
-            state.dq,
-            state.dq - pid_->setpoint(),
+            "%f, %f, %f, %f, %f, %f, %f\n",
+            pos_pid_->setpoint(),
             state.q,
-            state.tau_est,
+            state.q - velo_pid_->setpoint(),
+            velo_pid_->setpoint(),
+            state.dq,
+            state.dq - pos_pid_->setpoint(),
             torque_signal);
 
         joint_->mode(1);
@@ -142,7 +159,7 @@ public:
 };
 
 /**
- * Main entry point for square wave experiment
+ * Main entry point for cascaded sine wave experiment
  * @param argc Number of program arguments
  * @param argv Program arguments
  */

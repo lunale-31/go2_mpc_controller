@@ -67,7 +67,7 @@ public:
         thigh->q(3.4);
         
         joint_ = calf;
-        
+
         // read config
         auto config = YAML::LoadFile("../params.yaml")["square_wave"];
         tau_min_ = config["tau_min"].as<float>();

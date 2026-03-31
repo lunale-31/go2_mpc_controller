@@ -3,39 +3,39 @@ leg_balancer:
   tau_max: 10.0
 
   hip:
-    enabled: true
+    enabled: false
     setpoint: 0.0
     position:
-      kp: 5.0
+      kp: 10.0
       ki: 0.0
       kd: 0.0
     velocity:
-      kp: 0.99
-      ki: 0.2
+      kp: 3.0
+      ki: 2.0
       kd: 0.0
 
   thigh:
-    enabled: true
+    enabled: false
     setpoint: 0.3
     position:
-      kp: 5.0
+      kp: 20.0
       ki: 0.0
       kd: 0.0
     velocity:
-      kp: 1.0
-      ki: 0.2
+      kp: 3.6
+      ki: 2.0
       kd: 0.0
 
   calf:
     enabled: true
     setpoint: -1.4
     position:
-      kp: 5.0
+      kp: 20.0
       ki: 0.0
       kd: 0.0
     velocity:
-      kp: 1.0
-      ki: 0.2
+      kp: 3.6
+      ki: 2.0
       kd: 0.0
 
 square_wave:
@@ -51,15 +51,50 @@ square_wave:
 
 sine_wave:
   logfile: ./sine_wave.csv
-  kp: 3.4
+  kp: 3.8
   ki: 2.0
   kd: 0.0
-  dq: 5.2
   tau_min: -10.0
   tau_max: 10.0
   period_samples: 500
   periods: 4
   factor: 4.0
+
+cascaded_sine_wave:
+  logfile: ./cascaded_sine_wave.csv
+  position:
+    kp: 20.0
+    ki: 0.0
+    kd: 0.0
+  velocity:
+    kp: 3.7
+    ki: 2.0
+    kd: 0.0
+  pos_min: -2.65
+  pos_max: -1.05
+  tau_min: -20.0
+  tau_max: 20.0
+  period_samples: 1200
+  periods: 4
+  outer_factor: 10
+
+cascaded_sine_wave_tmp:
+  logfile: ./cascaded_sine_wave.csv
+  position:
+    kp: 5.0
+    ki: 0.0
+    kd: 0.0
+  velocity:
+    kp: 3.7
+    ki: 2.0
+    kd: 0.0
+  pos_min: -0.7
+  pos_max: 0.7
+  tau_min: -20.0
+  tau_max: 20.0
+  period_samples: 800
+  periods: 4
+  outer_factor: 10
 
 old:
   hip:

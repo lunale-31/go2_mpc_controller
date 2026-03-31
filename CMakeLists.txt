@@ -93,6 +93,15 @@ add_executable(
 )
 
 add_executable(
+        cascaded-sine-wave
+        src/entrypoints/cascaded-sine-wave.cpp
+        src/common/PidController.cpp
+        src/interface/LowLevelControl.cpp
+        src/interface/lowlevel/Joint.cpp
+        src/interface/lowlevel/Leg.cpp
+)
+
+add_executable(
         motion-switcher
         src/entrypoints/motion-switcher.cpp
         src/interface/MotionSwitcher.cpp
@@ -109,6 +118,7 @@ ament_target_dependencies(sit-down ${DEPENDENCY_LIST})
 ament_target_dependencies(lowlevel ${DEPENDENCY_LIST})
 ament_target_dependencies(square-wave ${DEPENDENCY_LIST})
 ament_target_dependencies(sine-wave ${DEPENDENCY_LIST})
+ament_target_dependencies(cascaded-sine-wave ${DEPENDENCY_LIST})
 ament_target_dependencies(motion-switcher ${DEPENDENCY_LIST})
 
 install(

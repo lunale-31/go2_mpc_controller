@@ -79,9 +79,9 @@ namespace controllers::standheight::states {
 
     void LegBalancer::timer_tick(Controller *controller) {
         for (int i = 0; i < 4; ++i) {
-            if (hips_enabled_) hip_controllers_[i]->control(0.02f /* seconds */);
-            if (thighs_enabled_) thigh_controllers_[i]->control(0.02f /* seconds */);
-            if (calfs_enabled_) calf_controllers_[i]->control(0.02f /* seconds */);
+            if (hips_enabled_) hip_controllers_[i]->control(0.002f /* seconds */);
+            if (thighs_enabled_) thigh_controllers_[i]->control(0.002f /* seconds */);
+            if (calfs_enabled_) calf_controllers_[i]->control(0.002f /* seconds */);
         }
 
         // hip_controllers_[common::constants::BACK_RIGHT_INDEX]->control(0.02);

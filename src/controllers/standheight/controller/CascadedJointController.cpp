@@ -19,7 +19,6 @@ namespace controllers::standheight::controller {
         if (inner_count_ == 0) {
             const float velo_setpoint = position_pid_->control(state.q, dt * INNER_LOOP_FACTOR);
             velocity_pid_->setpoint(velo_setpoint);
-            // velocity_pid_->setpoint(0.3);
         }
 
         if (++inner_count_ == INNER_LOOP_FACTOR) {
