@@ -75,10 +75,21 @@ add_executable(
 )
 
 add_executable(
-        monitor
-        src/entrypoints/monitor.cpp
-        src/interface/HighLevelControl.cpp
-        src/interface/highlevel/UnitreeApi.cpp
+        square-wave
+        src/entrypoints/square-wave.cpp
+        src/common/PidController.cpp
+        src/interface/LowLevelControl.cpp
+        src/interface/lowlevel/Joint.cpp
+        src/interface/lowlevel/Leg.cpp
+)
+
+add_executable(
+        sine-wave
+        src/entrypoints/sine-wave.cpp
+        src/common/PidController.cpp
+        src/interface/LowLevelControl.cpp
+        src/interface/lowlevel/Joint.cpp
+        src/interface/lowlevel/Leg.cpp
 )
 
 add_executable(
@@ -96,7 +107,8 @@ rosidl_generate_interfaces(${PROJECT_NAME}
 ament_target_dependencies(stand-up ${DEPENDENCY_LIST})
 ament_target_dependencies(sit-down ${DEPENDENCY_LIST})
 ament_target_dependencies(lowlevel ${DEPENDENCY_LIST})
-ament_target_dependencies(monitor ${DEPENDENCY_LIST})
+ament_target_dependencies(square-wave ${DEPENDENCY_LIST})
+ament_target_dependencies(sine-wave ${DEPENDENCY_LIST})
 ament_target_dependencies(motion-switcher ${DEPENDENCY_LIST})
 
 install(

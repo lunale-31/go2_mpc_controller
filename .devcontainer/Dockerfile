@@ -29,7 +29,7 @@ RUN sudo usermod --append --groups video $USERNAME
 RUN sudo apt-get update && sudo apt-get upgrade -y
 
 # Install Git and CycloneDDS dependencies
-RUN sudo apt-get install -y git build-essential libyaml-cpp-dev ros-${ROS_DISTRO}-rmw-cyclonedds-cpp ros-${ROS_DISTRO}-rosidl-generator-dds-idl ros-${ROS_DISTRO}-ament-cmake-clang-format iproute2
+RUN sudo apt-get install -y git build-essential libyaml-cpp-dev ros-${ROS_DISTRO}-rmw-cyclonedds-cpp ros-${ROS_DISTRO}-rosidl-generator-dds-idl ros-${ROS_DISTRO}-ament-cmake-clang-format iproute2 python3-ipykernel python3-pandas
 
 # Rosdep update
 RUN rosdep update
@@ -48,7 +48,7 @@ RUN echo "source ~/unitree_ros2/cyclonedds_ws/install/setup.bash" >> ~/.bashrc
 RUN echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> ~/.profile
 RUN echo "source ~/unitree_ros2/cyclonedds_ws/install/setup.bash" >> ~/.profile
 ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
-ENV CYCLONEDDS_URI='<CycloneDDS><Domain><General><AllowMulticast>spdp</AllowMulticast></General></Domain></CycloneDDS>'
+ENV CYCLONEDDS_URI='<CycloneDDS><Domain><General><AllowMulticast>true</AllowMulticast><Interfaces><NetworkInterface address="192.168.123.0" /></Interfaces></General></Domain></CycloneDDS>'
 
 # Uncomment the following lines if the network interface is not selected automatically.
 # If necessary, change the network interface name from eth0.

@@ -38,6 +38,29 @@ leg_balancer:
       ki: 0.2
       kd: 0.0
 
+square_wave:
+  logfile: ./square_wave.csv
+  kp: 3.4
+  ki: 2.0
+  kd: 0.0
+  dq: 5.2
+  tau_min: -10.0
+  tau_max: 10.0
+  switch_period: 180
+  periods: 4
+
+sine_wave:
+  logfile: ./sine_wave.csv
+  kp: 3.4
+  ki: 2.0
+  kd: 0.0
+  dq: 5.2
+  tau_min: -10.0
+  tau_max: 10.0
+  period_samples: 500
+  periods: 4
+  factor: 4.0
+
 old:
   hip:
     kp: 14.0
