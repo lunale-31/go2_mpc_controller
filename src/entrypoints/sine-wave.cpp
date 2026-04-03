@@ -65,27 +65,27 @@ public:
         fprintf(logfile_, "dq_r,dq,error,q,tau_est,signal\n");
 
         // bring calf to start position
-        auto &calf = llc_->backLeft()->calf();
-        calf->mode(0);
+        auto &calf = llc_->backRight()->calf();
+        calf->mode(1);
         calf->kp(60.0);
         calf->kd(5.0);
         calf->q(-1.85);
 
         // fixate hip
-        auto &hip = llc_->backLeft()->hip();
+        auto &hip = llc_->backRight()->hip();
         hip->mode(1);
         hip->kp(60.0);
         hip->kd(5.0);
         hip->q(0.0);
 
         // fixate thigh
-        auto &thigh = llc_->backLeft()->thigh();
-        thigh->mode(0);
+        auto &thigh = llc_->backRight()->thigh();
+        thigh->mode(1);
         thigh->kp(60.0);
         thigh->kd(5.0);
-        thigh->q(-1.4);
+        thigh->q(1.5);
 
-        joint_ = calf;
+        joint_ = thigh;
     }
 
     ~Monitor() {
