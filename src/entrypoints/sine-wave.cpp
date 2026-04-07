@@ -13,7 +13,32 @@
 
 using namespace std::chrono_literals;
 
-constexpr auto control_period = 2ms;
+/**
+ * Experiment Config
+ */
+struct Config {
+    enum Leg {
+        FRONT_LEFT,
+        FRONT_RIGHT,
+        BACK_LEFT,
+        BACK_RIGHT
+    };
+
+    enum Joint {
+        HIP,
+        THIGH,
+        CALF
+    };
+
+    std::string logfile_path;
+    float kp, ki, kd;
+    float dq_factor;
+    float tau_min, tau_max;
+    unsigned periods, ticks_per_period, ms_per_tick;
+    Leg leg;
+    Joint joint;
+    float hip_initial, thigh_initial, calf_initial;
+};
 
 class Monitor {
 private:
@@ -22,12 +47,10 @@ private:
     interface::LowLevelControl::SharedPtr llc_;
     interface::lowlevel::Joint::SharedPtr joint_;
 
-    // config parameters
-    double tau_min_, tau_max_;
+    std::shared_ptr<Config> config_;
 
     // state
     common::PidController::SharedPtr pid_;
-    float factor_;
     float current_ = 0.0f, step_, stop_;
 
     // startup time
@@ -38,54 +61,78 @@ private:
     std::promise<void> done_;
 
 public:
-    Monitor(rclcpp::Node::SharedPtr &node) : node_(node) {
+    Monitor(rclcpp::Node::SharedPtr &node, std::shared_ptr<Config> &config) : node_(node), config_(config) {
         // initialize low-level control and timer
         llc_ = std::make_shared<interface::LowLevelControl>(node);
-        timer_ = node->create_wall_timer(control_period, std::bind(&Monitor::timer_tick, this));
-        
-        // read config
-        auto config = YAML::LoadFile("../params.yaml")["sine_wave"];
-        tau_min_ = config["tau_min"].as<float>();
-        tau_max_ = config["tau_max"].as<float>();
-        factor_ = config["factor"].as<float>();
-        auto period_samples = config["period_samples"].as<unsigned>();
-        auto periods = config["periods"].as<unsigned>();
+        timer_ = node->create_wall_timer(
+            std::chrono::milliseconds(config->ms_per_tick),
+            std::bind(&Monitor::timer_tick, this));
 
-        step_ = (2.0f * M_PI) / static_cast<float>(period_samples);
-        stop_ = 2.0f * M_PI * static_cast<float>(periods);
+        // pick leg
+        interface::lowlevel::Leg::SharedPtr leg;
+        switch (config->leg) {
+            case Config::Leg::FRONT_LEFT:
+                leg = llc_->frontLeft();
+                break;
+            case Config::Leg::FRONT_RIGHT:
+                leg = llc_->frontRight();
+                break;
+            case Config::Leg::BACK_LEFT:
+                leg = llc_->backLeft();
+                break;
+            case Config::Leg::BACK_RIGHT:
+                leg = llc_->backRight();
+                break;
+            default:
+                throw new std::invalid_argument("Invalid leg value provided in config structure.");
+        }
 
-        // initialize pid controller
-        pid_ = std::make_shared<common::PidController>(
-            config["kp"].as<float>(),
-            config["ki"].as<float>(),
-            config["kd"].as<float>());
+        // pick joint
+        switch (config->joint) {
+            case Config::Joint::HIP:
+                joint_ = leg->hip();
+                break;
+            case Config::Joint::THIGH:
+                joint_ = leg->thigh();
+                break;
+            case Config::Joint::CALF:
+                joint_ = leg->calf();
+                break;
+            default:
+                break;
+        }
 
-        // initialize plot file
-        logfile_ = fopen(config["logfile"].as<std::string>().c_str(), "w");
-        fprintf(logfile_, "dq_r,dq,error,q,tau_est,signal\n");
-
-        // bring calf to start position
-        auto &calf = llc_->backRight()->calf();
-        calf->mode(1);
-        calf->kp(60.0);
-        calf->kd(5.0);
-        calf->q(-1.85);
-
-        // fixate hip
-        auto &hip = llc_->backRight()->hip();
-        hip->mode(1);
+        // initial position of hip
+        auto hip = llc_->backRight()->hip();
+        hip->mode(std::isnan(config->hip_initial) ? 0 : 1);
         hip->kp(60.0);
         hip->kd(5.0);
-        hip->q(0.0);
+        hip->q(std::isnan(config->hip_initial) ? 0.0f : config->hip_initial);
 
-        // fixate thigh
-        auto &thigh = llc_->backRight()->thigh();
-        thigh->mode(1);
+        // initial position of thigh
+        auto thigh = llc_->backRight()->thigh();
+        thigh->mode(std::isnan(config->thigh_initial) ? 0 : 1);
         thigh->kp(60.0);
         thigh->kd(5.0);
-        thigh->q(1.5);
+        thigh->q(std::isnan(config->thigh_initial) ? 0.0f : config->thigh_initial);
 
-        joint_ = thigh;
+        // initial position of calf
+        auto calf = llc_->backRight()->calf();
+        calf->mode(std::isnan(config->calf_initial) ? 0 : 1);
+        calf->kp(60.0);
+        calf->kd(5.0);
+        calf->q(std::isnan(config->calf_initial) ? 0.0f : config->calf_initial);
+
+        // initialize state
+        step_ = (2.0f * M_PI) / static_cast<float>(config->ticks_per_period);
+        stop_ = 2.0f * M_PI * static_cast<float>(config->periods);
+
+        // initialize pid controller
+        pid_ = std::make_shared<common::PidController>(config->kp, config->ki, config->kd);
+
+        // initialize plot file
+        logfile_ = fopen(config->logfile_path.c_str(), "w");
+        fprintf(logfile_, "dq_r,dq,error,q,tau_est,signal\n");
     }
 
     ~Monitor() {
@@ -106,8 +153,8 @@ public:
 
         const auto &state = joint_->state();
 
-        pid_->setpoint(sin(current_) * factor_);
-        auto torque_signal = pid_->control(state.dq, 0.002, tau_min_, tau_max_);
+        pid_->setpoint(sin(current_) * config_->dq_factor);
+        auto torque_signal = pid_->control(state.dq, 0.001f * config_->ms_per_tick, config_->tau_min, config_->tau_max);
 
         // write state to plot file
         fprintf(
@@ -142,15 +189,76 @@ public:
 };
 
 /**
+ * Load and parse config
+ */
+std::shared_ptr<Config> load_config(const char *config_path) {
+    auto config = std::make_shared<Config>();
+    auto config_file = YAML::LoadFile(config_path)["sine_wave"];
+    config->logfile_path = config_file["logfile"].as<std::string>();
+    config->kp = config_file["kp"].as<float>();
+    config->ki = config_file["ki"].as<float>();
+    config->kd = config_file["kd"].as<float>();
+    config->dq_factor = config_file["dq_factor"].as<float>();
+    config->tau_min = config_file["tau_min"].as<float>();
+    config->tau_max = config_file["tau_max"].as<float>();
+    config->periods = config_file["periods"].as<unsigned>();
+    config->ticks_per_period = config_file["ticks_per_period"].as<unsigned>();
+    config->ms_per_tick = config_file["ms_per_tick"].as<unsigned>();
+
+    // Parse optional initial joint positions
+    auto initial = config_file["initial"];
+    auto hip_initial = initial["hip"];
+    config->hip_initial = (!hip_initial.IsDefined() || hip_initial.IsNull()) ? NAN : hip_initial.as<float>();
+    auto thigh_initial = initial["thigh"];
+    config->thigh_initial = (!thigh_initial.IsDefined() || thigh_initial.IsNull()) ? NAN : thigh_initial.as<float>();
+    auto calf_initial = initial["calf"];
+    config->calf_initial = (!calf_initial.IsDefined() || calf_initial.IsNull()) ? NAN : calf_initial.as<float>();
+
+    // Parse leg to be controlled
+    const std::map<std::string, Config::Leg> legs = {
+        {"front_left", Config::Leg::FRONT_LEFT},
+        {"front_right", Config::Leg::FRONT_RIGHT},
+        {"back_left", Config::Leg::BACK_LEFT},
+        {"back_right", Config::Leg::BACK_RIGHT}};
+
+    if (auto leg_str = config_file["leg"].as<std::string>(); legs.contains(leg_str)) {
+        config->leg = legs.find(leg_str)->second;
+    } else {
+        throw new std::invalid_argument("Invalid config value provided for leg.");
+    }
+
+    // Parse joint on the leg to be controlled
+    const std::map<std::string, Config::Joint> joints = {
+        {"hip", Config::Joint::HIP},
+        {"thigh", Config::Joint::THIGH},
+        {"calf", Config::Joint::CALF}};
+
+    if (auto joint_str = config_file["joint"].as<std::string>(); joints.contains(joint_str)) {
+        config->joint = joints.find(joint_str)->second;
+    } else {
+        throw new std::invalid_argument("Invalid config value provided for joint.");
+    }
+
+    return config;
+}
+
+/**
  * Main entry point for square wave experiment
  * @param argc Number of program arguments
  * @param argv Program arguments
  */
 int main(const int argc, char *argv[]) {
+    // Load and parse config
+    if (argc != 2) {
+        std::cerr << "Usage: " << argv[0] << " <config_file>" << std::endl;
+        return -1;
+    }
+    auto config = load_config(argv[1]);
+
     rclcpp::init(argc, argv);
 
     rclcpp::Node::SharedPtr node = rclcpp::Node::make_shared("monitor");
-    Monitor::UniquePtr monitor = std::make_unique<Monitor>(node);
+    Monitor::UniquePtr monitor = std::make_unique<Monitor>(node, config);
 
     // create node and subscribe to /lowcmd
     std::this_thread::sleep_for(200ms);

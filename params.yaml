@@ -40,8 +40,8 @@ leg_balancer:
 
 square_wave:
   logfile: ./square_wave.csv
-  kp: 1.0
-  ki: 0.8
+  kp: 0.8
+  ki: 0.6
   kd: 0.0
   dq: 3.0
   tau_min: -10.0
@@ -51,8 +51,8 @@ square_wave:
 
 sine_wave:
   logfile: ./sine_wave.csv
-  kp: 0.8
-  ki: 0.7
+  kp: 0.6
+  ki: 0.6
   kd: 0.0
   tau_min: -10.0
   tau_max: 10.0
@@ -75,7 +75,7 @@ cascaded_sine_wave:
   tau_min: -20.0
   tau_max: 20.0
   period_samples: 1200
-  periods: 4
+  periods: 2
   outer_factor: 10
 
 cascaded_sine_wave_tmp:
@@ -92,7 +92,7 @@ cascaded_sine_wave_tmp:
   pos_max: 0.7
   tau_min: -20.0
   tau_max: 20.0
-  period_samples: 800
+  period_samples: 100
   periods: 4
   outer_factor: 10
 
