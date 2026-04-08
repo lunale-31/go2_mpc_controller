@@ -16,11 +16,18 @@ using namespace std::chrono_literals;
  * @param argv Program arguments
  */
 int main(const int argc, char *argv[]) {
+    // Load and parse config
+    if (argc != 2) {
+        std::cerr << "Usage: " << argv[0] << " <config_file>" << std::endl;
+        return -1;
+    }
+    auto config = controllers::standheight::Config::load(argv[1]);
+
     rclcpp::init(argc, argv);
 
     // create controller
     const rclcpp::Node::SharedPtr node = std::make_shared<rclcpp::Node>("stand_height_node");
-    controllers::standheight::Controller controller(node);
+    controllers::standheight::Controller controller(node, config);
 
     std::this_thread::sleep_for(200ms);
 

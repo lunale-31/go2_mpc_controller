@@ -2,16 +2,18 @@
 #include "states/MotionSwitcherSet.h"
 #include <chrono>
 
-using namespace std::chrono_literals;
-
 namespace controllers::standheight {
-    Controller::Controller(const rclcpp::Node::SharedPtr &node) : node_(node) {
+    Controller::Controller(const rclcpp::Node::SharedPtr &node, std::shared_ptr<Config> &config)
+        : node_(node), config_(config) {
         // Initialize interfaces
         low_level_control_ = std::make_shared<interface::LowLevelControl>(node);
         motion_switcher_ = std::make_shared<interface::MotionSwitcher>(node);
 
         // Initialize timer
-        timer_ = node_->create_wall_timer(2ms, std::bind(&Controller::timer_tick, this));
+        timer_ = node_->create_wall_timer(
+            std::chrono::milliseconds(config->ms_per_tick), 
+            std::bind(&Controller::timer_tick, this)
+        );
 
         /*
         const auto subscription = node->create_subscription<unitree_go::msg::LowCmd>(
@@ -58,6 +60,10 @@ namespace controllers::standheight {
 
     interface::MotionSwitcher::SharedPtr &Controller::motion_switcher() {
         return motion_switcher_;
+    }
+
+    std::shared_ptr<Config> &Controller::config() {
+        return config_;
     }
 
     void Controller::timer_tick() {

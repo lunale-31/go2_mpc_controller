@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Controller.h"
+#include "../Config.h"
 #include "../controller/CascadedJointController.h"
 
 namespace controllers::standheight::states {
@@ -14,16 +15,13 @@ namespace controllers::standheight::states {
         void timer_tick(Controller *controller) override;
 
     private:
-        // signal boundaries
-        float tau_min_, tau_max_;
+        // config
+        std::shared_ptr<Config> config_;
 
         // cascaded PID controllers
         controller::CascadedJointController::UniquePtr hip_controllers_[4];
         controller::CascadedJointController::UniquePtr thigh_controllers_[4];
         controller::CascadedJointController::UniquePtr calf_controllers_[4];
-
-        // controller enabled?
-        bool hips_enabled_, thighs_enabled_, calfs_enabled_;
 
         /*
         // joints
