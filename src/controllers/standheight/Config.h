@@ -12,7 +12,7 @@ namespace controllers::standheight
         {
             struct PidGains
             {
-                float kp, ki, kd;
+                float K, Ti, Td, N, Beta, Tr;
             };
             
             // Gains for the position (i.e. outer) PID controller
@@ -52,9 +52,12 @@ namespace controllers::standheight
             static auto read_joint = [](const YAML::Node &node, Config::Joint &joint) {
                 // Read PidGains
                 static auto read_pid_gains = [](const YAML::Node &node, Config::Joint::PidGains &pid_gains) {
-                    pid_gains.kp = node["kp"].as<float>();
-                    pid_gains.ki = node["ki"].as<float>();
-                    pid_gains.kd = node["kd"].as<float>();
+                    pid_gains.K = node["K"].as<float>();
+                    pid_gains.Ti = node["Ti"].as<float>();
+                    pid_gains.Td = node["Td"].as<float>();
+                    pid_gains.N = node["N"].as<float>();
+                    pid_gains.Beta = node["Beta"].as<float>();
+                    pid_gains.Tr = node["Tr"].as<float>();
                 };
 
                 read_pid_gains(node["position"], joint.pos_gains);

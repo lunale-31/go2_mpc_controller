@@ -5,8 +5,14 @@ namespace controllers::standheight::controller {
 
     CascadedJointController::CascadedJointController(interface::lowlevel::Joint::SharedPtr &joint, Config::Joint &config)
         : joint_(joint), config_(config) {
-        position_pid_ = std::make_unique<common::PidController>(config.pos_gains.kp, config.pos_gains.ki, config.pos_gains.kd);
-        velocity_pid_ = std::make_unique<common::PidController>(config.velo_gains.kp, config.velo_gains.ki, config.velo_gains.kd);
+        position_pid_ = std::make_unique<common::PidController>(
+            config.pos_gains.K, config.pos_gains.Ti, config.pos_gains.Td, 
+            config.pos_gains.N, config.pos_gains.Beta, config.pos_gains.Tr
+        );
+        velocity_pid_ = std::make_unique<common::PidController>(
+            config.velo_gains.K, config.velo_gains.Ti, config.velo_gains.Td, 
+            config.velo_gains.N, config.velo_gains.Beta, config.velo_gains.Tr
+        );
         velocity_pid_->setpoint(0.0);
     }
 

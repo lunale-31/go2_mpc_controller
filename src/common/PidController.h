@@ -10,12 +10,15 @@ namespace common {
     public:
         /**
          * Constructor.
-         * @param kp The proportional gain
-         * @param ki The integral gain
-         * @param kd The derivative gain
+         * @param K The proportional gain
+         * @param Ti The integral time constant
+         * @param Td The derivative time constant
+         * @param N Derivative Filter coefficient 
+         * @param Beta Setpoint Weighting
+         * @param Tr Tracking anti-windup time constant
          */
-        PidController(const float kp, const float ki, const float kd);
-
+        PidController(const float K, const float Ti, const float Td, 
+                      const float N, const float Beta, const float Tr);
         /**
          * Updates the setpoint.
          * @param setpoint The new setpoint
@@ -43,14 +46,13 @@ namespace common {
         using UniquePtr = std::unique_ptr<PidController>;
 
     private:
-        // PID gains
-        const float kp_, ki_, kd_;
+        // PID parameters
+        const float K_, Ti_, Td_, N_, Beta_, Tr_;
 
-        // Previous error
-        float prev_error_;
-
-        // Accumulated error
-        float acc_error_;
+        // Internal state
+        float prev_current_; // Previous measurement
+        float I_; // Integral term
+        float D_; // Derivative term
 
         // Setpoint
         float setpoint_ = 0.0f;

@@ -6,70 +6,101 @@ leg_balancer:
     enabled: false
     setpoint: 0.0
     position:
-      kp: 10.0
-      ki: 0.0
-      kd: 0.0
+      K: 10.0
+      Ti: 0.0
+      Td: 0.0
+      N: 10.0
+      Beta: 1.0
+      Tr: 10.0
+      
     velocity:
-      kp: 3.0
-      ki: 2.0
-      kd: 0.0
+      K: 3.0
+      Ti: 2.0
+      Td: 0.0
+      N: 10.0
+      Beta: 1.0
+      Tr: 10.0
 
   thigh:
     enabled: false
     setpoint: 0.3
     position:
-      kp: 20.0
-      ki: 0.0
-      kd: 0.0
+      K: 20.0
+      Ti: 0.0
+      Td: 0.0
+      N: 10.0
+      Beta: 1.0
+      Tr: 10.0    
     velocity:
-      kp: 3.6
-      ki: 2.0
-      kd: 0.0
+      K: 3.6
+      Ti: 2.0
+      Td: 0.0
+      N: 10.0
+      Beta: 1.0
+      Tr: 10.0
 
   calf:
     enabled: true
     setpoint: -1.4
     position:
-      kp: 20.0
-      ki: 0.0
-      kd: 0.0
+      K: 20.0
+      Ti: 0.0
+      Td: 0.0
+      N: 10.0
+      Beta: 1.0
+      Tr: 10.0
     velocity:
-      kp: 3.6
-      ki: 2.0
-      kd: 0.0
+      K: 3.6
+      Ti: 2.0
+      Td: 0.0
+      N: 10.0
+      Beta: 1.0
+      Tr: 10.0
 
 square_wave:
   logfile: ./square_wave.csv
-  kp: 0.8
-  ki: 0.6
-  kd: 0.0
+  K: 0.8
+  Ti: 0.6
+  Td: 0.0
   dq: 3.0
   tau_min: -10.0
   tau_max: 10.0
   switch_period: 400
   periods: 4
+  N: 10.0
+  Beta: 1.0
+  Tr: 10.0
 
 sine_wave:
   logfile: ./sine_wave.csv
-  kp: 0.6
-  ki: 0.6
-  kd: 0.0
+  K: 0.6
+  Ti: 0.6
+  Td: 0.0
   tau_min: -10.0
   tau_max: 10.0
   period_samples: 500
   periods: 4
   factor: 4.0
+  N: 10.0
+  Beta: 1.0
+  Tr: 10.0
 
 cascaded_sine_wave:
   logfile: ./cascaded_sine_wave.csv
   position:
-    kp: 20.0
-    ki: 0.0
-    kd: 0.0
+    K: 20.0
+    Ti: 0.0
+    Td: 0.0
+    N: 10.0
+    Beta: 1.0
+    Tr: 10.0  
   velocity:
-    kp: 0.6
-    ki: 0.6
-    kd: 0.0
+    K: 0.6
+    Ti: 0.6
+    Td: 0.0
+    N: 10.0
+    Beta: 1.0
+    Tr: 10.0
   pos_min: 3.0
   pos_max: 0.0
   tau_min: -20.0
@@ -81,13 +112,20 @@ cascaded_sine_wave:
 cascaded_sine_wave_tmp:
   logfile: ./cascaded_sine_wave.csv
   position:
-    kp: 5.0
-    ki: 0.0
-    kd: 0.0
+    K: 5.0
+    Ti: 0.0
+    Td: 0.0
+    N: 10.0
+    Beta: 1.0
+    Tr: 10.0
   velocity:
-    kp: 3.7
-    ki: 2.0
-    kd: 0.0
+    K: 3.7
+    Ti: 2.0
+    Td: 0.0
+    N: 10.0
+    Beta: 1.0
+    Tr: 10.0
+
   pos_min: -0.7
   pos_max: 0.7
   tau_min: -20.0
@@ -98,30 +136,46 @@ cascaded_sine_wave_tmp:
 
 old:
   hip:
-    kp: 14.0
-    ki: 2.0
-    kd: 1.0
+    K: 14.0
+    Ti: 2.0
+    Td: 1.0
     setpoint: 0.0
+    N: 10.0
+    Beta: 1.0
+    Tr: 10.0
 
   thigh:
-    kp: 12.0
-    ki: 2.0
-    kd: 1.0
+    K: 12.0
+    Ti: 2.0
+    Td: 1.0
     setpoint: 1.5
+    N: 10.0
+    Beta: 1.0
+    Tr: 10.0
 
   calf:
-    kp: 12.0
-    ki: 2.0
-    kd: 1.0
+    K: 12.0
+    Ti: 2.0
+    Td: 1.0
     setpoint: -1.4
+    N: 10.0
+    Beta: 1.0
+    Tr: 10.0
 
   _thigh:
-    kp: 10.0
-    ki: 2.0
-    kd: 1.0
+    K: 10.0
+    Ti: 2.0
+    Td: 1.0
     setpoint: 0.3
+    N: 10.0
+    Beta: 1.0
+    Tr: 10.0
+
   _calf:
-    kp: 10.0
-    ki: 2.0
-    kd: 1.0
+    K: 10.0
+    Ti: 2.0
+    Td: 1.0
     setpoint: -1.4
+    N: 10.0
+    Beta: 1.0
+    Tr: 10.0
