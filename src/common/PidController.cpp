@@ -33,6 +33,8 @@ namespace common {
         // Clamp signal to limits to get actual output (u)
         float u = v;
 
+        printf("signal = %.5f \n", u);
+
         if (u > signal_max) {
             u = signal_max;
         } else if (u < signal_min) {

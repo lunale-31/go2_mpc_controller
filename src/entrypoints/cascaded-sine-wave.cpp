@@ -34,8 +34,10 @@ struct Config {
     };
 
     std::string logfile_path;
-    float pos_kp, pos_ki, pos_kd;
-    float velo_kp, velo_ki, velo_kd;
+
+    float pos_k, pos_ti, pos_td, pos_n, pos_beta, pos_tr;
+    float velo_k, velo_ti, velo_td, velo_n, velo_beta, velo_tr;
+
     float pos_min, pos_max;
     float tau_min, tau_max;
     unsigned periods, ticks_per_period, ms_per_tick, outer_factor;
@@ -109,21 +111,21 @@ public:
         }
 
         // initial position of hip
-        auto hip = llc_->backRight()->hip();
+        auto hip = leg->hip();
         hip->mode(std::isnan(config->hip_initial) ? 0 : 1);
         hip->kp(60.0);
         hip->kd(5.0);
         hip->q(std::isnan(config->hip_initial) ? 0.0f : config->hip_initial);
 
         // initial position of thigh
-        auto thigh = llc_->backRight()->thigh();
+        auto thigh = leg->thigh();
         thigh->mode(std::isnan(config->thigh_initial) ? 0 : 1);
         thigh->kp(60.0);
         thigh->kd(5.0);
         thigh->q(std::isnan(config->thigh_initial) ? 0.0f : config->thigh_initial);
 
         // initial position of calf
-        auto calf = llc_->backRight()->calf();
+        auto calf = leg->calf();
         calf->mode(std::isnan(config->calf_initial) ? 0 : 1);
         calf->kp(60.0);
         calf->kd(5.0);
@@ -134,8 +136,14 @@ public:
         stop_ = 2.0f * M_PI * static_cast<float>(config->periods);
 
         // initialize pid controllers
-        pos_pid_ = std::make_shared<common::PidController>(config->pos_kp, config->pos_ki, config->pos_kd);
-        velo_pid_ = std::make_shared<common::PidController>(config->velo_kp, config->velo_ki, config->velo_kd);
+        pos_pid_ = std::make_shared<common::PidController>(
+            config_->pos_k, config_->pos_ti, config_->pos_td,
+            config_->pos_n, config_->pos_beta, config_->pos_tr
+        );
+        velo_pid_ = std::make_shared<common::PidController>(
+            config_->velo_k, config_->velo_ti, config_->velo_td,
+            config_->velo_n, config_->velo_beta, config_->velo_tr
+        );
 
         // initialize plot file
         logfile_ = fopen(config->logfile_path.c_str(), "w");
@@ -211,13 +219,19 @@ std::shared_ptr<Config> load_config(const char *config_path) {
     auto config_file = YAML::LoadFile(config_path)["cascaded_sine_wave"];
     config->logfile_path = config_file["logfile"].as<std::string>();
     auto position = config_file["position"];
-    config->pos_kp = position["kp"].as<float>();
-    config->pos_ki = position["ki"].as<float>();
-    config->pos_kd = position["kd"].as<float>();
+    config->pos_k = position["K"].as<float>();
+    config->pos_ti = position["Ti"].as<float>();
+    config->pos_td = position["Td"].as<float>();
+    config->pos_n = position["N"].as<float>();
+    config->pos_beta = position["Beta"].as<float>();
+    config->pos_tr = position["Tr"].as<float>();
     auto velocity = config_file["velocity"];
-    config->velo_kp = velocity["kp"].as<float>();
-    config->velo_ki = velocity["ki"].as<float>();
-    config->velo_kd = velocity["kd"].as<float>();
+    config->velo_k = velocity["K"].as<float>();
+    config->velo_ti = velocity["Ti"].as<float>();
+    config->velo_td = velocity["Td"].as<float>();
+    config->velo_n = velocity["N"].as<float>();
+    config->velo_beta = velocity["Beta"].as<float>();
+    config->velo_tr = velocity["Tr"].as<float>();
     config->pos_min = config_file["pos_min"].as<float>();
     config->pos_max = config_file["pos_max"].as<float>();
     config->tau_min = config_file["tau_min"].as<float>();

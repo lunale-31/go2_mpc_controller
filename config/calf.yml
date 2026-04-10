@@ -4,6 +4,14 @@ square_wave:
   logfile: ./square_wave-calf.csv 
   
   # Gains for the PID controller
+  K: 1.6
+  Ti: 0.80
+  Td: 0.01
+  N: 20.0
+  Beta: 1.0
+  Tr: 0.6
+
+  # old gains (TODO: remove)
   kp: 2.8
   ki: 2.5
   kd: 0.0
@@ -25,7 +33,7 @@ square_wave:
   ms_per_tick: 2
   
   # The joint to be controlled
-  leg: back_right
+  leg: front_left
   joint: calf
   
   # Initial joint position (set to null to disable)

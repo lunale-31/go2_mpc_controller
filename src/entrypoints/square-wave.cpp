@@ -32,7 +32,7 @@ struct Config {
     };
 
     std::string logfile_path;
-    float kp, ki, kd;
+    float k, ti, td, n, beta, tr;
     float dq;
     float tau_min, tau_max;
     unsigned periods, ticks_per_period, ms_per_tick;
@@ -106,21 +106,21 @@ public:
         }
 
         // initial position of hip
-        auto hip = llc_->backRight()->hip();
+        auto hip = leg->hip();
         hip->mode(std::isnan(config->hip_initial) ? 0 : 1);
         hip->kp(60.0);
         hip->kd(5.0);
         hip->q(std::isnan(config->hip_initial) ? 0.0f : config->hip_initial);
 
         // initial position of thigh
-        auto thigh = llc_->backRight()->thigh();
+        auto thigh = leg->thigh();
         thigh->mode(std::isnan(config->thigh_initial) ? 0 : 1);
         thigh->kp(60.0);
         thigh->kd(5.0);
         thigh->q(std::isnan(config->thigh_initial) ? 0.0f : config->thigh_initial);
 
         // initial position of calf
-        auto calf = llc_->backRight()->calf();
+        auto calf = leg->calf();
         calf->mode(std::isnan(config->calf_initial) ? 0 : 1);
         calf->kp(60.0);
         calf->kd(5.0);
@@ -130,7 +130,10 @@ public:
         periods_remaining_ = config->periods;
 
         // initialize pid controller
-        pid_ = std::make_shared<common::PidController>(config->kp, config->ki, config->kd);
+        pid_ = std::make_shared<common::PidController>(
+            config_->k, config_->ti, config_->td,
+            config_->n, config_->beta, config_->tr
+        );
         pid_->setpoint(config->dq);
 
         // initialize plot file
@@ -204,9 +207,12 @@ std::shared_ptr<Config> load_config(const char *config_path) {
     auto config = std::make_shared<Config>();
     auto config_file = YAML::LoadFile(config_path)["square_wave"];
     config->logfile_path = config_file["logfile"].as<std::string>();
-    config->kp = config_file["kp"].as<float>();
-    config->ki = config_file["ki"].as<float>();
-    config->kd = config_file["kd"].as<float>();
+    config->k = config_file["K"].as<float>();
+    config->ti = config_file["Ti"].as<float>();
+    config->td = config_file["Td"].as<float>();
+    config->n = config_file["N"].as<float>();
+    config->beta = config_file["Beta"].as<float>();
+    config->tr = config_file["Tr"].as<float>();
     config->dq = config_file["dq"].as<float>();
     config->tau_min = config_file["tau_min"].as<float>();
     config->tau_max = config_file["tau_max"].as<float>();
