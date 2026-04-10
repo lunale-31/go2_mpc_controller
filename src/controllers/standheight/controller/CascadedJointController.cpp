@@ -20,6 +20,18 @@ namespace controllers::standheight::controller {
         position_pid_->setpoint(pos);
     }
 
+    float CascadedJointController::setpoint() {
+        return position_pid_->setpoint();
+    }
+
+    float CascadedJointController::current() {
+        return joint_->state().q;
+    }
+
+    float CascadedJointController::signal() {
+        return joint_->tau();
+    }
+
     void CascadedJointController::control(float dt) {
         auto state = joint_->state();
 

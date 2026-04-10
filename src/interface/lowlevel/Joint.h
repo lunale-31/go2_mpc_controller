@@ -61,6 +61,11 @@ namespace interface::lowlevel {
          */
         void tau(float val) const;
 
+        /**
+         * Gets the torque set to apply by the motor.
+         */
+        float tau() const;
+
         using SharedPtr = std::shared_ptr<Joint>;
 
     private:

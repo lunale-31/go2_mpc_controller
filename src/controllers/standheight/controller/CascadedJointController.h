@@ -13,6 +13,11 @@ namespace controllers::standheight::controller {
             Config::Joint &config);
 
         void setpoint(float pos);
+        float setpoint();
+
+        float current();
+
+        float signal();
         
         void control(float dt);
 

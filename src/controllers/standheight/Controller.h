@@ -24,16 +24,16 @@ namespace controllers::standheight {
     private:
         void timer_tick();
 
+        rclcpp::Node::SharedPtr node_;
+        rclcpp::TimerBase::SharedPtr timer_;
+        interface::LowLevelControl::SharedPtr low_level_control_;
+        interface::MotionSwitcher::SharedPtr motion_switcher_;
+
         // Config
         std::shared_ptr<Config> config_;
 
         // Process state (state machine)
         std::shared_ptr<State> state_;
-
-        rclcpp::Node::SharedPtr node_;
-        rclcpp::TimerBase::SharedPtr timer_;
-        interface::LowLevelControl::SharedPtr low_level_control_;
-        interface::MotionSwitcher::SharedPtr motion_switcher_;
     };
 
 } // namespace controllers::standheight
