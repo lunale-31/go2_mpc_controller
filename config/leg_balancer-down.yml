@@ -28,14 +28,14 @@ stand_height:
   thigh:
     # Gains for the position (i.e. outer) PID controller
     position:
-      kp: 40.0
+      kp: 50.0
       ki: 0.0
       kd: 0.0
 
     # Gains for the velocity (i.e. inner) PID controller
     velocity:
-      kp: 0.2
-      ki: 0.2
+      kp: 0.6
+      ki: 0.6
       kd: 0.0
 
     # The relative execution rate of the inner to the outer controller
@@ -46,7 +46,7 @@ stand_height:
     tau_max: 20.0
     
     # Desired motion speed (in rad/s)
-    motion_speed: 0.3
+    motion_speed: 0.8
 
   # Calf joint controller parameters
   calf:
@@ -70,19 +70,13 @@ stand_height:
     tau_max: 20.0
     
     # Programmatic motion speed (in rad/s)
-    motion_speed: 0.6
+    motion_speed: 0.8
 
   # Control period in milliseconds
   ms_per_tick: 2
   
   # Joint angle setpoints for sitdown pose
-  _sit_down:
+  sit_down:
     hip: 0.4
     thigh: 1.57
     calf: -2.8
-
-  # stand_up:
-  sit_down:
-    hip: 0.0
-    thigh: 0.785
-    calf: -1.57

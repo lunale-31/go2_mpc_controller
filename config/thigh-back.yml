@@ -1,0 +1,119 @@
+# Parameters for the square wave experiment
+square_wave:
+  # Log file to save measurements and signals in
+  logfile: ./square_wave-thigh.csv 
+  
+  # Gains for the PID controller
+  kp: 0.6
+  ki: 0.6
+  kd: 0.0
+
+  # Velocity setpoint
+  dq: 3.0
+
+  # Torque limits
+  tau_min: -10.0
+  tau_max: 10.0
+
+  # Experiment duration in measurement periods
+  periods: 4
+
+  # Timer ticks per period
+  ticks_per_period: 400
+
+  # Control period in milliseconds
+  ms_per_tick: 2
+  
+  # The joint to be controlled
+  leg: back_right
+  joint: thigh
+  
+  # Initial joint position (set to null to disable)
+  initial:
+    hip: 0.0
+    thigh: 0.0
+    calf: -2.7
+
+# Parameters for the sine wave experiment
+sine_wave:
+  # Log file to save measurements and signals in
+  logfile: ./sine_wave-thigh.csv 
+  
+  # Gains for the PID controller
+  kp: 0.6
+  ki: 0.6
+  kd: 0.0
+
+  # Velocity factor
+  dq_factor: 3.0
+
+  # Torque limits
+  tau_min: -10.0
+  tau_max: 10.0
+
+  # Experiment duration in measurement periods
+  periods: 4
+
+  # Timer ticks per period
+  ticks_per_period: 400
+
+  # Control period in milliseconds
+  ms_per_tick: 2
+  
+  # The joint to be controlled
+  leg: back_right
+  joint: thigh
+  
+  # Initial joint position (set to null to disable)
+  initial:
+    hip: 0.0
+    thigh: 1.6
+    calf: -2.7
+
+# Parameter for the cascaded sine wave experiment
+cascaded_sine_wave:
+  # Log file to save measurements and signals in
+  logfile: ./cascaded_sine_wave-thigh.csv
+
+  # Gains for the position (i.e. outer) PID controller
+  position:
+    kp: 20.0
+    ki: 0.0
+    kd: 0.0
+
+  # Gains for the velocity (i.e. inner) PID controller
+  velocity:
+    kp: 0.4
+    ki: 0.4
+    kd: 0.0
+
+  # Position limits (bounds of sine curve)
+  pos_min: -0.5
+  pos_max: 1.5
+
+  # Torque limits
+  tau_min: -20.0
+  tau_max: 20.0
+
+  # Experiment duration in measurement periods
+  periods: 4
+
+  # Timer ticks per period
+  ticks_per_period: 1200
+
+  # Control period in milliseconds
+  ms_per_tick: 2
+  
+  # The relative execution rate of the inner to the outer controller
+  outer_factor: 10
+  
+  # The joint to be controlled
+  leg: back_right
+  joint: thigh
+
+  # Initial joint position (set to null to disable)
+  initial:
+    hip: 0.0
+    thigh: 0.5
+    calf: -1.2
+  

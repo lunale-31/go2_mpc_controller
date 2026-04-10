@@ -27,6 +27,7 @@ set(
         rclcpp
         std_msgs
         rosbag2_cpp
+        Eigen3
         yaml-cpp
 )
 
@@ -108,6 +109,13 @@ add_executable(
         src/interface/highlevel/UnitreeApi.cpp
 )
 
+add_executable(
+        kinematics-test
+        src/entrypoints/kinematics-test.cpp
+        src/common/Kinematics.cpp
+)
+
+
 # define IDL interfaces
 rosidl_generate_interfaces(${PROJECT_NAME}
         "interfaces/srv/StandHeight.srv"
@@ -120,6 +128,7 @@ ament_target_dependencies(square-wave ${DEPENDENCY_LIST})
 ament_target_dependencies(sine-wave ${DEPENDENCY_LIST})
 ament_target_dependencies(cascaded-sine-wave ${DEPENDENCY_LIST})
 ament_target_dependencies(motion-switcher ${DEPENDENCY_LIST})
+ament_target_dependencies(kinematics-test ${DEPENDENCY_LIST})
 
 install(
         TARGETS

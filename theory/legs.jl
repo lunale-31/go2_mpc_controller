@@ -24,7 +24,10 @@ m(j1, j2, j3)
 #  -0.0955cos(j1) - (0.23sin(-j2)*sin(-j3) + cos(-j2)*(-0.213 - 0.23cos(-j3)))*sin(j1)
 #  -0.0955sin(j1) + (0.23sin(-j2)*sin(-j3) + cos(-j2)*(-0.213 - 0.23cos(-j3)))*cos(j1)
 
-L1 = 0.095; L2 = 0.213; L3 = 0.23
+using LinearAlgebra, Symbolics
+@variables j1 j2 j3 L1 L2 L3
+
+# L1 = 0.095; L2 = 0.213; L3 = 0.23
 
 # T1 transformation matrix
 function T1(theta)

@@ -36,6 +36,10 @@ namespace interface::lowlevel {
         motor_cmd_.tau = val;
     }
 
+    float Joint::tau() const {
+        return motor_cmd_.tau;
+    }
+
     void Joint::state(const unitree_go::msg::MotorState &state) {
         state_ = state;
     }
