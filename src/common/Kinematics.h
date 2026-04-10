@@ -26,7 +26,7 @@ namespace common
      * Computes the joint angle configuration required to reach a given target point.  
      * @param target The target position to be reached
      * @param side The side the leg is mounted on
-     * @returns The joint angle configuration (hip, thigh, calf)', or None if the position is unreachable.
+     * @returns The joint angle configuration(s) (hip, thigh, calf)'. Empty, if the position is unreachable.
      */
-    std::optional<Eigen::Vector3f> inverse_kinematics(const Eigen::Vector3f &target, LegSide side);
+    std::vector<Eigen::Vector3f> inverse_kinematics(const Eigen::Vector3f &target, LegSide side);
 } // namespace common
