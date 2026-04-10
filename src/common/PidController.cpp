@@ -1,7 +1,7 @@
 #include "PidController.h"
 
 namespace common {
-    PidController::PidController(const float K, const float Ti, const float Td, 
+    PidController::PidController(const float K, const float Ti, const float Td,
                                  const float N, const float Beta, const float Tr)
         : K_(K), Ti_(Ti), Td_(Td), N_(N), Beta_(Beta), Tr_(Tr) {
         reset();
@@ -19,17 +19,17 @@ namespace common {
         const float error = setpoint_ - current;
 
         // Calculate ad and bd
-        const float ad = Td_ / (Td_ + N_ *dt);
+        const float ad = Td_ / (Td_ + N_ * dt);
         const float bd = K_ * ad * N_;
-        
+
         // Calculate filtered derivative
         D_ = ad * D_ - bd * (current - prev_current_);
 
         // Calculate proportional term
         const float P = K_ * (Beta_ * setpoint_ - current);
 
-        const float v = P + I_ + D_; 
-        
+        const float v = P + I_ + D_;
+
         // Clamp signal to limits to get actual output (u)
         float u = v;
 
@@ -38,10 +38,10 @@ namespace common {
         } else if (u < signal_min) {
             u = signal_min;
         }
-        
+
         // Update integral with tracking anti-windup (back-calculation method)
-        if(Ti_ > 0.0f){
-            I_ += (K_ * dt / Ti_) * error + (dt / Tr_) * (u-v);
+        if (Ti_ > 0.0f) {
+            I_ += (K_ * dt / Ti_) * error + (dt / Tr_) * (u - v);
         }
 
         // Save current value for next iteration
