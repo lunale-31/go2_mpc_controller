@@ -4,12 +4,12 @@ square_wave:
   logfile: ./square_wave-calf.csv 
   
   # Gains for the PID controller
-  K: 1.6
-  Ti: 0.80
-  Td: 0.01
+  K: 2.25
+  Ti: 0.20
+  Td: 0.0025
   N: 20.0
   Beta: 1.0
-  Tr: 0.6
+  Tr: 0.075
 
   # old gains (TODO: remove)
   kp: 2.8
@@ -48,6 +48,14 @@ sine_wave:
   logfile: ./sine_wave-calf.csv 
   
   # Gains for the PID controller
+  K: 2.25
+  Ti: 0.20
+  Td: 0.0025
+  N: 20.0
+  Beta: 1.0
+  Tr: 0.075
+  
+  # Gains for the PID controller
   kp: 2.8
   ki: 2.5
   kd: 0.0
@@ -69,7 +77,7 @@ sine_wave:
   ms_per_tick: 2
   
   # The joint to be controlled
-  leg: back_right
+  leg: front_left
   joint: calf
   
   # Initial joint position (set to null to disable)
@@ -85,15 +93,21 @@ cascaded_sine_wave:
 
   # Gains for the position (i.e. outer) PID controller
   position:
-    kp: 20.0
-    ki: 0.0
-    kd: 0.0
+    K: 30.0
+    Ti: 0.10
+    Td: 0.001
+    N: 20.0
+    Beta: 1.0
+    Tr: 0.05
 
   # Gains for the velocity (i.e. inner) PID controller
   velocity:
-    kp: 2.8
-    ki: 2.5
-    kd: 0.0
+    K: 2.25
+    Ti: 0.20
+    Td: 0
+    N: 20.0
+    Beta: 1.0
+    Tr: 0.075
 
   # Position limits (bounds of sine curve)
   pos_min: -2.65
@@ -116,7 +130,7 @@ cascaded_sine_wave:
   outer_factor: 10
   
   # The joint to be controlled
-  leg: back_right
+  leg: front_left
   joint: calf
 
   # Initial joint position (set to null to disable)
