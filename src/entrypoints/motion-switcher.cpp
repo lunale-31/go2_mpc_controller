@@ -37,7 +37,7 @@ int main(const int argc, char *argv[]) {
     rclcpp::init(argc, argv);
 
     // create node and executor
-    const rclcpp::Node::SharedPtr node = rclcpp::Node::make_shared("stand_up");
+    const rclcpp::Node::SharedPtr node = rclcpp::Node::make_shared("motion_switcher");
     interface::MotionSwitcher motion_switcher(node);
     rclcpp::executors::SingleThreadedExecutor executor;
     executor.add_node(node);
@@ -74,7 +74,7 @@ int main(const int argc, char *argv[]) {
             case rclcpp::FutureReturnCode::SUCCESS: {
                 const bool future_result = future.get();
                 result = future_result == silent ? 0 : 1;
-                RCLCPP_INFO(node->get_logger(), "Check %s.", future_result ? "succeeded" : "failed");
+                RCLCPP_INFO(node->get_logger(), "Check %s.", (future_result == silent) ? "succeeded" : "failed");
                 break;
             }
             case rclcpp::FutureReturnCode::TIMEOUT:
