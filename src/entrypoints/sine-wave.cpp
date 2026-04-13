@@ -203,7 +203,11 @@ std::shared_ptr<Config> load_config(const char *config_path) {
     config->td = config_file["Td"].as<float>();
     config->n = config_file["N"].as<float>();
     config->beta = config_file["Beta"].as<float>();
-    config->tr = config_file["Tr"].as<float>();
+    if (!config_file["Tr"].IsDefined() || config_file["Tr"].IsNull()) {
+        config->tr = sqrtf(config->ti * config->td);
+    } else {
+        config->tr = config_file["Tr"].as<float>();
+    }
     config->dq_factor = config_file["dq_factor"].as<float>();
     config->tau_min = config_file["tau_min"].as<float>();
     config->tau_max = config_file["tau_max"].as<float>();

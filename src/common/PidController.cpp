@@ -43,7 +43,7 @@ namespace common {
 
         // Update integral with tracking anti-windup (back-calculation method)
         if (Ti_ > 0.0f) {
-            I_ += (K_ * dt / Ti_) * error + (dt / Tr_) * (u - v);
+            I_ += (K_ * dt / Ti_) * error + (Tr_ != 0.0f ? dt / Tr_ : 0.0f) * (u - v);
         }
 
         // Save current value for next iteration

@@ -4,15 +4,21 @@ stand_height:
   hip:
     # Gains for the position (i.e. outer) PID controller
     position:
-      kp: 60.0
-      ki: 0.0
-      kd: 0.0
+      K: 14.0
+      Ti: 0.0
+      Td: 0.0
+      N: 15.0
+      Beta: 1.0
+      Tr: null
 
     # Gains for the velocity (i.e. inner) PID controller
     velocity:
-      kp: 0.8
-      ki: 0.6
-      kd: 0.0
+      K: 0.5
+      Ti: 0.05
+      Td: 0.0
+      N: 15.0
+      Beta: 1.0
+      Tr: null
 
     # The relative execution rate of the inner to the outer controller
     outer_factor: 10
@@ -28,15 +34,21 @@ stand_height:
   thigh:
     # Gains for the position (i.e. outer) PID controller
     position:
-      kp: 50.0
-      ki: 0.0
-      kd: 0.0
+      K: 19.0
+      Ti: 0.0
+      Td: 0.0
+      N: 25.0
+      Beta: 1.0
+      Tr: null # sqrt(t_i * t_d)
 
     # Gains for the velocity (i.e. inner) PID controller
     velocity:
-      kp: 0.6
-      ki: 0.6
-      kd: 0.0
+      K: 0.38
+      Ti: 0.086
+      Td: 0.000
+      N: 20.0
+      Beta: 1.0
+      Tr: null # sqrt(t_i * t_d)
 
     # The relative execution rate of the inner to the outer controller
     outer_factor: 10
@@ -52,15 +64,21 @@ stand_height:
   calf:
     # Gains for the position (i.e. outer) PID controller
     position:
-      kp: 60.0
-      ki: 0.0
-      kd: 0.0
+      K: 16.0
+      Ti: 0.0
+      Td: 0.0
+      N: 20.0
+      Beta: 1.0
+      Tr: 0.05
 
     # Gains for the velocity (i.e. inner) PID controller
     velocity:
-      kp: 2.8
-      ki: 2.5
-      kd: 0.0
+      K: 0.9
+      Ti: 0.025
+      Td: 0.0
+      N: 20.0
+      Beta: 1.0
+      Tr: 0.075
 
     # The relative execution rate of the inner to the outer controller
     outer_factor: 10

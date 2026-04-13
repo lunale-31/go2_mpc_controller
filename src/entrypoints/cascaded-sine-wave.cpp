@@ -224,14 +224,22 @@ std::shared_ptr<Config> load_config(const char *config_path) {
     config->pos_td = position["Td"].as<float>();
     config->pos_n = position["N"].as<float>();
     config->pos_beta = position["Beta"].as<float>();
-    config->pos_tr = position["Tr"].as<float>();
+    if (!position["Tr"].IsDefined() || position["Tr"].IsNull()) {
+        config->pos_tr = sqrtf(config->pos_ti * config->pos_td);
+    } else {
+        config->pos_tr = position["Tr"].as<float>();
+    }
     auto velocity = config_file["velocity"];
     config->velo_k = velocity["K"].as<float>();
     config->velo_ti = velocity["Ti"].as<float>();
     config->velo_td = velocity["Td"].as<float>();
     config->velo_n = velocity["N"].as<float>();
     config->velo_beta = velocity["Beta"].as<float>();
-    config->velo_tr = velocity["Tr"].as<float>();
+    if (!velocity["Tr"].IsDefined() || velocity["Tr"].IsNull()) {
+        config->velo_tr = sqrtf(config->velo_ti * config->velo_td);
+    } else {
+        config->velo_tr = velocity["Tr"].as<float>();
+    }
     config->pos_min = config_file["pos_min"].as<float>();
     config->pos_max = config_file["pos_max"].as<float>();
     config->tau_min = config_file["tau_min"].as<float>();

@@ -4,15 +4,15 @@ square_wave:
   logfile: ./square_wave-hip.csv 
   
   # Gains for the PID controller
-  K: 0.85
-  Ti: 0.01
-  Td: 0.0
-  N: 20.0
+  K: 0.5
+  Ti: 0.05
+  Td: 0.000
+  N: 15.0
   Beta: 1.0
-  Tr: 0.005
+  Tr: null
 
   # Velocity setpoint
-  dq: 1.5
+  dq: 1.0
 
   # Torque limits
   tau_min: -10.0
@@ -22,7 +22,7 @@ square_wave:
   periods: 4
 
   # Timer ticks per period
-  ticks_per_period: 400
+  ticks_per_period: 600
 
   # Control period in milliseconds
   ms_per_tick: 2
@@ -33,7 +33,7 @@ square_wave:
   
   # Initial joint position (set to null to disable)
   initial:
-    hip: -0.4
+    hip: -0.65
     thigh: 3.0
     calf: -2.7
 
@@ -43,12 +43,12 @@ sine_wave:
   logfile: ./sine_wave-hip.csv 
   
   # Gains for the PID controller
-  K: 1
-  Ti: 0.20
-  Td: 0.0025
-  N: 20.0
+  K: 0.5
+  Ti: 0.05
+  Td: 0.0
+  N: 15.0
   Beta: 1.0
-  Tr: 0.075
+  Tr: null
 
   # Velocity factor
   dq_factor: 3.0
@@ -83,15 +83,21 @@ cascaded_sine_wave:
 
   # Gains for the position (i.e. outer) PID controller
   position:
-    kp: 20.0
-    ki: 0.0
-    kd: 0.0
+    K: 14.0
+    Ti: 0.0
+    Td: 0.0
+    N: 15.0
+    Beta: 1.0
+    Tr: null
 
   # Gains for the velocity (i.e. inner) PID controller
   velocity:
-    kp: 0.8
-    ki: 0.6
-    kd: 0.0
+    K: 0.5
+    Ti: 0.05
+    Td: 0.0
+    N: 15.0
+    Beta: 1.0
+    Tr: null
 
   # Position limits (bounds of sine curve)
   pos_min: -0.7

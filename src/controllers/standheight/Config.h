@@ -57,7 +57,11 @@ namespace controllers::standheight
                     pid_gains.Td = node["Td"].as<float>();
                     pid_gains.N = node["N"].as<float>();
                     pid_gains.Beta = node["Beta"].as<float>();
-                    pid_gains.Tr = node["Tr"].as<float>();
+                    if (!node["Tr"].IsDefined() || node["Tr"].IsNull()) {
+                        pid_gains.Tr = sqrtf(pid_gains.Ti * pid_gains.Td);
+                    } else {
+                        pid_gains.Tr = node["Tr"].as<float>();
+                    }
                 };
 
                 read_pid_gains(node["position"], joint.pos_gains);

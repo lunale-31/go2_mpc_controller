@@ -4,15 +4,21 @@ stand_height:
   hip:
     # Gains for the position (i.e. outer) PID controller
     position:
-      kp: 60.0
-      ki: 0.0
-      kd: 0.0
+      K: 14.0
+      Ti: 0.0
+      Td: 0.0
+      N: 15.0
+      Beta: 1.0
+      Tr: null
 
     # Gains for the velocity (i.e. inner) PID controller
     velocity:
-      kp: 0.8
-      ki: 0.6
-      kd: 0.0
+      K: 0.5
+      Ti: 0.05
+      Td: 0.0
+      N: 15.0
+      Beta: 1.0
+      Tr: null
 
     # The relative execution rate of the inner to the outer controller
     outer_factor: 10
@@ -28,15 +34,21 @@ stand_height:
   thigh:
     # Gains for the position (i.e. outer) PID controller
     position:
-      kp: 40.0
-      ki: 0.0
-      kd: 0.0
+      K: 19.0
+      Ti: 0.0
+      Td: 0.0
+      N: 25.0
+      Beta: 1.0
+      Tr: null # sqrt(t_i * t_d)
 
     # Gains for the velocity (i.e. inner) PID controller
     velocity:
-      kp: 0.2
-      ki: 0.2
-      kd: 0.0
+      K: 0.38
+      Ti: 0.086
+      Td: 0.000
+      N: 20.0
+      Beta: 1.0
+      Tr: null # sqrt(t_i * t_d)
 
     # The relative execution rate of the inner to the outer controller
     outer_factor: 10
@@ -46,21 +58,27 @@ stand_height:
     tau_max: 20.0
     
     # Desired motion speed (in rad/s)
-    motion_speed: 0.3
+    motion_speed: 0.8
 
   # Calf joint controller parameters
   calf:
     # Gains for the position (i.e. outer) PID controller
     position:
-      kp: 60.0
-      ki: 0.0
-      kd: 0.0
+      K: 16.0
+      Ti: 0.0
+      Td: 0.0
+      N: 20.0
+      Beta: 1.0
+      Tr: 0.05
 
     # Gains for the velocity (i.e. inner) PID controller
     velocity:
-      kp: 2.8
-      ki: 2.5
-      kd: 0.0
+      K: 0.9
+      Ti: 0.025
+      Td: 0.0
+      N: 20.0
+      Beta: 1.0
+      Tr: 0.075
 
     # The relative execution rate of the inner to the outer controller
     outer_factor: 10
@@ -70,18 +88,12 @@ stand_height:
     tau_max: 20.0
     
     # Programmatic motion speed (in rad/s)
-    motion_speed: 0.6
+    motion_speed: 0.8
 
   # Control period in milliseconds
   ms_per_tick: 2
   
   # Joint angle setpoints for sitdown pose
-  _sit_down:
-    hip: 0.4
-    thigh: 1.57
-    calf: -2.8
-
-  # stand_up:
   sit_down:
     hip: 0.0
     thigh: 0.785

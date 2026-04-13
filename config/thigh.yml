@@ -4,15 +4,15 @@ square_wave:
   logfile: ./square_wave-thigh.csv 
   
   # Gains for the PID controller
-  K: 0.5
-  Ti: 0.08
-  Td: 0.005
+  K: 0.68
+  Ti: 0.085
+  Td: 0.000
   N: 20.0
   Beta: 1.0
-  Tr: 0.02 # sqrt(t_i * t_d)
+  Tr: null # sqrt(t_i * t_d)
 
   # Velocity setpoint
-  dq: 2.5
+  dq: 2.0
 
   # Torque limits
   tau_min: -10.0
@@ -41,17 +41,17 @@ square_wave:
 sine_wave:
   # Log file to save measurements and signals in
   logfile: ./sine_wave-thigh.csv 
-  
+
   # Gains for the PID controller
-  K: 0.85
-  Ti: 0.01
-  Td: 0.0
+  K: 0.68
+  Ti: 0.085
+  Td: 0.000
   N: 20.0
   Beta: 1.0
-  Tr: 0.005
+  Tr: null # sqrt(t_i * t_d)
 
   # Velocity factor
-  dq_factor: 3.0
+  dq_factor: 4.0
 
   # Torque limits
   tau_min: -10.0
@@ -61,7 +61,7 @@ sine_wave:
   periods: 4
 
   # Timer ticks per period
-  ticks_per_period: 400
+  ticks_per_period: 600
 
   # Control period in milliseconds
   ms_per_tick: 2
@@ -83,15 +83,22 @@ cascaded_sine_wave:
 
   # Gains for the position (i.e. outer) PID controller
   position:
-    kp: 20.0
-    ki: 0.0
-    kd: 0.0
+    K: 19.0
+    Ti: 0.0
+    Td: 0.0
+    N: 25.0
+    Beta: 1.0
+    Tr: null # sqrt(t_i * t_d)
 
   # Gains for the velocity (i.e. inner) PID controller
   velocity:
-    kp: 0.6
-    ki: 0.6
-    kd: 0.0
+    K: 0.38
+    Ti: 0.086
+    Td: 0.000
+    N: 20.0
+    Beta: 1.0
+    Tr: null # sqrt(t_i * t_d)
+
 
   # Position limits (bounds of sine curve)
   pos_min: 3.0
