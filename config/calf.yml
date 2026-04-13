@@ -11,11 +11,6 @@ square_wave:
   Beta: 1.0
   Tr: 0.075
 
-  # old gains (TODO: remove)
-  kp: 2.8
-  ki: 2.5
-  kd: 0.0
-
   # Velocity setpoint
   dq: 2.5
 
@@ -54,11 +49,6 @@ sine_wave:
   N: 20.0
   Beta: 1.0
   Tr: 0.075
-  
-  # Gains for the PID controller
-  kp: 2.8
-  ki: 2.5
-  kd: 0.0
 
   # Velocity factor
   dq_factor: 3.0
