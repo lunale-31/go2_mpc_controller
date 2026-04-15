@@ -33,7 +33,7 @@ struct Config {
 
     std::string logfile_path;
     float k, ti, td, n, beta, tr;
-    float dq;
+    float b, dq;
     float tau_min, tau_max;
     unsigned periods, ticks_per_period, ms_per_tick;
     Leg leg;
@@ -55,6 +55,8 @@ private:
     unsigned periods_remaining_;
     unsigned tick_ = 0;
     bool direction_ = true; // true => positive velocity, false => negative velocity
+    float prev_q_ = 0.0f;
+    float prev_dq_ = 0.0f;
 
     // startup time
     unsigned startup_ = 400;
@@ -153,21 +155,31 @@ public:
             if (!startup_) {
                 std::cout << "Startup completed." << std::endl;
             }
+            const auto &state = joint_->state();
+            prev_q_ = state.q;
+            prev_dq_ = state.dq;
             return;
         }
 
         const auto &state = joint_->state();
 
-        auto torque_signal = pid_->control(state.dq, 0.001f * config_->ms_per_tick, config_->tau_min, config_->tau_max);
+        float q = /* config_->b * prev_q_ + (1.0f - config_->b) * */ (state.q);
+        float dq = config_->b * prev_dq_ + (1.0f - config_->b) * /* (q - prev_q_) / (0.001f * config_->ms_per_tick) */ state.dq;
+
+        float torque_signal = pid_->control(dq, 0.001f * config_->ms_per_tick, config_->tau_min, config_->tau_max);
+
+        prev_dq_ = dq;
+        prev_q_ = q;
+
 
         // write state to plot file
         fprintf(
             logfile_,
             "%f, %f, %f, %f, %f, %f\n",
             pid_->setpoint(),
-            state.dq,
-            state.dq - pid_->setpoint(),
-            state.q,
+            dq,
+            dq - pid_->setpoint(),
+            q,
             state.tau_est,
             torque_signal);
 
@@ -219,6 +231,7 @@ std::shared_ptr<Config> load_config(const char *config_path) {
     }
     
     config->dq = config_file["dq"].as<float>();
+    config->b = config_file["b"].as<float>();
     config->tau_min = config_file["tau_min"].as<float>();
     config->tau_max = config_file["tau_max"].as<float>();
     config->periods = config_file["periods"].as<unsigned>();

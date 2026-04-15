@@ -25,7 +25,7 @@ namespace controllers::standheight::controller {
     }
 
     float CascadedJointController::current() {
-        return joint_->state().q;
+        return q_;
     }
 
     float CascadedJointController::signal() {
@@ -36,9 +36,13 @@ namespace controllers::standheight::controller {
         auto state = joint_->state();
 
         unsigned outer_factor = config_.outer_factor;
+
+        const float b = dt / (config_.Tf * 0.001f);
+        q_ = std::isnan(q_) ? state.q : (1 - b) * q_ + b * state.q;
+        dq_ = std::isnan(dq_) ? state.dq : (1 - b) * dq_ + b * state.dq;
         
         if (inner_count_ == 0) {
-            const float velo_setpoint = position_pid_->control(state.q, dt * outer_factor);
+            const float velo_setpoint = position_pid_->control(q_, dt * outer_factor);
             velocity_pid_->setpoint(velo_setpoint);
         }
 
@@ -46,7 +50,7 @@ namespace controllers::standheight::controller {
             inner_count_ = 0;
         }
 
-        const float torque_signal = velocity_pid_->control(state.dq, dt, config_.tau_min, config_.tau_max);
+        const float torque_signal = velocity_pid_->control(dq_, dt, config_.tau_min, config_.tau_max);
         /*
         printf(
             "q_curr: %+.4f, q_sp: %+.4f  |  dq_curr: %+.4f, dq_sp: %+.4f  |  tau: %+.4f\n",

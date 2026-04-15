@@ -32,7 +32,7 @@ struct Config {
 
     std::string logfile_path;
     float k, ti, td, n, beta, tr;
-    float dq_factor;
+    float b, dq_factor;
     float tau_min, tau_max;
     unsigned periods, ticks_per_period, ms_per_tick;
     Leg leg;
@@ -51,6 +51,7 @@ private:
 
     // state
     common::PidController::SharedPtr pid_;
+    float prev_dq_ = 0.0f;
     float current_ = 0.0f, step_, stop_;
 
     // startup time
@@ -156,8 +157,10 @@ public:
 
         const auto &state = joint_->state();
 
+        prev_dq_ = config_->b * prev_dq_ + (1.0f - config_->b) * state.dq;
+
         pid_->setpoint(sin(current_) * config_->dq_factor);
-        auto torque_signal = pid_->control(state.dq, 0.001f * config_->ms_per_tick, config_->tau_min, config_->tau_max);
+        auto torque_signal = pid_->control(prev_dq_, 0.001f * config_->ms_per_tick, config_->tau_min, config_->tau_max);
 
         // write state to plot file
         fprintf(
@@ -209,6 +212,7 @@ std::shared_ptr<Config> load_config(const char *config_path) {
         config->tr = config_file["Tr"].as<float>();
     }
     config->dq_factor = config_file["dq_factor"].as<float>();
+    config->b = config_file["b"].as<float>();
     config->tau_min = config_file["tau_min"].as<float>();
     config->tau_max = config_file["tau_max"].as<float>();
     config->periods = config_file["periods"].as<unsigned>();

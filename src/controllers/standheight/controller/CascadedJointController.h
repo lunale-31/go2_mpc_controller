@@ -31,6 +31,8 @@ namespace controllers::standheight::controller {
         common::PidController::UniquePtr position_pid_;
         common::PidController::UniquePtr velocity_pid_;
 
+        float q_ = NAN, dq_ = NAN;
+
         unsigned inner_count_ = 0;
     };
 } // namespace controllers::standheight::controller

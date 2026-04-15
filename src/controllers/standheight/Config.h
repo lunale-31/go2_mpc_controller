@@ -26,6 +26,9 @@ namespace controllers::standheight
 
             // Torque limits
             float tau_min, tau_max;
+
+            // Smoothing time constant
+            float Tf;
             
             // Desired motion speed (in rad/s)
             float motion_speed;
@@ -70,6 +73,7 @@ namespace controllers::standheight
                 joint.tau_min = node["tau_min"].as<float>();
                 joint.tau_max = node["tau_max"].as<float>();
                 joint.motion_speed = node["motion_speed"].as<float>();
+                joint.Tf = node["Tf"].as<float>();
             };
 
             // Read PoseSetpoint
