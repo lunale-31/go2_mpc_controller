@@ -3,6 +3,7 @@
 #include "../../interface/MotionSwitcher.h"
 #include "Config.h"
 #include <rclcpp/node.hpp>
+#include <future>
 
 namespace controllers::standheight {
 
@@ -21,6 +22,8 @@ namespace controllers::standheight {
         interface::MotionSwitcher::SharedPtr &motion_switcher();
         std::shared_ptr<Config> &config();
 
+        void set_done();
+        std::future<void> done_future();
     private:
         void timer_tick();
 
@@ -34,6 +37,9 @@ namespace controllers::standheight {
 
         // Process state (state machine)
         std::shared_ptr<State> state_;
+
+        // Whether the precess is done
+        std::promise<void> done_;
     };
 
 } // namespace controllers::standheight

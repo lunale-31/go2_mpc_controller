@@ -43,76 +43,74 @@ find_package(yaml-cpp REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
+# define library
+add_library(
+        go2interface
+        SHARED
+        src/common/Kinematics.cpp
+        src/common/PidController.cpp
+        src/interface/HighLevelControl.cpp
+        src/interface/highlevel/UnitreeApi.cpp
+        src/interface/LowLevelControl.cpp
+        src/interface/lowlevel/Joint.cpp
+        src/interface/lowlevel/Leg.cpp
+        src/interface/MotionSwitcher.cpp
+)
+
 # define executables
 add_executable(
         stand-up
         src/entrypoints/stand-up.cpp
-        src/interface/HighLevelControl.cpp
-        src/interface/highlevel/UnitreeApi.cpp
 )
 
 add_executable(
         sit-down
         src/entrypoints/sit-down.cpp
-        src/interface/HighLevelControl.cpp
-        src/interface/highlevel/UnitreeApi.cpp
 )
 
 add_executable(
         lowlevel
         src/entrypoints/lowlevel.cpp
-        src/common/PidController.cpp
         src/controllers/standheight/Controller.cpp
         src/controllers/standheight/states/LegBalancer.cpp
         src/controllers/standheight/states/MotionSwitcherCheck.cpp
         src/controllers/standheight/states/MotionSwitcherSet.cpp
         src/controllers/standheight/controller/CascadedJointController.cpp
-        src/interface/LowLevelControl.cpp
-        src/interface/lowlevel/Joint.cpp
-        src/interface/lowlevel/Leg.cpp
-        src/interface/HighLevelControl.cpp
-        src/interface/highlevel/UnitreeApi.cpp
-        src/interface/MotionSwitcher.cpp
 )
 
 add_executable(
         square-wave
         src/entrypoints/square-wave.cpp
-        src/common/PidController.cpp
-        src/interface/LowLevelControl.cpp
-        src/interface/lowlevel/Joint.cpp
-        src/interface/lowlevel/Leg.cpp
 )
 
 add_executable(
         sine-wave
         src/entrypoints/sine-wave.cpp
-        src/common/PidController.cpp
-        src/interface/LowLevelControl.cpp
-        src/interface/lowlevel/Joint.cpp
-        src/interface/lowlevel/Leg.cpp
 )
 
 add_executable(
         cascaded-sine-wave
         src/entrypoints/cascaded-sine-wave.cpp
-        src/common/PidController.cpp
-        src/interface/LowLevelControl.cpp
-        src/interface/lowlevel/Joint.cpp
-        src/interface/lowlevel/Leg.cpp
 )
 
 add_executable(
         motion-switcher
         src/entrypoints/motion-switcher.cpp
-        src/interface/MotionSwitcher.cpp
-        src/interface/highlevel/UnitreeApi.cpp
 )
 
 add_executable(
         kinematics-test
         src/entrypoints/kinematics-test.cpp
-        src/common/Kinematics.cpp
+)
+
+add_executable(
+        command-recorder
+        src/entrypoints/command-recorder.cpp
+)
+
+add_executable(
+        pose-recorder
+        src/entrypoints/pose-recorder.cpp
 )
 
 
@@ -121,14 +119,18 @@ rosidl_generate_interfaces(${PROJECT_NAME}
         "interfaces/srv/StandHeight.srv"
 )
 
-ament_target_dependencies(stand-up ${DEPENDENCY_LIST})
-ament_target_dependencies(sit-down ${DEPENDENCY_LIST})
-ament_target_dependencies(lowlevel ${DEPENDENCY_LIST})
-ament_target_dependencies(square-wave ${DEPENDENCY_LIST})
-ament_target_dependencies(sine-wave ${DEPENDENCY_LIST})
-ament_target_dependencies(cascaded-sine-wave ${DEPENDENCY_LIST})
-ament_target_dependencies(motion-switcher ${DEPENDENCY_LIST})
-ament_target_dependencies(kinematics-test ${DEPENDENCY_LIST})
+ament_target_dependencies(go2interface ${DEPENDENCY_LIST})
+
+target_link_libraries(lowlevel PRIVATE go2interface)
+target_link_libraries(stand-up PRIVATE go2interface)
+target_link_libraries(sit-down PRIVATE go2interface)
+target_link_libraries(square-wave PRIVATE go2interface)
+target_link_libraries(sine-wave PRIVATE go2interface)
+target_link_libraries(cascaded-sine-wave PRIVATE go2interface)
+target_link_libraries(motion-switcher PRIVATE go2interface)
+target_link_libraries(kinematics-test PRIVATE go2interface)
+target_link_libraries(command-recorder PRIVATE go2interface)
+target_link_libraries(pose-recorder PRIVATE go2interface)
 
 install(
         TARGETS

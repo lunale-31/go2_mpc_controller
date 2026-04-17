@@ -34,6 +34,15 @@ int main(const int argc, char *argv[]) {
     // execute
     rclcpp::executors::MultiThreadedExecutor executor;
     executor.add_node(node);
-    executor.spin();
+    executor.spin_until_future_complete(controller.done_future());
+
+    // unlock all motors
+    auto &llc = controller.low_level_control();
+    for (int i = 0; i < 12; i++) {
+        llc->joint(i)->mode(0);
+    }
+    llc->publish();
+    executor.spin_some(1ms);
+
     rclcpp::shutdown();
 }

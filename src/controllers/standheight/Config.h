@@ -1,20 +1,20 @@
 #pragma once
 
-#include <string>
 #include <memory>
+#include <string>
+#include <list>
 #include <yaml-cpp/yaml.h>
 
-namespace controllers::standheight
-{
-    struct Config
-    {
-        struct Joint
-        {
-            struct PidGains
-            {
+namespace controllers::standheight {
+    struct Config {
+        struct Joint {
+            struct PidGains {
                 float K, Ti, Td, N, Beta, Tr;
+
+                // Smoothing time constant
+                float Tf;
             };
-            
+
             // Gains for the position (i.e. outer) PID controller
             PidGains pos_gains;
 
@@ -27,15 +27,18 @@ namespace controllers::standheight
             // Torque limits
             float tau_min, tau_max;
 
-            // Smoothing time constant
-            float Tf;
-            
             // Desired motion speed (in rad/s)
             float motion_speed;
         };
-        
-        struct PoseSetpoint {
+
+        struct JointSetpoint {
             float hip, thigh, calf;
+        };
+
+        struct MotionStep {
+            JointSetpoint front, back;
+            float time;
+            float keep = 0.0f;
         };
 
         Joint hip, thigh, calf;
@@ -43,7 +46,7 @@ namespace controllers::standheight
         // Control period in milliseconds
         unsigned ms_per_tick;
 
-        PoseSetpoint sit_down;
+        std::list<MotionStep> steps;
 
         static std::shared_ptr<Config> load(const std::string &filename) {
             auto config = std::make_shared<Config>();
@@ -65,6 +68,7 @@ namespace controllers::standheight
                     } else {
                         pid_gains.Tr = node["Tr"].as<float>();
                     }
+                    pid_gains.Tf = node["Tf"].as<float>();
                 };
 
                 read_pid_gains(node["position"], joint.pos_gains);
@@ -73,21 +77,37 @@ namespace controllers::standheight
                 joint.tau_min = node["tau_min"].as<float>();
                 joint.tau_max = node["tau_max"].as<float>();
                 joint.motion_speed = node["motion_speed"].as<float>();
-                joint.Tf = node["Tf"].as<float>();
             };
 
-            // Read PoseSetpoint
-            static auto read_pose_setpoint = [](const YAML::Node &node, Config::PoseSetpoint &pose_sp) {
-                pose_sp.hip = node["hip"].as<float>();
-                pose_sp.thigh = node["thigh"].as<float>();
-                pose_sp.calf = node["calf"].as<float>();
+            static auto read_motion_steps = [](const YAML::Node &node, std::list<Config::MotionStep> &steps) {
+                // Read pose setpoint
+                static auto read_pose_setpoint = [](const YAML::Node &node, Config::JointSetpoint &pose_sp) {
+                    pose_sp.hip = node["hip"].as<float>();
+                    pose_sp.thigh = node["thigh"].as<float>();
+                    pose_sp.calf = node["calf"].as<float>();
+                };
+
+                for (auto &step_node : node) {
+                    auto &step = steps.emplace_back();
+                    if (step_node["all"].IsDefined()) {
+                        read_pose_setpoint(step_node["all"], step.front);
+                        read_pose_setpoint(step_node["all"], step.back);
+                    } else {
+                        read_pose_setpoint(step_node["front"], step.front);
+                        read_pose_setpoint(step_node["back"], step.back);
+                    }
+                    step.time = step_node["time"].as<float>();
+                    if (step_node["keep"].IsDefined()) {
+                        step.keep = step_node["keep"].as<float>();
+                    }
+                }
             };
 
             // Read data
             read_joint(config_file["hip"], config->hip);
             read_joint(config_file["thigh"], config->thigh);
             read_joint(config_file["calf"], config->calf);
-            read_pose_setpoint(config_file["sit_down"], config->sit_down);
+            read_motion_steps(config_file["steps"], config->steps);
             config->ms_per_tick = config_file["ms_per_tick"].as<unsigned>();
 
             return config;

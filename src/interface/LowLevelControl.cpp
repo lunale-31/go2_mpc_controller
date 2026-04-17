@@ -26,6 +26,10 @@ namespace interface {
         // Initialize motors and legs
         initialize_motors();
         initialize_legs();
+
+        // Initialize IMU and BMS structs
+        imu_state_ = std::make_shared<lowlevel::ImuState>();
+        bms_state_ = std::make_shared<lowlevel::BmsState>();
     }
 
     lowlevel::Leg::SharedPtr &LowLevelControl::frontLeft() {
@@ -46,6 +50,18 @@ namespace interface {
 
     lowlevel::Leg::SharedPtr &LowLevelControl::leg(unsigned index) {
         return legs_[index];
+    }
+
+    lowlevel::Joint::SharedPtr &LowLevelControl::joint(unsigned index) {
+        return motors_[index];
+    }
+
+    lowlevel::ImuState::SharedPtr &LowLevelControl::imu_state() {
+        return imu_state_;
+    }
+
+    lowlevel::BmsState::SharedPtr &LowLevelControl::bms_state() {
+        return bms_state_;
     }
 
     void LowLevelControl::initialize_motors() {
@@ -77,8 +93,31 @@ namespace interface {
     void LowLevelControl::update_state(const unitree_go::msg::LowState &state) const {
         // Distribute motor state to motor wrappers
         for (int i = 0; i <= common::constants::MOTOR_MAX_INDEX; ++i) {
-            this->motors_[i]->state(state.motor_state[i]);
+            motors_[i]->state(state.motor_state[i]);
         }
+
+        // Update IMU state
+        for (int i = 0; i < 4; ++i) {
+            imu_state_->quarternion[i] = state.imu_state.quaternion[i];
+        }
+        imu_state_->roll_velo = state.imu_state.gyroscope[0];
+        imu_state_->pitch_velo = state.imu_state.gyroscope[1];
+        imu_state_->yaw_velo = state.imu_state.gyroscope[2];
+        imu_state_->roll = state.imu_state.rpy[0];
+        imu_state_->pitch = state.imu_state.rpy[1];
+        imu_state_->yaw = state.imu_state.rpy[2];
+        imu_state_->x_acc = state.imu_state.accelerometer[0];
+        imu_state_->y_acc = state.imu_state.accelerometer[1];
+        imu_state_->z_acc = state.imu_state.accelerometer[2];
+        imu_state_->temperature = state.imu_state.temperature;
+
+        // Update BMS state
+        bms_state_->version_high = state.bms_state.version_high;
+        bms_state_->version_low = state.bms_state.version_low;
+        bms_state_->status = static_cast<lowlevel::BmsState::Status>(state.bms_state.status);
+        bms_state_->charge_level = state.bms_state.soc;
+        bms_state_->charge_cycle = state.bms_state.cycle;
+        bms_state_->current = state.bms_state.current;
     }
 
     void LowLevelControl::publish() {

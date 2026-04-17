@@ -7,13 +7,13 @@ namespace common {
     static const float L_1 = 0.095f, L_2 = 0.213f, L_3 = 0.230f;
 
     // Define hip joint limits (in radians)
-    static const float theta_1_min = -0.75f, theta_1_max = 0.75f;
+    static const float theta_1_min = -0.85f, theta_1_max = 0.85f;
 
     // Define thigh joint limits (in radians)
-    static const float theta_2_min = -1.55f, theta_2_max = 3.53f;
+    static const float theta_2_min = -1.65f, theta_2_max = 3.63f;
 
     // Define calf joint limits (in radians)
-    static const float theta_3_min = -2.80f, theta_3_max = -0.92f;
+    static const float theta_3_min = -2.95f, theta_3_max = -0.82f;
 
     // Define tolerable computation error
     static const float epsilon = 0.001f;
@@ -126,7 +126,7 @@ namespace common {
             const float theta_2 = p_x >= 0.0 ? alpha + beta : alpha - beta;
 
             if (joint_valid(theta_2, theta_2_min, theta_2_max)) {
-                    // printf("theta_2 = %.4f is possible.\n", theta_2);
+                // printf("theta_2 = %.4f is possible.\n", theta_2);
                 return std::pair<float, float>(theta_2, theta_3);
             }
 

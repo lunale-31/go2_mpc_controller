@@ -66,6 +66,14 @@ namespace controllers::standheight {
         return config_;
     }
 
+    void Controller::set_done() {
+        done_.set_value();
+    }
+
+    std::future<void> Controller::done_future() {
+        return done_.get_future();
+    }
+
     void Controller::timer_tick() {
         if (state_) {
             state_->timer_tick(this);

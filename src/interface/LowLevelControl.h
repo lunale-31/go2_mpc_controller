@@ -6,6 +6,8 @@
 
 #include "lowlevel/Leg.h"
 #include "lowlevel/Joint.h"
+#include "lowlevel/BmsState.h"
+#include "lowlevel/ImuState.h"
 
 namespace interface {
     class LowLevelControl {
@@ -42,6 +44,21 @@ namespace interface {
         lowlevel::Leg::SharedPtr &leg(unsigned index);
 
         /**
+         * Gets a joint by index.
+         */
+        lowlevel::Joint::SharedPtr &joint(unsigned index);
+
+        /**
+         * Gets the IMU state
+         */
+        lowlevel::ImuState::SharedPtr &imu_state();
+
+        /**
+         * Gets the BMS state
+         */
+        lowlevel::BmsState::SharedPtr &bms_state();
+
+        /**
          * Sends all current joint commands to the robot. 
          */
         void publish();
@@ -62,6 +79,12 @@ namespace interface {
         // motors and locks
         lowlevel::Joint::SharedPtr motors_[12];
         lowlevel::Leg::SharedPtr legs_[4];
+
+        // IMU state
+        lowlevel::ImuState::SharedPtr imu_state_;
+        
+        // BMS state
+        lowlevel::BmsState::SharedPtr bms_state_;
 
         // command
         std::mutex command_mtx_;
