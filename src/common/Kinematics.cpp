@@ -44,7 +44,7 @@ namespace common {
         const float s_2 = sinf(theta_2), c_2 = cosf(theta_2);
 
         // Adapt L_1 to account for inverted hip direction on the right side
-        const float L_1_adapted = side == LegSide::LEFT ? L_1 : -L_1;
+        const float L_1_adapted = (side == LegSide::LEFT) ? L_1 : -L_1;
 
         const float x = L_2 * s_2 + L_3 * sin(theta_2 + theta_3);
         if (std::isnan(x)) {
@@ -90,16 +90,15 @@ namespace common {
      */
     static std::optional<std::pair<float, float>> compute_calf(const Eigen::Vector3f &target, LegSide side, const float theta_1) {
         const float &p_x = target.x(), &p_y = target.y(), &p_z = target.z();
+        const float L_1_adapted = (side == LegSide::LEFT) ? L_1 : -L_1;
 
         // printf("p = (%.4f, %.4f, %.4f)\n", p_x, p_y, p_z);
 
-        (void)side;
-
-        const Eigen::Vector3f d_vec(p_x, p_y - L_1 * cosf(theta_1), p_z - L_1 * sinf(theta_1));
+        const Eigen::Vector3f d_vec(p_x, p_y - L_1_adapted * cosf(theta_1), p_z - L_1_adapted * sinf(theta_1));
 
         const float d_len_squared = abs(pow(d_vec.x(), 2.0f) + pow(d_vec.y(), 2.0f) + pow(d_vec.z(), 2.0f));
-        // printf("L_1 * c_1 = %.4f\n", L_1 * cosf(theta_1));
-        // printf("L_1 * s_1 = %.4f\n", L_1 * sinf(theta_1));
+        // printf("L_1_adapted * c_1 = %.4f\n", L_1_adapted * cosf(theta_1));
+        // printf("L_1_adapted * s_1 = %.4f\n", L_1_adapted * sinf(theta_1));
         // printf("d = (%.4f, %.4f, %.4f)\n", d_vec.x(), d_vec.y(), d_vec.z());
         // printf("d_len = %.4f\n", sqrtf(d_len_squared));
 
@@ -142,18 +141,22 @@ namespace common {
 
     std::vector<Eigen::Vector3f> inverse_kinematics(const Eigen::Vector3f &target, LegSide side) {
         const float &p_y = target.y(), &p_z = target.z();
+        const float L_1_adapted = (side == LegSide::LEFT) ? L_1 : -L_1;
 
         const float R = sqrtf(powf(p_y, 2.0f) + powf(p_z, 2.0f));
         const float alpha = acosf(epsilon_clamp(p_y / R, -1.0f, 1.0f));
         // printf("alpha = %.4f\n", alpha);
 
-        const float beta = acosf(epsilon_clamp(L_1 / R, -1.0f, 1.0f));
+        const float beta = acosf(epsilon_clamp(L_1_adapted / R, -1.0f, 1.0f));
         // printf("beta = %.4f\n", beta);
 
         std::vector<Eigen::Vector3f> result;
 
         // check both solutions
-        const float theta_1_1 = p_z >= 0.0f ? alpha + beta : -(alpha + beta);
+        float theta_1_1 = p_z >= 0.0f ? alpha + beta : -(alpha + beta);
+        if (!joint_valid(theta_1_1, theta_1_min, theta_1_max)) {
+            theta_1_1 += p_z >= 0.0f ? -2.0f * M_PI : 2.0f * M_PI;
+        }
         if (joint_valid(theta_1_1, theta_1_min, theta_1_max)) {
             // printf("theta_1 = %.4f is possible.\n", theta_1_1);
             if (auto theta_23 = compute_calf(target, side, theta_1_1); theta_23) {
@@ -163,7 +166,10 @@ namespace common {
             // printf("theta_1 = %.4f is invalid.\n", theta_1_1);
         }
 
-        const float theta_1_2 = p_z >= 0.0f ? alpha - beta : beta - alpha;
+        float theta_1_2 = p_z >= 0.0f ? alpha - beta : beta - alpha;
+        if (!joint_valid(theta_1_2, theta_1_min, theta_1_max)) {
+            theta_1_2 += p_z >= 0.0f ? -2.0f * M_PI : 2.0f * M_PI;
+        }
         if (joint_valid(theta_1_2, theta_1_min, theta_1_max)) {
             // printf("theta_1 = %.4f is possible.\n", theta_1_2);
             if (auto theta_23 = compute_calf(target, side, theta_1_2); theta_23) {

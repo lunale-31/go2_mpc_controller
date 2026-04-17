@@ -95,18 +95,22 @@ int main(const int argc, char *argv[]) {
     std::uniform_real_distribution<float> t1_rand(theta_1_min + range_boundary, theta_1_max - range_boundary);
     std::uniform_real_distribution<float> t2_rand(theta_2_min + range_boundary, theta_2_max - range_boundary);
     std::uniform_real_distribution<float> t3_rand(theta_3_min + range_boundary, theta_3_max - range_boundary);
+    std::uniform_int_distribution coin(0, 1);
 
     for (unsigned i = 0; i < runs; ++i) {
         Eigen::Vector3f joints(t1_rand(gen), t2_rand(gen), t3_rand(gen));
-        auto target = common::forwards_kinematics(joints, common::LegSide::LEFT);
+
+        auto side = coin(gen) ? common::LegSide::LEFT : common::LegSide::RIGHT;
+
+        auto target = common::forwards_kinematics(joints, side);
         if (!target) {
-            printf("[!] Could not determine target position for theta = [%.4f, %.4f, %.4f].\n", joints.x(), joints.y(), joints.z());
+            printf("[!] Could not determine target position for theta = [%.4f, %.4f, %.4f] on side %d.\n", joints.x(), joints.y(), joints.z(), side);
             continue;
         }
-        auto inverted = common::inverse_kinematics(*target, common::LegSide::LEFT);
+        auto inverted = common::inverse_kinematics(*target, side);
         if (inverted.empty()) {
             no_solutions++;
-            printf("[!] Could not determine inverted joint angles for theta = [%.4f, %.4f, %.4f].\n", joints.x(), joints.y(), joints.z());
+            printf("[!] Could not determine inverted joint angles for theta = [%.4f, %.4f, %.4f] on side %d.\n", joints.x(), joints.y(), joints.z(), side);
             return 1;
             continue;
         }
@@ -123,15 +127,19 @@ int main(const int argc, char *argv[]) {
         }
         if (!found) {
             if (inverted.size() == 2) {
-                printf("[!] Incorrectly inverted kinematics (expected [%.4f, %.4f, %.4f], but got [%.4f, %.4f, %.4f] and [%.4f, %.4f, %.4f]).\n",
+                printf("[!] Incorrectly inverted kinematics (expected [%.4f, %.4f, %.4f], but got [%.4f, %.4f, %.4f] and [%.4f, %.4f, %.4f]) on side %d.\n",
                        joints.x(), joints.y(), joints.z(),
                        inverted[0].x(), inverted[0].y(), inverted[0].z(),
-                       inverted[1].x(), inverted[1].y(), inverted[1].z());
+                       inverted[1].x(), inverted[1].y(), inverted[1].z(),
+                       side);
 
             } else {
-                printf("[!] Incorrectly inverted kinematics (expected [%.4f, %.4f, %.4f], but got [%.4f, %.4f, %.4f]).\n",
-                       joints.x(), joints.y(), joints.z(), inverted[0].x(), inverted[0].y(), inverted[0].z());
+                printf("[!] Incorrectly inverted kinematics (expected [%.4f, %.4f, %.4f], but got [%.4f, %.4f, %.4f]) on side %d.\n",
+                       joints.x(), joints.y(), joints.z(),
+                       inverted[0].x(), inverted[0].y(), inverted[0].z(),
+                       side);
             }
+            return 1;
         }
     }
 
