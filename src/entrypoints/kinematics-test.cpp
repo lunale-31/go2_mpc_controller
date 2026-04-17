@@ -3,19 +3,19 @@
 #include <random>
 
 // Define hip joint limits (in radians)
-static const float theta_1_min = -0.75f, theta_1_max = 0.75f;
+static const float theta_1_min = -0.85f, theta_1_max = 0.85f;
 
 // Define thigh joint limits (in radians)
-static const float theta_2_min = -1.55f, theta_2_max = 3.53f;
+static const float theta_2_min = -0.58f, theta_2_max = 4.6f;
 
 // Define calf joint limits (in radians)
-static const float theta_3_min = -2.80f, theta_3_max = -0.92f;
+static const float theta_3_min = -2.8f, theta_3_max = -0.95f;
 
 // Define tolerable computation error
 static const float epsilon = 0.001f;
 
 // Define range shrinkage for randomized angle selection
-static const float range_boundary = 0.02f;
+static const float range_boundary = 0.15f;
 
 // Number of test runs
 static const unsigned runs = 1000000;
@@ -107,6 +107,7 @@ int main(const int argc, char *argv[]) {
         if (inverted.empty()) {
             no_solutions++;
             printf("[!] Could not determine inverted joint angles for theta = [%.4f, %.4f, %.4f].\n", joints.x(), joints.y(), joints.z());
+            return 1;
             continue;
         }
         if (inverted.size() > 1) {

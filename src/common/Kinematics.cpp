@@ -10,10 +10,10 @@ namespace common {
     static const float theta_1_min = -0.85f, theta_1_max = 0.85f;
 
     // Define thigh joint limits (in radians)
-    static const float theta_2_min = -1.65f, theta_2_max = 3.63f;
+    static const float theta_2_min = -0.58f, theta_2_max = 4.6f;
 
     // Define calf joint limits (in radians)
-    static const float theta_3_min = -2.95f, theta_3_max = -0.82f;
+    static const float theta_3_min = -2.8f, theta_3_max = -0.95f;
 
     // Define tolerable computation error
     static const float epsilon = 0.001f;
@@ -123,11 +123,13 @@ namespace common {
             // printf("(d_y * s_1 - d_z * c_1) / |d| = %.4f\n", (d_vec.y() * sinf(theta_1) - d_vec.z() * cosf(theta_1)) / d_len);
             // printf("beta = %.4f\n", beta);
 
-            const float theta_2 = p_x >= 0.0 ? alpha + beta : alpha - beta;
+            float theta_2 = p_x >= 0.0 ? alpha + beta : alpha - beta;
 
             if (joint_valid(theta_2, theta_2_min, theta_2_max)) {
                 // printf("theta_2 = %.4f is possible.\n", theta_2);
                 return std::pair<float, float>(theta_2, theta_3);
+            } else if (joint_valid(2.0f * M_PIf + theta_2, theta_2_min, theta_2_max)) {
+                return std::pair<float, float>(2.0f * M_PIf + theta_2, theta_3);
             }
 
             // printf("theta_2 = %.4f is invalid.\n", theta_2);

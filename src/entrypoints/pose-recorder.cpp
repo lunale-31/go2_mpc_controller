@@ -35,7 +35,7 @@ int main(const int argc, char* argv[]) {
         csv_file << field << ',';
     }
     std::string leg_prefixes[] = {"FR_", "FL_", "BR_", "BL_"};
-    std::string coordinates[] = {"x", "y", "z"};
+    std::string coordinates[] = {"x", "y", "z", "hip", "thigh", "calf"};
     for (auto &leg_prefix : leg_prefixes) {
         for (auto &coord : coordinates) {
             csv_file << leg_prefix << coord << ",";
@@ -74,7 +74,10 @@ int main(const int argc, char* argv[]) {
             csv_file
                 << leg_pos->x() << ','
                 << leg_pos->y() << ','
-                << leg_pos->z() << ',';
+                << leg_pos->z() << ','
+                << leg->hip()->state().q << ','
+                << leg->thigh()->state().q << ','
+                << leg->calf()->state().q << ',';
         }
         csv_file << std::endl;
     });
