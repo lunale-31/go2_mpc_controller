@@ -8,6 +8,8 @@
 #include <common/go_constants.h>
 #include <unitree_go/msg/low_cmd.hpp>
 
+#include "rcl_interfaces/msg/log.hpp"
+
 using namespace std::chrono_literals;
 
 /**

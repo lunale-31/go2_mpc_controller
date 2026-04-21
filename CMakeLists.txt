@@ -57,6 +57,18 @@ add_library(
         src/interface/MotionSwitcher.cpp
 )
 
+
+# define IDL interfaces
+rosidl_generate_interfaces(
+        ${PROJECT_NAME}_srv 
+        "interfaces/srv/StandHeight.srv" 
+        LIBRARY_NAME 
+        ${PROJECT_NAME}
+)
+rosidl_get_typesupport_target(
+        stand-height_target ${PROJECT_NAME}_srv "rosidl_typesupport_cpp"
+)
+
 # define executables
 add_executable(
         stand-up
@@ -81,6 +93,20 @@ add_executable(
 add_executable(
         stand-height
         src/entrypoints/stand-height.cpp
+        src/controllers/stand-height/Controller.cpp
+)
+
+# Stand height server
+add_executable(
+        stand-height-server
+        src/entrypoints/stand-height-server.cpp
+        src/controllers/stand-height/Controller.cpp
+)
+
+# Stand height client
+add_executable(
+        stand-height-client
+        src/entrypoints/stand-height-client.cpp
         src/controllers/stand-height/Controller.cpp
 )
 
@@ -119,25 +145,22 @@ add_executable(
         src/entrypoints/pose-recorder.cpp
 )
 
-
-# define IDL interfaces
-rosidl_generate_interfaces(${PROJECT_NAME}
-        "interfaces/srv/StandHeight.srv"
-)
-
 ament_target_dependencies(go2interface ${DEPENDENCY_LIST})
+ament_export_dependencies(rosidl_default_runtime)
 
-target_link_libraries(lowlevel PRIVATE go2interface)
-target_link_libraries(stand-up PRIVATE go2interface)
-target_link_libraries(sit-down PRIVATE go2interface)
-target_link_libraries(square-wave PRIVATE go2interface)
-target_link_libraries(sine-wave PRIVATE go2interface)
-target_link_libraries(cascaded-sine-wave PRIVATE go2interface)
-target_link_libraries(motion-switcher PRIVATE go2interface)
-target_link_libraries(kinematics-test PRIVATE go2interface)
-target_link_libraries(command-recorder PRIVATE go2interface)
-target_link_libraries(pose-recorder PRIVATE go2interface)
-target_link_libraries(stand-height PRIVATE go2interface)
+target_link_libraries(lowlevel go2interface)
+target_link_libraries(stand-up go2interface)
+target_link_libraries(sit-down go2interface)
+target_link_libraries(square-wave go2interface)
+target_link_libraries(sine-wave go2interface)
+target_link_libraries(cascaded-sine-wave go2interface)
+target_link_libraries(motion-switcher go2interface)
+target_link_libraries(kinematics-test go2interface)
+target_link_libraries(command-recorder go2interface)
+target_link_libraries(pose-recorder go2interface)
+target_link_libraries(stand-height go2interface)
+target_link_libraries(stand-height-server go2interface ${stand-height_target})
+target_link_libraries(stand-height-client go2interface ${stand-height_target})
 
 install(
         TARGETS
