@@ -3,7 +3,7 @@
 #include <common/go_constants.h>
 #include <yaml-cpp/yaml.h>
 
-namespace controllers::standheight::states {
+namespace controllers::lowlevel::states {
     LegBalancer::LegBalancer(Controller *controller) {
         // fetch config
         config_ = controller->config();
@@ -90,10 +90,9 @@ namespace controllers::standheight::states {
         time_remaining_ = step.time + step.keep;
         float pos_step = dt_ / step.time;
         printf("Switching to the next step (time: %.4f, keep: %.4f, step: %.4f).\n",
-            step.time,
-            step.keep,
-            pos_step
-        );
+               step.time,
+               step.keep,
+               pos_step);
 
         // initialize cascaded controllers
         for (int i = 0; i < 4; ++i) {
@@ -119,4 +118,4 @@ namespace controllers::standheight::states {
         }
     }
 
-} // namespace controllers::standheight::states
+} // namespace controllers::lowlevel::states

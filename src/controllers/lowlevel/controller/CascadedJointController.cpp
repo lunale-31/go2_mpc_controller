@@ -1,7 +1,7 @@
 #include "CascadedJointController.h"
 #include <cstdio>
 
-namespace controllers::standheight::controller {
+namespace controllers::lowlevel::controller {
 
     CascadedJointController::CascadedJointController(interface::lowlevel::Joint::SharedPtr &joint, Config::Joint &config)
         : joint_(joint), config_(config) {
@@ -69,4 +69,4 @@ namespace controllers::standheight::controller {
         joint_->tau(torque_signal);
     }
 
-} // namespace controllers::standheight::controller
+} // namespace controllers::lowlevel::controller

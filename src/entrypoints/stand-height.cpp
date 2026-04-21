@@ -3,7 +3,7 @@
 #include <rclcpp/executors.hpp>
 #include <rclcpp/node.hpp>
 
-#include "../controllers/lowlevel/Controller.h"
+#include "../controllers/stand-height/Controller.h"
 
 #include <common/go_constants.h>
 #include <unitree_go/msg/low_cmd.hpp>
@@ -21,13 +21,13 @@ int main(const int argc, char *argv[]) {
         std::cerr << "Usage: " << argv[0] << " <config_file>" << std::endl;
         return -1;
     }
-    auto config = controllers::lowlevel::Config::load(argv[1]);
+    auto config = controllers::stand_height::Config::load(argv[1]);
 
     rclcpp::init(argc, argv);
 
     // create controller
-    const rclcpp::Node::SharedPtr node = std::make_shared<rclcpp::Node>("lowlevel_node");
-    controllers::lowlevel::Controller controller(node, config);
+    const rclcpp::Node::SharedPtr node = std::make_shared<rclcpp::Node>("stand_height");
+    controllers::stand_height::Controller controller(node, config);
 
     std::this_thread::sleep_for(200ms);
 

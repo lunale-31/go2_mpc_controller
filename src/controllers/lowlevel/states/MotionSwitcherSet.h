@@ -2,7 +2,7 @@
 
 #include "../Controller.h"
 
-namespace controllers::standheight::states {
+namespace controllers::lowlevel::states {
     /**
      * Motion switcher setter state for the stand height controller state machine
      */
@@ -15,4 +15,4 @@ namespace controllers::standheight::states {
         bool request_sent_ = false;
         std::future<bool> motion_switch_result_;
     };
-} // namespace controllers::standheight::states
+} // namespace controllers::lowlevel::states

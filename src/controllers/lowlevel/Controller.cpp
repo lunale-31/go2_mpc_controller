@@ -2,7 +2,7 @@
 #include "states/MotionSwitcherSet.h"
 #include <chrono>
 
-namespace controllers::standheight {
+namespace controllers::lowlevel {
     Controller::Controller(const rclcpp::Node::SharedPtr &node, std::shared_ptr<Config> &config)
         : node_(node), config_(config) {
         // Initialize interfaces
@@ -80,4 +80,4 @@ namespace controllers::standheight {
         }
     }
 
-} // namespace controllers::standheight
+} // namespace controllers::lowlevel

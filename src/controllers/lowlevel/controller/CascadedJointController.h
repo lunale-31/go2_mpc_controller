@@ -3,7 +3,7 @@
 #include "../../../interface/lowlevel/Joint.h"
 #include "../Config.h"
 
-namespace controllers::standheight::controller {
+namespace controllers::lowlevel::controller {
 
     class CascadedJointController {
     public:
@@ -35,4 +35,4 @@ namespace controllers::standheight::controller {
 
         unsigned inner_count_ = 0;
     };
-} // namespace controllers::standheight::controller
+} // namespace controllers::lowlevel::controller

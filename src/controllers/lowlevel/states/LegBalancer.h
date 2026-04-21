@@ -4,7 +4,7 @@
 #include "../Controller.h"
 #include "../controller/CascadedJointController.h"
 
-namespace controllers::standheight::states {
+namespace controllers::lowlevel::states {
     /**
      * Leg control state for the stand height controller
      */
@@ -35,4 +35,4 @@ namespace controllers::standheight::states {
 
         Interpolator hip_interpolator[4], thigh_interpolator[4], calf_interpolator[4];
     };
-} // namespace controllers::standheight::states
+} // namespace controllers::lowlevel::states

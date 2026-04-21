@@ -5,7 +5,7 @@
 #include <list>
 #include <yaml-cpp/yaml.h>
 
-namespace controllers::standheight {
+namespace controllers::lowlevel {
     struct Config {
         struct Joint {
             struct PidGains {
@@ -113,4 +113,4 @@ namespace controllers::standheight {
             return config;
         }
     };
-} // namespace controllers::standheight
+} // namespace controllers::lowlevel

@@ -71,11 +71,17 @@ add_executable(
 add_executable(
         lowlevel
         src/entrypoints/lowlevel.cpp
-        src/controllers/standheight/Controller.cpp
-        src/controllers/standheight/states/LegBalancer.cpp
-        src/controllers/standheight/states/MotionSwitcherCheck.cpp
-        src/controllers/standheight/states/MotionSwitcherSet.cpp
-        src/controllers/standheight/controller/CascadedJointController.cpp
+        src/controllers/lowlevel/Controller.cpp
+        src/controllers/lowlevel/states/LegBalancer.cpp
+        src/controllers/lowlevel/states/MotionSwitcherCheck.cpp
+        src/controllers/lowlevel/states/MotionSwitcherSet.cpp
+        src/controllers/lowlevel/controller/CascadedJointController.cpp
+)
+
+add_executable(
+        stand-height
+        src/entrypoints/stand-height.cpp
+        src/controllers/stand-height/Controller.cpp
 )
 
 add_executable(
@@ -131,6 +137,7 @@ target_link_libraries(motion-switcher PRIVATE go2interface)
 target_link_libraries(kinematics-test PRIVATE go2interface)
 target_link_libraries(command-recorder PRIVATE go2interface)
 target_link_libraries(pose-recorder PRIVATE go2interface)
+target_link_libraries(stand-height PRIVATE go2interface)
 
 install(
         TARGETS

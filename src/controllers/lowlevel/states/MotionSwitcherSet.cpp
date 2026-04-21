@@ -4,7 +4,7 @@
 
 using namespace std::chrono_literals;
 
-namespace controllers::standheight::states {
+namespace controllers::lowlevel::states {
     MotionSwitcherSet::MotionSwitcherSet(Controller *controller) {
         RCLCPP_INFO(
             controller->node()->get_logger(),
@@ -32,4 +32,4 @@ namespace controllers::standheight::states {
             }
         }
     }
-} // namespace controllers::standheight::states
+} // namespace controllers::lowlevel::states
