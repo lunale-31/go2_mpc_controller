@@ -15,18 +15,6 @@ find_package(std_msgs REQUIRED)
 find_package(yaml-cpp REQUIRED)
 find_package(Eigen3 REQUIRED)
 
-include_directories(include include/nlohmann)
-add_library(
-  ${PROJECT_NAME} SHARED
-  src/kinematics.cpp
-  src/interface/HighLevelControl.cpp
-  src/interface/MotionSwitcher.cpp
-  src/interface/highlevel/UnitreeApi.cpp
-  src/interface/LowLevelControl.cpp
-  src/interface/lowlevel/Joint.cpp
-  src/interface/lowlevel/Leg.cpp
-)
-
 set(DEPENDENCIES
   unitree_go
   unitree_hg
@@ -37,10 +25,20 @@ set(DEPENDENCIES
   yaml-cpp
 )
 
-ament_target_dependencies(
-  ${PROJECT_NAME}
-  ${DEPENDENCIES}
+include_directories(include include/nlohmann)
+add_library(
+  "${PROJECT_NAME}" SHARED
+  src/kinematics.cpp
+  src/interface/HighLevelControl.cpp
+  src/interface/MotionSwitcher.cpp
+  src/interface/highlevel/UnitreeApi.cpp
+  src/interface/LowLevelControl.cpp
+  src/interface/lowlevel/Joint.cpp
+  src/interface/lowlevel/Leg.cpp
 )
+ament_target_dependencies("${PROJECT_NAME}" ${DEPENDENCIES})
+ament_export_targets("${PROJECT_NAME}" HAS_LIBRARY_TARGET)
+ament_export_dependencies(${DEPENDENCIES})
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -56,26 +54,24 @@ endif()
 
 
 # install public headers
-target_include_directories(${PROJECT_NAME}
+target_include_directories("${PROJECT_NAME}"
   PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
     "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
-
 install(
-  DIRECTORY include/
+  DIRECTORY "include/${PROJECT_NAME}"
   DESTINATION include/
 )
 ament_export_include_directories(include)
 
+# install everything
 install(
-  TARGETS
-  ${PROJECT_NAME}
-  EXPORT "${PROJECT_NAME}_export"
+  TARGETS "${PROJECT_NAME}"
+  EXPORT "${PROJECT_NAME}"
   ARCHIVE DESTINATION "lib"
   LIBRARY DESTINATION "lib"
   RUNTIME DESTINATION "bin"
+  INCLUDES DESTINATION "include"
 )
-ament_export_targets(${PROJECT_NAME}_export HAS_LIBRARY_TARGET)
-ament_export_dependencies(${DEPENDENCIES})
 
 ament_package()

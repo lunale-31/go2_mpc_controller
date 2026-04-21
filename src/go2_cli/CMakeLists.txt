@@ -19,8 +19,6 @@ endif ()
 find_package(ament_cmake REQUIRED)
 find_package(go2_utils REQUIRED)
 
-include_directories(include ${go2_utils_INCLUDE_DIRS})
-
 add_executable(hl-sit-down
     src/hl-sit-down.cpp
 )
