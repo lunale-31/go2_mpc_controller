@@ -34,19 +34,11 @@ RUN sudo apt-get install -y git build-essential libyaml-cpp-dev ros-${ROS_DISTRO
 # Rosdep update
 RUN rosdep update
 
-# Clone and compile cyclonedds
-RUN git clone https://github.com/unitreerobotics/unitree_ros2 ~/unitree_ros2
-RUN git clone https://github.com/ros2/rmw_cyclonedds -b ${ROS_DISTRO} ~/unitree_ros2/cyclonedds_ws/src/rmw_cyclonedds
-RUN git clone https://github.com/eclipse-cyclonedds/cyclonedds -b releases/0.10.x ~/unitree_ros2/cyclonedds_ws/src/cyclonedds
-WORKDIR /home/$USERNAME/unitree_ros2/cyclonedds_ws
-RUN colcon build --packages-select cyclonedds
-RUN source /opt/ros/${ROS_DISTRO}/setup.bash; colcon build
-
 # Setup Unitree parameters
 RUN echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> ~/.bashrc
-RUN echo "source ~/unitree_ros2/cyclonedds_ws/install/setup.bash" >> ~/.bashrc
-RUN echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> ~/.profile
-RUN echo "source ~/unitree_ros2/cyclonedds_ws/install/setup.bash" >> ~/.profile
+RUN echo "if [ -d /workspace/install ]; then source /workspace/install/setup.bash; else echo Initialize the workspace by running /workspace/setup_dependencies.sh; fi" >> ~/.bashrc
+RUN echo "source /opt/ros/${ROS_DISTRO}/setup.sh" >> ~/.profile
+RUN echo "if [ -d /workspace/install ]; then source /workspace/install/setup.sh; fi" >> ~/.profile
 ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 ENV CYCLONEDDS_URI='<CycloneDDS><Domain><General><AllowMulticast>true</AllowMulticast><Interfaces><NetworkInterface address="192.168.123.0" /></Interfaces></General></Domain></CycloneDDS>'
 
