@@ -28,11 +28,13 @@ float parse_float(const char *arg) {
 int main(const int argc, char *argv[]) {
 
     // Load and parse arguments
-    if (argc != 3) {
-        RCLCPP_ERROR(rclcpp::get_logger("stand_height_client"), "Usage: %s <height> <time>", argv[0]);
+    if (argc < 3) {
+        RCLCPP_ERROR(rclcpp::get_logger("stand_height_client"), "Usage: %s <height> <time> [x_offset]", argv[0]);
         return -1;
     }
-    const float height = parse_float(argv[1]), transition_time = parse_float(argv[2]);
+    const float height = parse_float(argv[1]),
+                transition_time = parse_float(argv[2]),
+                x_offset = argc >= 4 ? parse_float(argv[3]) : 0.0f;
 
     rclcpp::init(argc, argv);
 
@@ -48,7 +50,8 @@ int main(const int argc, char *argv[]) {
     auto request = std::make_shared<stand_height::srv::StandHeight_Request>();
     request->height = height;
     request->transition_time = transition_time;
-    
+    request->x_offset = x_offset;
+
     // Send request and await result
     int return_code = -2;
     auto result = client->async_send_request(request);

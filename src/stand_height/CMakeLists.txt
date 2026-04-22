@@ -25,6 +25,8 @@ add_executable(
   stand-height-server
   src/stand-height-server.cpp
   src/controller/Controller.cpp
+  src/controller/JointPose.cpp
+  src/controller/JointPoseInterpolation.cpp
 )
 ament_target_dependencies(stand-height-server
   go2_utils
@@ -37,7 +39,6 @@ target_link_libraries(stand-height-server "${cpp_typesupport_target}")
 add_executable(
   stand-height-client
   src/stand-height-client.cpp
-  src/controller/Controller.cpp
 )
 ament_target_dependencies(stand-height-client
   go2_utils

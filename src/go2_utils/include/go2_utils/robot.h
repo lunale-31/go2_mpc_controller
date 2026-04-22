@@ -6,7 +6,9 @@ namespace go2_utils::robot {
         LEG_FRONT_RIGHT = 0U,
         LEG_FRONT_LEFT = 1U,
         LEG_BACK_RIGHT = 2U,
-        LEG_BACK_LEFT = 3U;
+        LEG_BACK_LEFT = 3U,
+        LEG_MAX = LEG_BACK_LEFT,
+        LEG_COUNT = LEG_MAX + 1;
 
     // Joint offsets within legs
     constexpr unsigned
@@ -29,7 +31,8 @@ namespace go2_utils::robot {
         JOINT_BL_HIP = (LEG_BACK_LEFT * JOINTS_PER_LEG) + OFFSET_HIP,
         JOINT_BL_THIGH = (LEG_BACK_LEFT * JOINTS_PER_LEG) + OFFSET_THIGH,
         JOINT_BL_CALF = (LEG_BACK_LEFT * JOINTS_PER_LEG) + OFFSET_CALF,
-        JOINT_MAX = JOINT_BL_CALF;
+        JOINT_MAX = JOINT_BL_CALF,
+        JOINT_COUNT = JOINT_MAX + 1;
 
     // Limb lengths of the legs (hip, thigh, calf)
     constexpr float L_1 = 0.095f, L_2 = 0.213f, L_3 = 0.230f;

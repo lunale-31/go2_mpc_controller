@@ -14,6 +14,8 @@
  */
 int main(const int argc, char *argv[]) {
     rclcpp::init(argc, argv);
-    rclcpp::spin(std::make_shared<Controller>());
+    auto node = std::make_shared<rclcpp::Node>("stand_height_server");
+    auto controller = std::make_shared<Controller>(node);
+    rclcpp::spin(node);
     rclcpp::shutdown();
 }
