@@ -107,7 +107,6 @@ add_executable(
 add_executable(
         stand-height-client
         src/entrypoints/stand-height-client.cpp
-        src/controllers/stand-height/Controller.cpp
 )
 
 add_executable(
