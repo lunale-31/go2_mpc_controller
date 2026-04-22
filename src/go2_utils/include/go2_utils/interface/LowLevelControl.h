@@ -6,8 +6,6 @@
 
 #include "lowlevel/Leg.h"
 #include "lowlevel/Joint.h"
-#include "lowlevel/BmsState.h"
-#include "lowlevel/ImuState.h"
 
 namespace go2_utils::interface {
     class LowLevelControl {
@@ -51,12 +49,17 @@ namespace go2_utils::interface {
         /**
          * Gets the IMU state
          */
-        lowlevel::ImuState::SharedPtr &imu_state();
+        unitree_go::msg::IMUState &imu_state();
 
         /**
          * Gets the BMS state
          */
-        lowlevel::BmsState::SharedPtr &bms_state();
+        unitree_go::msg::BmsState &bms_state();
+
+        /**
+         * Returns whether the controller has received a low-level state from the robot.
+         */
+        bool was_state_received();
 
         /**
          * Sends all current joint commands to the robot. 
@@ -70,7 +73,7 @@ namespace go2_utils::interface {
 
         void initialize_legs();
 
-        void update_state(const unitree_go::msg::LowState &state) const;
+        void update_state(const unitree_go::msg::LowState &state);
 
         rclcpp::Node::SharedPtr node_;
         rclcpp::Publisher<unitree_go::msg::LowCmd>::SharedPtr publisher_;
@@ -80,14 +83,16 @@ namespace go2_utils::interface {
         lowlevel::Joint::SharedPtr motors_[12];
         lowlevel::Leg::SharedPtr legs_[4];
 
+        // was state received?
+        bool state_received_ = false;
+
         // IMU state
-        lowlevel::ImuState::SharedPtr imu_state_;
+        unitree_go::msg::IMUState imu_state_;
         
         // BMS state
-        lowlevel::BmsState::SharedPtr bms_state_;
+        unitree_go::msg::BmsState bms_state_;
 
         // command
-        std::mutex command_mtx_;
         std::unique_ptr<unitree_go::msg::LowCmd> low_command_;
     };
 } // namespace interface

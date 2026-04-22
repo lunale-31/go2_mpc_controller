@@ -34,6 +34,10 @@ RUN sudo apt-get install -y git build-essential libyaml-cpp-dev ros-${ROS_DISTRO
 # Rosdep update
 RUN rosdep update
 
+# Immediately update bash history
+RUN echo "shopt -s histappend" >> ~/.bashrc
+RUN echo "PROMPT_COMMAND+=(\"history -a\")" >> ~/.bashrc
+
 # Setup Unitree parameters
 RUN echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> ~/.bashrc
 RUN echo "if [ -d /workspace/install ]; then source /workspace/install/setup.bash; else echo Initialize the workspace by running /workspace/setup_dependencies.sh; fi" >> ~/.bashrc
@@ -41,6 +45,7 @@ RUN echo "source /opt/ros/${ROS_DISTRO}/setup.sh" >> ~/.profile
 RUN echo "if [ -d /workspace/install ]; then source /workspace/install/setup.sh; fi" >> ~/.profile
 ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 ENV CYCLONEDDS_URI='<CycloneDDS><Domain><General><AllowMulticast>true</AllowMulticast><Interfaces><NetworkInterface address="192.168.123.0" /></Interfaces></General></Domain></CycloneDDS>'
+
 
 # Uncomment the following lines if the network interface is not selected automatically.
 # If necessary, change the network interface name from eth0.

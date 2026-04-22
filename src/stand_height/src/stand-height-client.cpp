@@ -1,13 +1,9 @@
 #include <chrono>
+#include <go2_utils/robot.h>
 #include <memory>
 #include <rclcpp/rclcpp.hpp>
-
-#include <go2_utils/robot.h>
-#include <unitree_go/msg/low_cmd.hpp>
-
-#include "stand_height/srv/stand_height.hpp"
-
-static const std::string SERVICE_NAME = "stand_height";
+#include <stand_height/service.h>
+#include <stand_height/srv/stand_height.hpp>
 
 using namespace std::chrono_literals;
 
@@ -19,7 +15,7 @@ float parse_float(const char *arg) {
         }
         return res;
     } catch (const std::invalid_argument &) {
-        RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Received the invalid argument '%s' (floating-point number expected).", arg);
+        RCLCPP_ERROR(rclcpp::get_logger("stand_height_client"), "Received the invalid argument '%s' (floating-point number expected).", arg);
         exit(1);
     }
 }
@@ -30,10 +26,11 @@ float parse_float(const char *arg) {
  * @param argv Program arguments
  */
 int main(const int argc, char *argv[]) {
+
     // Load and parse arguments
     if (argc != 3) {
-        RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Usage: %s <height> <time>", argv[0]);
-        return 1;
+        RCLCPP_ERROR(rclcpp::get_logger("stand_height_client"), "Usage: %s <height> <time>", argv[0]);
+        return -1;
     }
     const float height = parse_float(argv[1]), transition_time = parse_float(argv[2]);
 
@@ -41,33 +38,36 @@ int main(const int argc, char *argv[]) {
 
     // Prepare client
     const rclcpp::Node::SharedPtr node = std::make_shared<rclcpp::Node>("stand_height_client");
-    rclcpp::Client<stand_height::srv::StandHeight>::SharedPtr client =
-        node->create_client<stand_height::srv::StandHeight>(SERVICE_NAME);
-    if (!client->wait_for_service(3s) || !rclcpp::ok()) {
-        RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Could not establish a connection to the server.");
+    auto client = node->create_client<stand_height::srv::StandHeight>(stand_height::SERVICE_NAME);
+    if (!client->wait_for_service(100ms) || !rclcpp::ok()) {
+        RCLCPP_ERROR(node->get_logger(), "Could not establish a connection to the server.");
         return 1;
     }
 
-    // Send request
+    // Prepare request
     auto request = std::make_shared<stand_height::srv::StandHeight_Request>();
     request->height = height;
     request->transition_time = transition_time;
+    
+    // Send request and await result
+    int return_code = -2;
     auto result = client->async_send_request(request);
-
-    // Await result
-    switch (rclcpp::spin_until_future_complete(node, result, 1s)) {
+    switch (rclcpp::spin_until_future_complete(node, result, 100ms)) {
         case rclcpp::FutureReturnCode::INTERRUPTED:
-            RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Program was interrupted before an answer was received.");
+            RCLCPP_ERROR(node->get_logger(), "Program was interrupted before an answer was received.");
+            return_code = 2;
             break;
         case rclcpp::FutureReturnCode::TIMEOUT:
-            RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Timeout was reached before an answer was received.");
+            RCLCPP_ERROR(node->get_logger(), "Timeout was reached before an answer was received.");
+            return_code = 3;
             break;
         case rclcpp::FutureReturnCode::SUCCESS:
-            RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Received response %d.", result.get()->status);
+            RCLCPP_INFO(node->get_logger(), "Received response %d.", result.get()->status);
+            return_code = 0;
             break;
     }
 
     rclcpp::shutdown();
 
-    return 0;
+    return return_code;
 }

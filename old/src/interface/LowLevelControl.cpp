@@ -67,7 +67,7 @@ namespace interface {
     void LowLevelControl::initialize_motors() {
         // initialize motors
         for (uint8_t i = 0; i <= common::constants::MOTOR_MAX_INDEX; ++i) {
-            motors_[i] = std::make_shared<lowlevel::Joint>(low_command_->motor_cmd[i], command_mtx_);
+            motors_[i] = std::make_shared<lowlevel::Joint>(low_command_->motor_cmd[i]);
         }
     }
 
@@ -121,7 +121,6 @@ namespace interface {
     }
 
     void LowLevelControl::publish() {
-        std::lock_guard guard(command_mtx_);
         // RCLCPP_WARN(node_->get_logger(), "Publishing to the robot: tau = %f", low_command_->motor_cmd[common::constants::FR_CALF].tau);
         set_crc(*low_command_);
         publisher_->publish(*low_command_);

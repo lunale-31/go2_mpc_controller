@@ -18,7 +18,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
 rosidl_get_typesupport_target(cpp_typesupport_target
   ${PROJECT_NAME} rosidl_typesupport_cpp)
 
-
+include_directories(include)
 
 # Stand height server
 add_executable(
@@ -58,6 +58,22 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
+# install public headers
+install(
+  DIRECTORY "include/${PROJECT_NAME}"
+  DESTINATION include/
+)
+ament_export_include_directories(include)
+
+# install everything
+install(
+  TARGETS stand-height-client stand-height-server
+  EXPORT "${PROJECT_NAME}"
+  ARCHIVE DESTINATION "lib"
+  LIBRARY DESTINATION "lib"
+  RUNTIME DESTINATION "bin"
+  INCLUDES DESTINATION "include"
+)
 install(TARGETS
   stand-height-client stand-height-server
   DESTINATION lib/${PROJECT_NAME})

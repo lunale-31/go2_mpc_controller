@@ -52,12 +52,7 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-
 # install public headers
-target_include_directories("${PROJECT_NAME}"
-  PUBLIC
-    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-    "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
 install(
   DIRECTORY "include/${PROJECT_NAME}"
   DESTINATION include/
