@@ -19,37 +19,33 @@ endif ()
 find_package(ament_cmake REQUIRED)
 find_package(go2_utils REQUIRED)
 
+include_directories(include)
+
+set(TARGETS ll-command-recorder ll-pose-recorder hl-sit-down hl-stand-up motion-switcher)
+
+add_executable(ll-command-recorder
+    src/ll-command-recorder.cpp
+)
+
+add_executable(ll-pose-recorder
+    src/ll-pose-recorder.cpp
+)
+
 add_executable(hl-sit-down
     src/hl-sit-down.cpp
-)
-ament_target_dependencies(hl-sit-down
-    go2_utils
-    rclcpp
 )
 
 add_executable(hl-stand-up
     src/hl-stand-up.cpp
 )
-ament_target_dependencies(hl-stand-up
-    go2_utils
-    rclcpp
-)
 
 add_executable(motion-switcher
     src/motion-switcher.cpp
 )
-ament_target_dependencies(motion-switcher
-    go2_utils
-    rclcpp
-)
 
-install(
-    TARGETS hl-sit-down hl-stand-up motion-switcher
-    ARCHIVE DESTINATION "lib"
-    LIBRARY DESTINATION "lib"
-    RUNTIME DESTINATION "bin"
-    PUBLIC_HEADER DESTINATION "include"
-)
+foreach(TARGET IN LISTS TARGETS)
+  ament_target_dependencies(${TARGET} go2_utils rclcpp)
+endforeach()
 
 if(BUILD_TESTING)
     find_package(ament_lint_auto REQUIRED)
@@ -62,5 +58,24 @@ if(BUILD_TESTING)
     set(ament_cmake_cpplint_FOUND TRUE)
     ament_lint_auto_find_test_dependencies()
 endif()
+
+# install public headers
+ament_export_include_directories(include)
+install(
+  DIRECTORY "include/${PROJECT_NAME}"
+  DESTINATION include/
+)
+
+# install everything
+install(
+  TARGETS ${TARGETS}
+  EXPORT "${PROJECT_NAME}"
+  ARCHIVE DESTINATION "lib"
+  LIBRARY DESTINATION "lib"
+  RUNTIME DESTINATION "bin"
+  INCLUDES DESTINATION "include")
+install(
+  TARGETS ${TARGETS}
+  DESTINATION lib/${PROJECT_NAME})
 
 ament_package()

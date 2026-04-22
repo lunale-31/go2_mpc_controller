@@ -38,8 +38,7 @@ int main(const int argc, char *argv[]) {
     // create node and executor
     const rclcpp::Node::SharedPtr node = rclcpp::Node::make_shared("motion_switcher");
     go2_utils::interface::MotionSwitcher motion_switcher(node);
-    rclcpp::executors::SingleThreadedExecutor executor;
-    executor.add_node(node);
+    rclcpp::spin_some(node);
 
     // let everything get ready
     std::this_thread::sleep_for(200ms);
@@ -48,7 +47,7 @@ int main(const int argc, char *argv[]) {
     RCLCPP_INFO(node->get_logger(), "%s silent mode.", silent ? "Enabling" : "Disabling");
     auto future = motion_switcher.set_silent(silent);
     int result = 1;
-    switch (executor.spin_until_future_complete(future, 1000ms)) {
+    switch (rclcpp::spin_until_future_complete(node, future, 1000ms)) {
         case rclcpp::FutureReturnCode::SUCCESS: {
             const bool future_result = future.get();
             result = future_result ? 0 : 1;
@@ -69,7 +68,7 @@ int main(const int argc, char *argv[]) {
     if (result == 0) {
         RCLCPP_INFO(node->get_logger(), "Checking silent mode.");
         auto future = motion_switcher.get_silent();
-        switch (executor.spin_until_future_complete(future, 1000ms)) {
+        switch (rclcpp::spin_until_future_complete(node, future, 1000ms)) {
             case rclcpp::FutureReturnCode::SUCCESS: {
                 const bool future_result = future.get();
                 result = future_result == silent ? 0 : 1;

@@ -18,8 +18,7 @@ int main(const int argc, char *argv[]) {
     // create node and executor
     const rclcpp::Node::SharedPtr node = rclcpp::Node::make_shared("stand_up");
     go2_utils::interface::HighLevelControl high_command(node);
-    rclcpp::executors::SingleThreadedExecutor executor;
-    executor.add_node(node);
+    rclcpp::spin_some(node);
 
     // let everything get ready
     std::this_thread::sleep_for(200ms);
@@ -27,7 +26,7 @@ int main(const int argc, char *argv[]) {
     // run the actual command and collect result
     auto future = high_command.stand_up();
     int result = 2;
-    switch (executor.spin_until_future_complete(future, 1000ms)) {
+    switch (rclcpp::spin_until_future_complete(node, future, 1000ms)) {
         case rclcpp::FutureReturnCode::SUCCESS: {
             const bool future_result = future.get();
             result = future_result ? 0 : 1;

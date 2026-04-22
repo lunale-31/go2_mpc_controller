@@ -1,13 +1,22 @@
 cmake_minimum_required(VERSION 3.8)
 project(stand_height)
 
+# Default to C99
+if (NOT CMAKE_C_STANDARD)
+    set(CMAKE_C_STANDARD 99)
+endif ()
+
+# Default to C++23
+if (NOT CMAKE_CXX_STANDARD)
+    set(CMAKE_CXX_STANDARD 23)
+endif ()
+
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-find_package(rclcpp REQUIRED)
 find_package(go2_utils REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
@@ -20,6 +29,8 @@ rosidl_get_typesupport_target(cpp_typesupport_target
 
 include_directories(include)
 
+set(TARGETS stand-height-server stand-height-client)
+
 # Stand height server
 add_executable(
   stand-height-server
@@ -28,24 +39,17 @@ add_executable(
   src/controller/JointPose.cpp
   src/controller/JointPoseInterpolation.cpp
 )
-ament_target_dependencies(stand-height-server
-  go2_utils
-  rclcpp
-)
-target_link_libraries(stand-height-server "${cpp_typesupport_target}")
-
 
 # Stand height client
 add_executable(
   stand-height-client
   src/stand-height-client.cpp
 )
-ament_target_dependencies(stand-height-client
-  go2_utils
-  rclcpp
-)
-target_link_libraries(stand-height-client "${cpp_typesupport_target}")
 
+foreach(TARGET IN LISTS TARGETS)
+  ament_target_dependencies(${TARGET} go2_utils rclcpp)
+  target_link_libraries(${TARGET} "${cpp_typesupport_target}")
+endforeach()
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -60,23 +64,22 @@ if(BUILD_TESTING)
 endif()
 
 # install public headers
+ament_export_include_directories(include)
 install(
   DIRECTORY "include/${PROJECT_NAME}"
   DESTINATION include/
 )
-ament_export_include_directories(include)
 
 # install everything
 install(
-  TARGETS stand-height-client stand-height-server
+  TARGETS ${TARGETS}
   EXPORT "${PROJECT_NAME}"
   ARCHIVE DESTINATION "lib"
   LIBRARY DESTINATION "lib"
   RUNTIME DESTINATION "bin"
-  INCLUDES DESTINATION "include"
-)
-install(TARGETS
-  stand-height-client stand-height-server
+  INCLUDES DESTINATION "include")
+install(
+  TARGETS ${TARGETS}
   DESTINATION lib/${PROJECT_NAME})
 
 ament_package()
