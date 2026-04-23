@@ -10,4 +10,5 @@ struct JointPose {
     static JointPose fromLegState(const go2_utils::interface::lowlevel::Leg::SharedPtr &leg);
     static void fromLegState(JointPose &jp, const go2_utils::interface::lowlevel::Leg::SharedPtr &leg);
     static void toLegCommand(JointPose &jp, const go2_utils::interface::lowlevel::Leg::SharedPtr &leg);
+    static JointPose interpolate(const JointPose &jp_a, const JointPose &jp_b, const float ratio);
 };

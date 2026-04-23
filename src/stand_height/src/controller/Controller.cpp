@@ -9,6 +9,18 @@ static constexpr unsigned CONTROL_PERIOD_MS = 2;
 
 static constexpr float THIGH_MIN = 0.0f, THIGH_MAX = 2.5f;
 
+static constexpr float SIT_DOWN_THRESHOLD = 0.18f;
+
+static constexpr JointPose sit_down_pose_front{
+    .hip_q = -0.05f,
+    .thigh_q = 1.3f,
+    .calf_q = -2.8f};
+
+static constexpr JointPose sit_down_pose_back{
+    .hip_q = 0.3f,
+    .thigh_q = 1.31f,
+    .calf_q = -2.81f};
+
 Controller::Controller(const rclcpp::Node::SharedPtr &node) : node_(node) {
     using namespace std::placeholders;
     using namespace std::chrono_literals;
@@ -86,7 +98,7 @@ void Controller::service_request(
         return;
     }
 
-    if (request->height <= 0.0f || request->transition_time < 0.0f) {
+    if (request->height < 0.0f || request->transition_time < 0.0f) {
         response->status = stand_height::srv::StandHeight::Response::STATUS_INVALID_REQUEST;
         return;
     }
@@ -95,7 +107,50 @@ void Controller::service_request(
                 "Received request for height %.4f and x offset %.4f over transition time %.4f.",
                 request->height, request->x_offset, request->transition_time);
 
-    auto joint_configurations = go2_utils::kinematics::inverse(
+    if (request->height < SIT_DOWN_THRESHOLD) {
+        const auto joint_configurations = go2_utils::kinematics::inverse(
+            Eigen::Vector3f(0.0f, go2_utils::robot::L_1, -SIT_DOWN_THRESHOLD),
+            go2_utils::kinematics::LegSide::LEFT);
+
+        for (const auto &conf : joint_configurations) {
+            if (conf.y() >= THIGH_MIN && conf.y() <= THIGH_MAX) {
+                JointPose jp_to;
+                jp_to.hip_q = conf.x();
+                jp_to.thigh_q = conf.y();
+                jp_to.calf_q = conf.z();
+
+                const float ratio = request->height / SIT_DOWN_THRESHOLD;
+                JointPose jp_fl = JointPose::interpolate(jp_to, sit_down_pose_front, ratio),
+                          jp_fr = JointPose::interpolate(jp_to, sit_down_pose_front, ratio),
+                          jp_bl = JointPose::interpolate(jp_to, sit_down_pose_back, ratio),
+                          jp_br = JointPose::interpolate(jp_to, sit_down_pose_back, ratio);
+
+                jp_fr.hip_q *= -1.0f;
+                jp_br.hip_q *= -1.0f;
+
+                pose_interpolators[go2_utils::robot::LEG_FRONT_LEFT] = std::make_unique<JointPoseInterpolation>(
+                    poses[go2_utils::robot::LEG_FRONT_LEFT], jp_fl,
+                    poses[go2_utils::robot::LEG_FRONT_LEFT], request->transition_time);
+                pose_interpolators[go2_utils::robot::LEG_FRONT_RIGHT] = std::make_unique<JointPoseInterpolation>(
+                    poses[go2_utils::robot::LEG_FRONT_RIGHT], jp_fr,
+                    poses[go2_utils::robot::LEG_FRONT_RIGHT], request->transition_time);
+                pose_interpolators[go2_utils::robot::LEG_BACK_LEFT] = std::make_unique<JointPoseInterpolation>(
+                    poses[go2_utils::robot::LEG_BACK_LEFT], jp_bl,
+                    poses[go2_utils::robot::LEG_BACK_LEFT], request->transition_time);
+                pose_interpolators[go2_utils::robot::LEG_BACK_RIGHT] = std::make_unique<JointPoseInterpolation>(
+                    poses[go2_utils::robot::LEG_BACK_RIGHT], jp_br,
+                    poses[go2_utils::robot::LEG_BACK_RIGHT], request->transition_time);
+
+                response->status = stand_height::srv::StandHeight::Response::STATUS_SUCCESS;
+                return;
+            }
+        }
+        RCLCPP_WARN(node_->get_logger(),
+                    "Could not find valid joint configuration for requested sitting height.");
+        response->status = stand_height::srv::StandHeight::Response::STATUS_OUT_OF_REACH;
+    }
+
+    const auto joint_configurations = go2_utils::kinematics::inverse(
         Eigen::Vector3f(request->x_offset, go2_utils::robot::L_1, -(request->height)),
         go2_utils::kinematics::LegSide::LEFT);
 
@@ -115,6 +170,6 @@ void Controller::service_request(
     }
 
     RCLCPP_WARN(node_->get_logger(),
-                "Could not find valid joint configuration for requested height.");
+                "Could not find valid joint configuration for requested standing height.");
     response->status = stand_height::srv::StandHeight::Response::STATUS_OUT_OF_REACH;
 }
