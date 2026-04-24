@@ -37,6 +37,16 @@ set(TARGETS motion-server motion-client)
 add_executable(
   motion-server
   src/motion-server.cpp
+  src/controller/MotionController.cpp
+  src/controller/states/InitializationState.cpp
+  src/controller/states/DampState.cpp
+  src/controller/states/StandState.cpp
+  src/controller/states/stand/EnterPhase.cpp
+  src/controller/states/stand/HoldPhase.cpp
+  src/controller/states/stand/Pose.cpp
+  src/controller/states/GaitState.cpp
+  src/controller/states/StateBase.cpp
+  src/util/LinearInterpolator.cpp
   src/controller/Controller.cpp
   src/controller/JointPose.cpp
   src/controller/JointPoseInterpolation.cpp

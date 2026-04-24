@@ -64,7 +64,7 @@ int main(const int argc, char *argv[]) {
                 leg->calf()->state().q);
             auto leg_pos = go2_utils::kinematics::forwards(
                 joints,
-                (i & 1U) ? go2_utils::kinematics::LegSide::LEFT : go2_utils::kinematics::LegSide::RIGHT);
+                (i & 1U) ? go2_utils::robot::LegSide::LEFT : go2_utils::robot::LegSide::RIGHT);
 
             csv_file
                 << leg_pos->x() << ','

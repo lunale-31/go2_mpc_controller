@@ -21,7 +21,7 @@ namespace go2_utils::kinematics {
         return joint_valid(theta_1, THETA_1_MIN, THETA_1_MAX) && joint_valid(theta_2, THETA_2_MIN, THETA_2_MAX) && joint_valid(theta_3, THETA_3_MIN, THETA_3_MAX);
     }
 
-    std::optional<Eigen::Vector3f> forwards(const Eigen::Vector3f &joints, LegSide side) {
+    std::optional<Eigen::Vector3f> forwards(const Eigen::Vector3f &joints, robot::LegSide side) {
         if (!joints_valid(joints)) {
             return std::nullopt;
         }
@@ -32,7 +32,7 @@ namespace go2_utils::kinematics {
         const float s_2 = sinf(theta_2), c_2 = cosf(theta_2);
 
         // Adapt L_1 to account for inverted hip direction on the right side
-        const float L_1_adapted = (side == LegSide::LEFT) ? L_1 : -L_1;
+        const float L_1_adapted = (side == robot::LegSide::LEFT) ? L_1 : -L_1;
 
         const float x = L_2 * s_2 + L_3 * sin(theta_2 + theta_3);
         if (std::isnan(x)) {
@@ -76,9 +76,9 @@ namespace go2_utils::kinematics {
      * @param theta_1 The already-known hip joint angle
      * @returns The angles of the thigh and calf joints, if a solution exists, otherwise None
      */
-    static std::optional<std::pair<float, float>> compute_calf(const Eigen::Vector3f &target, LegSide side, const float theta_1) {
+    static std::optional<std::pair<float, float>> compute_calf(const Eigen::Vector3f &target, robot::LegSide side, const float theta_1) {
         const float &p_x = target.x(), &p_y = target.y(), &p_z = target.z();
-        const float L_1_adapted = (side == LegSide::LEFT) ? L_1 : -L_1;
+        const float L_1_adapted = (side == robot::LegSide::LEFT) ? L_1 : -L_1;
 
         const Eigen::Vector3f d_vec(p_x, p_y - L_1_adapted * cosf(theta_1), p_z - L_1_adapted * sinf(theta_1));
 
@@ -109,9 +109,9 @@ namespace go2_utils::kinematics {
         return std::nullopt;
     }
 
-    std::vector<Eigen::Vector3f> inverse(const Eigen::Vector3f &target, LegSide side) {
+    std::vector<Eigen::Vector3f> inverse(const Eigen::Vector3f &target, robot::LegSide side) {
         const float &p_y = target.y(), &p_z = target.z();
-        const float L_1_adapted = (side == LegSide::LEFT) ? L_1 : -L_1;
+        const float L_1_adapted = (side == robot::LegSide::LEFT) ? L_1 : -L_1;
 
         const float R = sqrtf(powf(p_y, 2.0f) + powf(p_z, 2.0f));
         const float alpha = acosf(epsilon_clamp(p_y / R, -1.0f, 1.0f));

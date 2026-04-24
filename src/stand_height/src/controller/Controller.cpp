@@ -110,7 +110,7 @@ void Controller::service_request(
     if (request->height < SIT_DOWN_THRESHOLD) {
         const auto joint_configurations = go2_utils::kinematics::inverse(
             Eigen::Vector3f(0.0f, go2_utils::robot::L_1, -SIT_DOWN_THRESHOLD),
-            go2_utils::kinematics::LegSide::LEFT);
+            go2_utils::robot::LegSide::LEFT);
 
         for (const auto &conf : joint_configurations) {
             if (conf.y() >= THIGH_MIN && conf.y() <= THIGH_MAX) {
@@ -152,7 +152,7 @@ void Controller::service_request(
 
     const auto joint_configurations = go2_utils::kinematics::inverse(
         Eigen::Vector3f(request->x_offset, go2_utils::robot::L_1, -(request->height)),
-        go2_utils::kinematics::LegSide::LEFT);
+        go2_utils::robot::LegSide::LEFT);
 
     for (const auto &conf : joint_configurations) {
         if (conf.y() >= THIGH_MIN && conf.y() <= THIGH_MAX) {

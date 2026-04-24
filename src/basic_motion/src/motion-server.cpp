@@ -5,7 +5,7 @@
 #include <go2_utils/kinematics.h>
 #include <go2_utils/robot.h>
 
-#include "controller/Controller.h"
+#include "controller/MotionController.h"
 
 /**
  * Main entry point
@@ -15,7 +15,7 @@
 int main(const int argc, char *argv[]) {
     rclcpp::init(argc, argv);
     auto node = std::make_shared<rclcpp::Node>("stand_height_server");
-    auto controller = std::make_shared<Controller>(node);
-    rclcpp::spin(node);
+    basic_motion::controller::MotionController controller(node, 0.002f /* seconds */);
+    rclcpp::spin_until_future_complete(node, controller.termination_future());
     rclcpp::shutdown();
 }

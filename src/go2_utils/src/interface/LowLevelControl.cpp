@@ -68,13 +68,25 @@ namespace go2_utils::interface {
 
     void LowLevelControl::initialize_legs() {
         legs_[robot::LEG_FRONT_LEFT] = std::make_shared<lowlevel::Leg>(
-            motors_[robot::JOINT_FL_HIP], motors_[robot::JOINT_FL_THIGH], motors_[robot::JOINT_FL_CALF]);
+            motors_[robot::JOINT_FL_HIP],
+            motors_[robot::JOINT_FL_THIGH],
+            motors_[robot::JOINT_FL_CALF],
+            robot::LegPair::FRONT, robot::LegSide::LEFT);
         legs_[robot::LEG_FRONT_RIGHT] = std::make_shared<lowlevel::Leg>(
-            motors_[robot::JOINT_FR_HIP], motors_[robot::JOINT_FR_THIGH], motors_[robot::JOINT_FR_CALF]);
+            motors_[robot::JOINT_FR_HIP],
+            motors_[robot::JOINT_FR_THIGH],
+            motors_[robot::JOINT_FR_CALF],
+            robot::LegPair::FRONT, robot::LegSide::RIGHT);
         legs_[robot::LEG_BACK_LEFT] = std::make_shared<lowlevel::Leg>(
-            motors_[robot::JOINT_BL_HIP], motors_[robot::JOINT_BL_THIGH], motors_[robot::JOINT_BL_CALF]);
+            motors_[robot::JOINT_BL_HIP],
+            motors_[robot::JOINT_BL_THIGH],
+            motors_[robot::JOINT_BL_CALF],
+            robot::LegPair::BACK, robot::LegSide::LEFT);
         legs_[robot::LEG_BACK_RIGHT] = std::make_shared<lowlevel::Leg>(
-            motors_[robot::JOINT_BR_HIP], motors_[robot::JOINT_BR_THIGH], motors_[robot::JOINT_BR_CALF]);
+            motors_[robot::JOINT_BR_HIP],
+            motors_[robot::JOINT_BR_THIGH],
+            motors_[robot::JOINT_BR_CALF],
+            robot::LegPair::BACK, robot::LegSide::RIGHT);
     }
 
     void LowLevelControl::update_state(const unitree_go::msg::LowState &state) {

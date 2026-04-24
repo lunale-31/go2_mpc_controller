@@ -1,6 +1,24 @@
 #pragma once
 
 namespace go2_utils::robot {
+    /**
+     * The side on which a robot leg is mounted.
+     * Left and right are defined by looking at the robot from the top and having the LiDAR sensor face up.
+     */
+    enum LegSide {
+        LEFT,
+        RIGHT,
+    };
+
+    /**
+     * The pair of legs to which a robot leg belongs.
+     * Front and back are defined by looking at the robot from the top and having the LiDAR sensor face up.
+     */
+    enum LegPair {
+        FRONT,
+        BACK,
+    };
+
     // Leg indices
     constexpr unsigned
         LEG_FRONT_RIGHT = 0U,

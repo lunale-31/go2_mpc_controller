@@ -97,7 +97,7 @@ void Controller::service_request(
 
     auto joint_configurations = go2_utils::kinematics::inverse(
         Eigen::Vector3f(request->x_offset, go2_utils::robot::L_1, -(request->height)),
-        go2_utils::kinematics::LegSide::LEFT);
+        go2_utils::robot::LegSide::LEFT);
 
     for (const auto &conf : joint_configurations) {
         if (conf.y() >= THIGH_MIN && conf.y() <= THIGH_MAX) {
