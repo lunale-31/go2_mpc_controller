@@ -18,16 +18,19 @@ namespace basic_motion::util {
             float from_, to_, current_;
 
             // Progress
-            float progress_ = 0.0f, target_;
+            float progress_ = 0.0f, progress_max_;
+
+            // Progress target
+            float &target_;
 
         public:
             /**
              * Constructor.
              * @param from Start of interpolation range
              * @param to End of interpolation range
-             * @param target End of progress range
+             * @param progress_max End of progress range
              */
-            LinearInterpolator(float from, float to, float target = 1.0f);
+            LinearInterpolator(float from, float to, float &target, float progress_max = 1.0f);
 
             /**
              * Increments the progress state

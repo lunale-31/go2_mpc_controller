@@ -42,7 +42,13 @@ namespace basic_motion::controller {
     }
 
     void MotionController::gait_service(const srv::Gait::Request::SharedPtr req, srv::Gait::Response::SharedPtr res) {
-        states::GaitParams params;
+        states::GaitParams params {
+            .body_height = 0.25f,
+            .swing_height = 0.05f,
+            .swing_min = -0.1f,
+            .swing_max = 0.1f,
+            .transition_time = 3.0f
+        };
         // TODO: Parse request
         res->status.code = state_->transition_gait(params) ? StatusMsg::STATUS_SUCCESS
                                                            : StatusMsg::STATUS_INVALID_TRANSITION;

@@ -12,13 +12,12 @@ namespace basic_motion::controller::states::stand {
     }
 
     void HoldPhase::set_params(const StandParams &params) {
-        height_interpolator_ = std::make_unique<util::LinearInterpolator>(current_height_, params.body_height, params.transition_time);
+        height_interpolator_ = std::make_unique<util::LinearInterpolator>(current_height_, params.body_height, current_height_, params.transition_time);
     }
 
     void HoldPhase::timer_tick(const float dt) {
         if (height_interpolator_) {
             height_interpolator_->update(dt);
-            current_height_ = height_interpolator_->current();
             if (height_interpolator_->finished()) {
                 height_interpolator_ = nullptr;
             }
@@ -29,7 +28,11 @@ namespace basic_motion::controller::states::stand {
             auto leg_pose = pose(current_height_, leg->pair(), leg->side());
             leg->command_joint_angles(leg_pose);
         }
-
-        llc_->publish();
+    }
+    float HoldPhase::get_height() {
+        return current_height_;
+    }
+    bool HoldPhase::is_transitioning() {
+        return !!height_interpolator_;
     }
 } // namespace basic_motion::controller::states::stand

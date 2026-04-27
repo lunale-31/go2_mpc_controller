@@ -51,11 +51,18 @@ namespace basic_motion::controller::states::stand {
         for (unsigned i = 0; i < go2_utils::robot::LEG_COUNT; ++i) {
             llc_->leg(i)->command_joint_angles(curr_qs[i]);
         }
-        llc_->publish();
         if (target_reached) {
             RCLCPP_INFO(controller_->get_logger(), "Reached initial height of %.4f.", height_);
             auto next_state = std::make_shared<HoldPhase>(state_, controller_, params_, height_);
             state_->change_phase(next_state);
         }
+    }
+
+    float EnterPhase::get_height() {
+        return height_;
+    }
+
+    bool EnterPhase::is_transitioning() {
+        return true;
     }
 } // namespace basic_motion::controller::states::stand

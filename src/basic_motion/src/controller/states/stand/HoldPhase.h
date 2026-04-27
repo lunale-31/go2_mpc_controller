@@ -20,6 +20,8 @@ namespace basic_motion::controller::states::stand {
                   const StandParams &params, const float start_height);
         void set_params(const StandParams &params);
         void timer_tick(const float dt);
+        float get_height();
+        bool is_transitioning();
     };
 
 } // namespace basic_motion::controller::states::stand

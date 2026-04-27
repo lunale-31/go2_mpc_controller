@@ -2,9 +2,15 @@
 
 #include "GaitParams.h"
 #include "StateBase.h"
+#include "gait/LegMotion.h"
 
 namespace basic_motion::controller::states {
     class GaitState : public StateBase {
+    private:
+        GaitParams params_;
+        std::unique_ptr<gait::LegMotion> legMotion[go2_utils::robot::LEG_COUNT];
+        
+        StateBase::SharedPtr enqueued_state_;
     public:
         GaitState(MotionController *controller, const GaitParams &params);
         void enter();

@@ -6,11 +6,14 @@
 namespace basic_motion::controller::states {
     class StandState : public StateBase {
     private:
+        StateBase::SharedPtr enqueued_state_;
     public:
         class StandStatePhase {
         public:
             virtual void set_params(const StandParams &params) = 0;
             virtual void timer_tick(const float dt) = 0;
+            virtual float get_height() = 0;
+            virtual bool is_transitioning() = 0;
         };
 
         void change_phase(const std::shared_ptr<StandStatePhase> &next);
@@ -25,5 +28,6 @@ namespace basic_motion::controller::states {
 
     private:
         std::shared_ptr<StandStatePhase> phase_;
+        std::shared_ptr<StandStatePhase> next_phase_ = nullptr;
     };
 } // namespace basic_motion::controller::states

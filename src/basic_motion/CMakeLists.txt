@@ -45,6 +45,7 @@ add_executable(
   src/controller/states/stand/HoldPhase.cpp
   src/controller/states/stand/Pose.cpp
   src/controller/states/GaitState.cpp
+  src/controller/states/gait/LegMotion.cpp
   src/controller/states/StateBase.cpp
   src/util/LinearInterpolator.cpp
 )

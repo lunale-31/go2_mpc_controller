@@ -7,21 +7,21 @@ namespace basic_motion::util {
         return from + p_norm * (to - from);
     }
 
-    LinearInterpolator::LinearInterpolator(float from, float to, float target)
-        : from_(from), to_(to), current_(from), target_(target) {
+    LinearInterpolator::LinearInterpolator(float from, float to, float &target, float progress_max)
+        : from_(from), to_(to), current_(from), progress_max_(progress_max), target_(target) {
         // empty
     }
 
     void LinearInterpolator::update(float increment) {
-        progress_ = std::clamp(progress_ + increment, 0.0f, target_);
-        current_ = linear_interpolate(from_, to_, target_ == 0.0f ? 1.0f : progress_ / target_);
+        progress_ = std::clamp(progress_ + increment, 0.0f, progress_max_);
+        target_ = linear_interpolate(from_, to_, target_ == 0.0f ? 1.0f : progress_ / progress_max_);
     }
 
     float LinearInterpolator::current() {
-        return current_;
+        return target_;
     }
     
     bool LinearInterpolator::finished() {
-        return progress_ >= target_;
+        return progress_ >= progress_max_;
     }
 } // namespace basic_motion::util

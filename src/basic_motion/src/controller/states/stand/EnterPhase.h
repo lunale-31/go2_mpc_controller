@@ -20,6 +20,8 @@ namespace basic_motion::controller::states::stand {
         EnterPhase(StandState *state, MotionController *controller, const StandParams &params);
         void set_params(const StandParams &params);
         void timer_tick(const float dt);
+        float get_height();
+        bool is_transitioning();
     };
 
 } // namespace basic_motion::controller::states::stand

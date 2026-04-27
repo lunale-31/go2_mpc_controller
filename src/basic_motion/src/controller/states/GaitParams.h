@@ -13,5 +13,8 @@ namespace basic_motion::controller::states {
 
         // The leg displacement in positive x direction when gaiting
         float swing_max;
+
+        // The time to transition the parameters
+        float transition_time = 2.0f /* seconds */;
     };
 }
