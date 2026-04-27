@@ -26,6 +26,7 @@ namespace basic_motion::controller::states {
     }
 
     void DampState::timer_tick(const float dt) {
+        (void) dt;
         llc_->publish();
     }
 

@@ -4,6 +4,13 @@
 #include "StandState.h"
 
 namespace basic_motion::controller::states {
+    void InitializationState::change_state_if_ready() {
+        if (initialization_complete_ && enqueued_state_) {
+            controller_->change_state(enqueued_state_);
+            enqueued_state_ = nullptr;
+        }
+    }
+
     InitializationState::InitializationState(basic_motion::controller::MotionController *controller)
         : StateBase(controller) {
         // empty
@@ -18,31 +25,30 @@ namespace basic_motion::controller::states {
     }
 
     void InitializationState::timer_tick(const float dt) {
-        (void) dt;
-        if (!initialization_complete_) {
-            if (initialization_complete_ = llc_->was_state_received(), initialization_complete_) {
-                controller_->change_state(enqueued_state_);
-                enqueued_state_ = nullptr;
-            }
+        (void)dt;
+        if (llc_->was_state_received()) {
+            initialization_complete_ = true;
+            change_state_if_ready();
+        } else {
+            RCLCPP_INFO(get_logger(), "Waiting for robot.");
         }
     }
 
     bool InitializationState::transition_damp() {
-        auto state = std::make_shared<DampState>(controller_);
-        if (initialization_complete_) {
-            controller_->change_state(state);
-        } else {
-            enqueued_state_ = state;
-        }
+        enqueued_state_ = std::make_shared<DampState>(controller_);
+        change_state_if_ready();
         return true;
     }
 
     bool InitializationState::transition_stand(const StandParams &params) {
+        enqueued_state_ = std::make_shared<StandState>(controller_, params);
+        change_state_if_ready();
         return true;
     }
 
     bool InitializationState::transition_gait(const GaitParams &params) {
-        (void) params;
+        (void)params;
+        // we do not allow this transition
         return false;
     }
 } // namespace basic_motion::controller::states

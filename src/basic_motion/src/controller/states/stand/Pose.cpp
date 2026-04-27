@@ -26,13 +26,13 @@ namespace basic_motion::controller::states::stand {
         } else {
             // Height below sitting threshold requested, interpolate with floor position
             auto joint_configurations = go2_utils::kinematics::inverse(
-                Eigen::Vector3f(0.0f, L_1, -height), LegSide::LEFT); // we correct for the side in a few lines
+                Eigen::Vector3f(0.0f, L_1, -sit_down_threshold), LegSide::LEFT); // we correct for the side in a few lines
             for (auto &t_conf : joint_configurations) {
                 if (t_conf.y() >= thigh_min && t_conf.y() <= thigh_max) {
                     const float p = height / sit_down_threshold;
                     auto conf = t_conf * p + (pair == LegPair::FRONT ? sit_down_pose_front_left : sit_down_pose_back_left) * (1.0f - p);
                     if (side == LegSide::RIGHT) {
-                        return Eigen::Vector3f(conf.x(), -conf.y(), conf.z());
+                        return Eigen::Vector3f(-conf.x(), conf.y(), conf.z());
                     }
                     return conf;
                 }

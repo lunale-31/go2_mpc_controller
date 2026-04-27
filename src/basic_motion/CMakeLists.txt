@@ -47,9 +47,6 @@ add_executable(
   src/controller/states/GaitState.cpp
   src/controller/states/StateBase.cpp
   src/util/LinearInterpolator.cpp
-  src/controller/Controller.cpp
-  src/controller/JointPose.cpp
-  src/controller/JointPoseInterpolation.cpp
 )
 
 # Stand height client

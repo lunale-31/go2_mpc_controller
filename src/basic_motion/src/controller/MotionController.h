@@ -17,7 +17,7 @@ namespace basic_motion::controller {
         const rclcpp::Node::SharedPtr node_;
 
         // Current motion state
-        states::StateBase::SharedPtr state_;
+        states::StateBase::SharedPtr state_, next_state_ = nullptr;
 
         // Control timer
         rclcpp::TimerBase::SharedPtr timer_;

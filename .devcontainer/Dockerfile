@@ -29,7 +29,7 @@ RUN sudo usermod --append --groups video $USERNAME
 RUN sudo apt-get update && sudo apt-get upgrade -y
 
 # Install Git and CycloneDDS dependencies
-RUN sudo apt-get install -y git build-essential libyaml-cpp-dev ros-${ROS_DISTRO}-rmw-cyclonedds-cpp ros-${ROS_DISTRO}-rosidl-generator-dds-idl ros-${ROS_DISTRO}-ament-cmake-clang-format iproute2 python3-ipykernel python3-pandas
+RUN sudo apt-get install -y git build-essential libyaml-cpp-dev ros-${ROS_DISTRO}-rmw-cyclonedds-cpp ros-${ROS_DISTRO}-rosidl-generator-dds-idl ros-${ROS_DISTRO}-ament-cmake-clang-format iproute2 python3-ipykernel python3-pandas gdb
 
 # Rosdep update
 RUN rosdep update

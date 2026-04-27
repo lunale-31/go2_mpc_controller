@@ -1,5 +1,6 @@
 #include <go2_utils/interface/lowlevel/Leg.h>
 #include <go2_utils/kinematics.h>
+#include <iostream>
 
 namespace go2_utils::interface::lowlevel {
     Leg::Leg(Joint::SharedPtr &hip, Joint::SharedPtr &thigh, Joint::SharedPtr &calf,
@@ -43,6 +44,7 @@ namespace go2_utils::interface::lowlevel {
     Eigen::Vector3f Leg::foot_position() const {
         auto pos_opt = kinematics::forwards(joint_angles(), side_);
         if (!pos_opt) {
+            std::cerr << joint_angles() << std::endl;
             throw std::invalid_argument("Could not compute foot position.");
         }
         return *pos_opt;

@@ -11,6 +11,17 @@ using StatusMsg = basic_motion::msg::Status;
 
 namespace basic_motion::controller {
     void MotionController::timer_tick() {
+        // switch to next state
+        if (next_state_) {
+            if (state_) {
+                state_->leave();
+            }
+            state_ = next_state_;
+            next_state_ = nullptr;
+            state_->enter();
+        }
+
+        // tick state
         if (state_) {
             state_->timer_tick(timer_period_);
         }
@@ -39,11 +50,22 @@ namespace basic_motion::controller {
 
     MotionController::MotionController(const rclcpp::Node::SharedPtr &node, float timer_period)
         : node_(node), timer_period_(timer_period) {
+
+        // create low-level controller
+        llc_ = std::make_shared<go2_utils::interface::LowLevelControl>(node);
+
         // start with initialization state
         state_ = std::make_shared<states::InitializationState>(this);
+        state_->enter();
 
         // request it to change to damp state once ready
         state_->transition_damp();
+
+        // create timer
+        timer_ = node_->create_wall_timer(
+            std::chrono::milliseconds(static_cast<int>(round(1000.0f * timer_period))),
+            std::bind(&MotionController::timer_tick, this)
+        );
 
         // create services
         using namespace std::placeholders;
@@ -67,15 +89,7 @@ namespace basic_motion::controller {
     }
 
     void MotionController::change_state(const states::StateBase::SharedPtr &next) {
-        if (state_) {
-            state_->leave();
-        }
-        if (next) {
-            state_ = next;
-            next->enter();
-        } else {
-            termination_promise_.set_value();
-        }
+        next_state_ = next;
     }
 
     go2_utils::interface::LowLevelControl::SharedPtr &MotionController::low_level_control() {

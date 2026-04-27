@@ -62,5 +62,5 @@ namespace go2_utils::robot {
     const float THETA_2_MIN = -0.58f, THETA_2_MAX = 4.6f;
 
     // Calf joint angle limits (in radians)
-    const float THETA_3_MIN = -2.8f, THETA_3_MAX = -0.95f;
+    const float THETA_3_MIN = -2.85f, THETA_3_MAX = -0.95f;
 } // namespace go2_utils::robot

@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <go2_utils/robot.h>
 
-static constexpr float dq_max[]{0.3f, 0.3f, 0.3f} /* rad/s */;
+static constexpr float dq_max[]{2.0f, 4.5f, 2.5f} /* rad/s */;
 
 static constexpr float stand_height_min = 0.0f /* meter */;
 static constexpr float stand_height_max = 0.35f /* meter */;
@@ -44,7 +44,7 @@ namespace basic_motion::controller::states::stand {
             for (unsigned i = 0; i < go2_utils::robot::LEG_COUNT; ++i) {
                 curr_qs[i][j] = std::clamp(target_qs[i][j], curr_qs[i][j] - step, curr_qs[i][j] + step);
                 if (abs(curr_qs[i][j] - target_qs[i][j]) > q_epsilon) {
-                    target_reached = true;
+                    target_reached = false;
                 }
             }
         }

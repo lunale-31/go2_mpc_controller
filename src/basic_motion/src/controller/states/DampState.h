@@ -6,6 +6,9 @@ namespace basic_motion::controller::states {
     class DampState : public StateBase {
     public:
         DampState(MotionController *controller);
+        ~DampState() {
+            RCLCPP_INFO(get_logger(), "DampState Destructor.");
+        };
         void enter();
         void leave();
         void timer_tick(const float dt);
