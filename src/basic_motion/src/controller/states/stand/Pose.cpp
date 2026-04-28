@@ -1,7 +1,7 @@
 #include "Pose.h"
 
 // Constants
-static constexpr float sit_down_threshold = 0.18f;
+static constexpr float sit_down_threshold = 0.12f;
 static constexpr float thigh_min = 0.0f, thigh_max = 2.5f;
 static const auto sit_down_pose_front_left = Eigen::Vector3f(-0.05f, 1.3f, -2.8f);
 static const auto sit_down_pose_back_left = Eigen::Vector3f(0.3f, 1.31f, -2.81f);
