@@ -1,0 +1,12 @@
+<launch>
+  <include file="$(find-pkg-share gazebo_ros)/launch/gazebo.launch.py" />
+
+  <node pkg="tf2_ros" exec="static_transform_publisher" name="tf_footprint_base" 
+        args="0 0 0 0 0 0 base_link base_footprint" />
+
+  <node pkg="gazebo_ros" exec="spawn_entity.py" name="spawn_model"
+        args="-file $(find-pkg-share go2_description)/urdf/go2_description.urdf -entity go2 -topic robot_description"
+        output="screen" />
+
+  <executable cmd="ros2 topic pub /calibrated std_msgs/msg/Bool '{data: true}' --once" />
+</launch>
