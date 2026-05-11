@@ -4,7 +4,7 @@ SHELL ["bash", "-lc"]
 
 RUN apt-get update && \
     apt-get upgrade -y --autoremove && \
-    apt-get install -y build-essential cmake git curl iproute2 gdb python3-ipykernel libyaml-cpp-dev python3-pandas \
+    apt-get install -y build-essential cmake git curl iproute2 gdb python3-ipykernel libyaml-cpp-dev python3-pandas openssh-client \
         ros-${ROS_DISTRO}-rmw-cyclonedds-cpp ros-${ROS_DISTRO}-rosidl-generator-dds-idl ros-${ROS_DISTRO}-ament-cmake-clang-format
 
 RUN rosdep update
