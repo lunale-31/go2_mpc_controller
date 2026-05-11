@@ -17,10 +17,6 @@ The code in this repository is seperated into several directories.
 
 - 📂 **config**: Configuration files for experiments
 - 📂 **docs**: Documentation and guides
-- 📂 **lib**: Libraries used in this project (imported by `setup_dependencies.sh`)
-    - 📂 **cyclonedds**: CycloneDDS library
-    - 📂 **rmw_cyclonedds**: CycloneDDS RMW interface
-    - 📂 **unitree**: Unitree-specific IDL messages
 - 📂 **src**: Main source code (organized in ROS2 packages)
     - 📂 **go2_cli**: Collection of CLI tools for Go2 robot interaction
     - 📂 **go2_utils**: Library for Go2 robot interaction
@@ -28,9 +24,15 @@ The code in this repository is seperated into several directories.
 - 📂 **old**: Old code snippets waiting for deletion
 - 📂 **theory**: Notes and scratchpad code
 
-## Quickstart Guide
-TODO: Finish
+## Quickstart Guide (Dev Container)
+Open the repository in an editor that supports Dev Containers (e.g., _Visual Studio Code_ with the _Dev Containers_ extension), and start the container (this might take a few minutes).
 
+Once the container is ready, you can compile the code using this command:
+```bash
+colcon build
+```
+
+## Quickstart Guide (Native)
 Make sure you have a working installation of ROS2 Humble (running on Ubuntu 22.04).
 Then, import the dependencies of this code by running this command:
 ```bash

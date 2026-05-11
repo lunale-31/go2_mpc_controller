@@ -110,13 +110,13 @@ namespace basic_motion::controller::states::gait {
         if (normalized_time < sub_step) {
             // do the step
             const float x_lift = normalized_time / sub_step;
-            target_x = x_lift * swing_forwards_ + (1.0f - x_lift) * swing_backwards_;
+            target_x = x_lift * swing_backwards_ + (1.0f - x_lift) * swing_forwards_;
             const float z_lift = std::pow(2.0f * x_lift - 1.0f, 2.0f);
             target_z = z_lift * stand_height_ + (1.0f - z_lift) * (stand_height_ - swing_height_);
         } else {
             // push back the legconst float x_lift = normalized_time / sub_step;
             const float x_lift = (normalized_time - sub_step) / (gaiting_period_ - sub_step);
-            target_x = x_lift * swing_backwards_ + (1.0f - x_lift) * swing_forwards_;
+            target_x = x_lift * swing_forwards_ + (1.0f - x_lift) * swing_backwards_;
             target_z = stand_height_;
         }
 

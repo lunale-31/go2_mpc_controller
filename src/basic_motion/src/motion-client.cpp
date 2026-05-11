@@ -74,17 +74,17 @@ int cmd_damp([[maybe_unused]] const int argc, [[maybe_unused]] char *argv[], con
 }
 
 int cmd_stand([[maybe_unused]] const int argc, [[maybe_unused]] char *argv[], [[maybe_unused]] const rclcpp::Node::SharedPtr &node) {
-    try {
+    //try {
         auto request = std::make_shared<basic_motion::srv::Stand_Request>();
         request->height = parse_float(argv[2]);
         request->transition_time = parse_float(argv[3]);
         RCLCPP_INFO(node->get_logger(), "Requesting standing at height %.4f.", request->height);
         auto response = perform_request<basic_motion::srv::Stand>(node, basic_motion::SERVICE_NAME_STAND, request);
         return response->status.code;
-    } catch (std::exception &e) {
+    /*} catch (std::exception &e) {
         RCLCPP_ERROR(node->get_logger(), "Caught error: %s", e.what());
         return 1;
-    }
+    }*/
 }
 
 int cmd_gait([[maybe_unused]] const int argc, [[maybe_unused]] char *argv[], [[maybe_unused]] const rclcpp::Node::SharedPtr &node) {
