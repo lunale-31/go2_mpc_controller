@@ -36,7 +36,7 @@ Once the container is ready, you can compile the code using this command:
 colcon build
 ```
 
-If this succeeds, you can continue to _Working with the Code_.
+If this succeeds, you can continue to _Running the Code_.
 
 ### Installing Libraries (Native)
 Make sure you have a working installation of ROS2 Humble (running on Ubuntu 22.04).
@@ -50,7 +50,7 @@ Once all dependencies are installed, you can compile the code using this command
 colcon build
 ```
 
-If this succeeds, you can continue to _Working with the Code_.
+If this succeeds, you can continue to _Running the Code_.
 
 ### Running the Code
 The code in this repository is a collection of ROS2 packages.
@@ -65,6 +65,9 @@ Choose one of the following (`dds-robot` uses the network interface connected to
 source dds-robot 
 source dds-loopback
 ```
+
+**Note:** It suffices to run the above commands once when you open your terminal.
+The settings will be kept until you close the terminal.
 
 Finally, you can run the code using `ros2`, for example:
 ```bash
