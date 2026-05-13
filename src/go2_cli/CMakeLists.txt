@@ -44,7 +44,7 @@ add_executable(motion-switcher
 )
 
 foreach(TARGET IN LISTS TARGETS)
-  ament_target_dependencies(${TARGET} go2_utils rclcpp)
+  ament_target_dependencies(${TARGET} go2_utils)
 endforeach()
 
 if(BUILD_TESTING)
