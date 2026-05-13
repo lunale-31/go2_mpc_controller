@@ -4,7 +4,7 @@ static const std::string DDS_TOPIC = "/sportmodestate";
 
 namespace go2_utils::interact {
     HighLevelState::HighLevelState(const rclcpp::Node::SharedPtr &node) {
-        node->create_subscription(DDS_TOPIC, 10, std::bind(&HighLevelState::update_state, this, std::placeholders::_1));
+        node->create_subscription<unitree_go::msg::SportModeState>(DDS_TOPIC, 10, std::bind(&HighLevelState::update_state, this, std::placeholders::_1));
     }
 
     std::array<float, 3> &HighLevelState::position() {
