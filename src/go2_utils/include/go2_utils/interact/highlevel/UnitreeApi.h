@@ -56,7 +56,7 @@ namespace go2_utils::interact::highlevel
             req.header.identity.api_id = api_id;
             req.header.identity.id = req_id;
             req.parameter = body;
-            RCLCPP_INFO(node_->get_logger(), "Sending request %ld to api %ld (body: '%s')", req_id, api_id, body.c_str());
+            RCLCPP_DEBUG(node_->get_logger(), "Sending request %ld to api %ld (body: '%s')", req_id, api_id, body.c_str());
             publisher_->publish(req);
             return future;
         }

@@ -32,8 +32,12 @@ namespace go2_utils::interact {
         /// @return True iff a state has been received from the robot.
         [[nodiscard]] bool was_state_received();
 
+        using SharedPtr = std::shared_ptr<HighLevelState>;
+
     private:
         void update_state(const unitree_go::msg::SportModeState &state);
+
+        rclcpp::Subscription<unitree_go::msg::SportModeState>::SharedPtr state_subscription_;
 
         // was state received?
         bool state_received_ = false;
