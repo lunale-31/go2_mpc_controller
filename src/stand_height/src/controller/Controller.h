@@ -3,7 +3,7 @@
 #include <rclcpp/rclcpp.hpp>
 #include <stand_height/srv/stand_height.hpp>
 #include <go2_utils/robot.h>
-#include <go2_utils/interface/LowLevelControl.h>
+#include <go2_utils/interact/LowLevelControl.h>
 
 #include "JointPose.h"
 #include "JointPoseInterpolation.h"
@@ -13,7 +13,7 @@ class Controller {
         rclcpp::Node::SharedPtr node_;
         rclcpp::Service<stand_height::srv::StandHeight>::SharedPtr service_;
         rclcpp::TimerBase::SharedPtr timer_;
-        go2_utils::interface::LowLevelControl::SharedPtr llc_;
+        go2_utils::interact::LowLevelControl::SharedPtr llc_;
 
         bool is_initialized_;
 

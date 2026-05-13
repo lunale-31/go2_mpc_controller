@@ -10,7 +10,7 @@ namespace basic_motion::controller::states::stand {
     private:
         StandState *state_;
         MotionController *controller_;
-        go2_utils::interface::LowLevelControl::SharedPtr llc_;
+        go2_utils::interact::LowLevelControl::SharedPtr llc_;
 
         float current_height_;
         std::unique_ptr<util::LinearInterpolator> height_interpolator_;

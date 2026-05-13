@@ -1,6 +1,6 @@
-#include <go2_utils/interface/lowlevel/Joint.h>
+#include <go2_utils/interact/lowlevel/Joint.h>
 
-namespace go2_utils::interface::lowlevel {
+namespace go2_utils::interact::lowlevel {
     Joint::Joint(unitree_go::msg::MotorCmd &cmd)
         : cmd_(cmd) {
         // empty

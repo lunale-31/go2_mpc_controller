@@ -1,5 +1,5 @@
 #include "../lib/nlohmann/json.hpp"
-#include <go2_utils/interface/HighLevelControl.h>
+#include <go2_utils/interact/HighLevelControl.h>
 #include <string>
 
 using json = nlohmann::json;
@@ -19,7 +19,7 @@ static bool check_status_code(const unitree_api::msg::Response::SharedPtr &msg) 
     return msg->header.status.code == 0;
 }
 
-namespace go2_utils::interface {
+namespace go2_utils::interact {
     HighLevelControl::HighLevelControl(const rclcpp::Node::SharedPtr &node) : UnitreeApi(API_TOPIC, node) {
         // empty
     }
@@ -49,4 +49,4 @@ namespace go2_utils::interface {
         json req = {{"x", roll}, {"y", pitch}, {"z", yaw}};
         return call_api_and_transform<bool>(API_ID_EULER, check_status_code, req.dump());
     }
-} // namespace go2_utils::interface
+} // namespace go2_utils::interact

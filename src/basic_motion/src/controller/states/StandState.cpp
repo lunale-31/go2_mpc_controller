@@ -19,8 +19,8 @@ namespace basic_motion::controller::states {
         for (unsigned i = 0; i < go2_utils::robot::JOINT_COUNT; ++i) {
             auto &joint_cmd = llc_->joint(i)->cmd();
             joint_cmd.mode = 1;
-            joint_cmd.kp = 60.0f;
-            joint_cmd.kd = 5.0f;
+            joint_cmd.kp = 80.0f;
+            joint_cmd.kd = 6.0f;
             joint_cmd.tau = 0.0f;
         }
     }

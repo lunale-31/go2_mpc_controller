@@ -1,7 +1,7 @@
 #pragma once
 
 #include "StateBase.h"
-#include <go2_utils/interface/LowLevelControl.h>
+#include <go2_utils/interact/LowLevelControl.h>
 
 namespace basic_motion::controller::states {
     class InitializationState : public StateBase {

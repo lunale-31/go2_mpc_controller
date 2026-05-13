@@ -4,7 +4,7 @@
 #include <eigen3/Eigen/Dense>
 #include <go2_utils/robot.h>
 
-namespace go2_utils::interface::lowlevel {
+namespace go2_utils::interact::lowlevel {
     class Leg {
     public:
         /**

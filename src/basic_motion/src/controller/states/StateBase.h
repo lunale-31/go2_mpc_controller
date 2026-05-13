@@ -2,7 +2,7 @@
 
 #include <memory>
 #include <rclcpp/rclcpp.hpp>
-#include <go2_utils/interface/LowLevelControl.h>
+#include <go2_utils/interact/LowLevelControl.h>
 #include "GaitParams.h"
 #include "StandParams.h"
 
@@ -14,7 +14,7 @@ namespace basic_motion::controller::states {
     class StateBase {
     protected:
         MotionController *controller_;
-        go2_utils::interface::LowLevelControl::SharedPtr llc_;
+        go2_utils::interact::LowLevelControl::SharedPtr llc_;
 
         rclcpp::Logger get_logger();
 

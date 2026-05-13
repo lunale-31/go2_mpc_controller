@@ -1,7 +1,7 @@
 #include "../lib/go2_crc32/go_crc32.h"
 
 #include <chrono>
-#include <go2_utils/interface/LowLevelControl.h>
+#include <go2_utils/interact/LowLevelControl.h>
 #include <go2_utils/robot.h>
 
 static const std::string REQUEST_TOPIC = "/lowcmd";
@@ -9,7 +9,7 @@ static const std::string RESPONSE_TOPIC = "/lowstate";
 
 using namespace std::chrono_literals;
 
-namespace go2_utils::interface {
+namespace go2_utils::interact {
     LowLevelControl::LowLevelControl(const rclcpp::Node::SharedPtr &node) : node_(node) {
         // Initialize low command
         low_command_ = std::make_unique<unitree_go::msg::LowCmd>();
@@ -112,4 +112,4 @@ namespace go2_utils::interface {
     bool LowLevelControl::was_state_received() {
         return state_received_;
     }
-} // namespace go2_utils::interface
+} // namespace go2_utils::interact

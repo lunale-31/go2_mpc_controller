@@ -1,5 +1,5 @@
 #include "../lib/nlohmann/json.hpp"
-#include <go2_utils/interface/MotionSwitcher.h>
+#include <go2_utils/interact/MotionSwitcher.h>
 #include <string>
 
 using json = nlohmann::json;
@@ -15,7 +15,7 @@ static bool check_status_code(const unitree_api::msg::Response::SharedPtr &msg) 
     return msg->header.status.code == 0;
 }
 
-namespace go2_utils::interface {
+namespace go2_utils::interact {
     MotionSwitcher::MotionSwitcher(const rclcpp::Node::SharedPtr &node) : UnitreeApi(API_TOPIC, node) {
         // empty
     }
@@ -32,4 +32,4 @@ namespace go2_utils::interface {
         json req = {{"silent", silent}};
         return call_api_and_transform<bool>(API_SET_SILENT, check_status_code, req.dump());
     }
-} // namespace go2_utils::interface
+} // namespace go2_utils::interact

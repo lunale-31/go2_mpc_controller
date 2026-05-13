@@ -1,6 +1,6 @@
-#include <go2_utils/interface/highlevel/UnitreeApi.h>
+#include <go2_utils/interact/highlevel/UnitreeApi.h>
 
-namespace go2_utils::interface::highlevel
+namespace go2_utils::interact::highlevel
 {
     UnitreeApi::UnitreeApi(const std::string &topic, const rclcpp::Node::SharedPtr &node) : node_(node)
     {

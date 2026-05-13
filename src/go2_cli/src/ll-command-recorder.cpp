@@ -2,7 +2,7 @@
 #include <fstream>
 #include <memory>
 #include <rclcpp/rclcpp.hpp>
-#include <go2_utils/interface/LowLevelControl.h>
+#include <go2_utils/interact/LowLevelControl.h>
 
 static const std::string REQUEST_TOPIC = "/lowcmd";
 
@@ -44,7 +44,7 @@ int main(const int argc, char *argv[]) {
 
     // create node and executor
     const rclcpp::Node::SharedPtr node = rclcpp::Node::make_shared("recorder");
-    go2_utils::interface::LowLevelControl llc(node);
+    go2_utils::interact::LowLevelControl llc(node);
 
     // prepare recorder
     unsigned time = 0;

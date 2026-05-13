@@ -10,7 +10,7 @@ namespace basic_motion::controller::states::stand {
         StandState *state_;
         MotionController *controller_;
         StandParams params_;
-        go2_utils::interface::LowLevelControl::SharedPtr llc_;
+        go2_utils::interact::LowLevelControl::SharedPtr llc_;
         float height_;
 
         Eigen::Vector3f curr_qs[go2_utils::robot::LEG_COUNT],

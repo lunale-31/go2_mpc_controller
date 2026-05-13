@@ -38,6 +38,8 @@ RUN echo "PROMPT_COMMAND+=(\"history -a\")" >> ~/.bashrc
 RUN echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> ~/.bashrc
 RUN echo "source /opt/unitree_ros2/setup.bash" >> ~/.bashrc
 RUN echo "if [ -d /workspace/install ]; then source /workspace/install/setup.bash; else echo Initialize the workspace by running 'colcon build'.; fi" >> ~/.bashrc
+RUN echo 'export PS1="\${dds_prompt:+\033[37m[DDS \$dds_prompt]\033[0m }$PS1"' >> ~/.bashrc
+
 
 ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 ENV UNITREE_ROS2_CONTAINER=true

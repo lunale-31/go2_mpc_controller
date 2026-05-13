@@ -3,7 +3,7 @@
 #include <rclcpp/executors.hpp>
 #include <rclcpp/node.hpp>
 #include <string>
-#include <go2_utils/interface/MotionSwitcher.h>
+#include <go2_utils/interact/MotionSwitcher.h>
 
 using namespace std::chrono_literals;
 
@@ -37,7 +37,7 @@ int main(const int argc, char *argv[]) {
 
     // create node and executor
     const rclcpp::Node::SharedPtr node = rclcpp::Node::make_shared("motion_switcher");
-    go2_utils::interface::MotionSwitcher motion_switcher(node);
+    go2_utils::interact::MotionSwitcher motion_switcher(node);
     rclcpp::spin_some(node);
 
     // let everything get ready

@@ -3,7 +3,7 @@
 #include <rclcpp/executors.hpp>
 #include <rclcpp/node.hpp>
 #include <string>
-#include <go2_utils/interface/HighLevelControl.h>
+#include <go2_utils/interact/HighLevelControl.h>
 
 using namespace std::chrono_literals;
 
@@ -17,7 +17,7 @@ int main(const int argc, char *argv[]) {
 
     // create node and executor
     const rclcpp::Node::SharedPtr node = rclcpp::Node::make_shared("stand_up");
-    go2_utils::interface::HighLevelControl high_command(node);
+    go2_utils::interact::HighLevelControl high_command(node);
     rclcpp::spin_some(node);
 
     // let everything get ready

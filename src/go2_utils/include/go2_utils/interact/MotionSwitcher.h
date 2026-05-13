@@ -2,7 +2,7 @@
 
 #include "highlevel/UnitreeApi.h"
 
-namespace go2_utils::interface {
+namespace go2_utils::interact {
     class MotionSwitcher : highlevel::UnitreeApi {
     public:
         /**

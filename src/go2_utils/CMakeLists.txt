@@ -29,12 +29,13 @@ include_directories(include include/nlohmann)
 add_library(
   "${PROJECT_NAME}" SHARED
   src/kinematics.cpp
-  src/interface/HighLevelControl.cpp
-  src/interface/MotionSwitcher.cpp
-  src/interface/highlevel/UnitreeApi.cpp
-  src/interface/LowLevelControl.cpp
-  src/interface/lowlevel/Joint.cpp
-  src/interface/lowlevel/Leg.cpp
+  src/interact/HighLevelControl.cpp
+  src/interact/HighLevelState.cpp
+  src/interact/MotionSwitcher.cpp
+  src/interact/highlevel/UnitreeApi.cpp
+  src/interact/LowLevelControl.cpp
+  src/interact/lowlevel/Joint.cpp
+  src/interact/lowlevel/Leg.cpp
 )
 ament_target_dependencies("${PROJECT_NAME}" ${DEPENDENCIES})
 ament_export_targets("${PROJECT_NAME}" HAS_LIBRARY_TARGET)

@@ -5,7 +5,7 @@
 
 #include <mutex>
 
-namespace go2_utils::interface::lowlevel {
+namespace go2_utils::interact::lowlevel {
     class Joint {
     public:
         /**

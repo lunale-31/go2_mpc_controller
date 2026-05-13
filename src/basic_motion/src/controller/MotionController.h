@@ -5,7 +5,7 @@
 #include <basic_motion/srv/gait.hpp>
 #include <basic_motion/srv/stand.hpp>
 #include <future>
-#include <go2_utils/interface/LowLevelControl.h>
+#include <go2_utils/interact/LowLevelControl.h>
 #include <go2_utils/robot.h>
 #include <rclcpp/rclcpp.hpp>
 
@@ -24,7 +24,7 @@ namespace basic_motion::controller {
         float timer_period_;
 
         // Low-level motion controller
-        go2_utils::interface::LowLevelControl::SharedPtr llc_;
+        go2_utils::interact::LowLevelControl::SharedPtr llc_;
 
         // Services
         rclcpp::Service<basic_motion::srv::Damp>::SharedPtr damp_service_;
@@ -49,6 +49,6 @@ namespace basic_motion::controller {
 
         void change_state(const states::StateBase::SharedPtr &next);
 
-        go2_utils::interface::LowLevelControl::SharedPtr &low_level_control();
+        go2_utils::interact::LowLevelControl::SharedPtr &low_level_control();
     };
 } // namespace basic_motion::controller

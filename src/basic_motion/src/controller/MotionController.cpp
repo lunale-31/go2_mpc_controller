@@ -59,7 +59,7 @@ namespace basic_motion::controller {
         : node_(node), timer_period_(timer_period) {
 
         // create low-level controller
-        llc_ = std::make_shared<go2_utils::interface::LowLevelControl>(node);
+        llc_ = std::make_shared<go2_utils::interact::LowLevelControl>(node);
 
         // start with initialization state
         state_ = std::make_shared<states::InitializationState>(this);
@@ -99,7 +99,7 @@ namespace basic_motion::controller {
         next_state_ = next;
     }
 
-    go2_utils::interface::LowLevelControl::SharedPtr &MotionController::low_level_control() {
+    go2_utils::interact::LowLevelControl::SharedPtr &MotionController::low_level_control() {
         return llc_;
     }
 } // namespace basic_motion::controller

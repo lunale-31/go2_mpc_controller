@@ -31,7 +31,7 @@ Controller::Controller(const rclcpp::Node::SharedPtr &node) : node_(node) {
 
     timer_ = node_->create_wall_timer(std::chrono::milliseconds(CONTROL_PERIOD_MS), std::bind(&Controller::timer_tick, this));
 
-    llc_ = std::make_shared<go2_utils::interface::LowLevelControl>(node);
+    llc_ = std::make_shared<go2_utils::interact::LowLevelControl>(node);
 }
 
 void Controller::timer_tick() {

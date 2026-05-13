@@ -7,7 +7,7 @@
 #include "lowlevel/Leg.h"
 #include "lowlevel/Joint.h"
 
-namespace go2_utils::interface {
+namespace go2_utils::interact {
     class LowLevelControl {
     public:
         /**

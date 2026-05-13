@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace go2_utils::interface::lowlevel {
+namespace go2_utils::interact::lowlevel {
 
     /**
      * IMU State measured by the robot

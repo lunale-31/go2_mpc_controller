@@ -1,6 +1,6 @@
 #include <chrono>
 #include <fstream>
-#include <go2_utils/interface/LowLevelControl.h>
+#include <go2_utils/interact/LowLevelControl.h>
 #include <go2_utils/kinematics.h>
 #include <memory>
 #include <rclcpp/rclcpp.hpp>
@@ -45,7 +45,7 @@ int main(const int argc, char *argv[]) {
 
     // create node
     const rclcpp::Node::SharedPtr node = rclcpp::Node::make_shared("recorder");
-    go2_utils::interface::LowLevelControl llc(node);
+    go2_utils::interact::LowLevelControl llc(node);
 
     // run the measurements
     unsigned time = 0;

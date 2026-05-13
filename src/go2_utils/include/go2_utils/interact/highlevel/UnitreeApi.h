@@ -9,7 +9,7 @@
 #include <unitree_api/msg/response.hpp>
 #include <cstdint>
 
-namespace go2_utils::interface::highlevel
+namespace go2_utils::interact::highlevel
 {
     /**
      * Communication wrapper for interfacing with Unitree's high-level request-response API 

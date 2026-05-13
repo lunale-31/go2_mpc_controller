@@ -5,12 +5,12 @@
 #include <eigen3/Eigen/Dense>
 #include <go2_utils/kinematics.h>
 #include <go2_utils/robot.h>
-#include <go2_utils/interface/lowlevel/Leg.h>
+#include <go2_utils/interact/lowlevel/Leg.h>
 
 namespace basic_motion::controller::states::gait {
     class LegMotion {
     private:
-        go2_utils::interface::lowlevel::Leg::SharedPtr leg_;
+        go2_utils::interact::lowlevel::Leg::SharedPtr leg_;
 
         float stand_height_, swing_height_ = 0.0f, swing_forwards_ = 0.0f, swing_backwards_ = 0.0f;
         std::unique_ptr<util::LinearInterpolator>
@@ -35,7 +35,7 @@ namespace basic_motion::controller::states::gait {
         GaitPhase phase_ = GaitPhase::STANDING;
 
     public:
-        LegMotion(const go2_utils::interface::lowlevel::Leg::SharedPtr &leg,
+        LegMotion(const go2_utils::interact::lowlevel::Leg::SharedPtr &leg,
                   unsigned offset);
 
         void start_gaiting(const GaitParams &params);

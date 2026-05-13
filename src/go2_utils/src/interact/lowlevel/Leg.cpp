@@ -1,8 +1,8 @@
-#include <go2_utils/interface/lowlevel/Leg.h>
+#include <go2_utils/interact/lowlevel/Leg.h>
 #include <go2_utils/kinematics.h>
 #include <iostream>
 
-namespace go2_utils::interface::lowlevel {
+namespace go2_utils::interact::lowlevel {
     Leg::Leg(Joint::SharedPtr &hip, Joint::SharedPtr &thigh, Joint::SharedPtr &calf,
              robot::LegPair pair, robot::LegSide side)
         : hip_(hip), thigh_(thigh), calf_(calf), side_(side), pair_(pair) {
@@ -49,4 +49,4 @@ namespace go2_utils::interface::lowlevel {
         }
         return *pos_opt;
     }
-} // namespace go2_utils::interface::lowlevel
+} // namespace go2_utils::interact::lowlevel
