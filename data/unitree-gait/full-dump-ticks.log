@@ -1,0 +1,14 @@
+[INFO] [1778682920.566761375] [gait_logger]: Waiting to receive high- and lowlevel data...
+[INFO] [1778682920.592063288] [gait_logger]: Received data on both channels.
+[INFO] [1778682920.594235496] [gait_logger]: Started fast forwards walk at tick 0.
+[INFO] [1778682924.528311221] [gait_logger]: Stopped fast forwards walk at tick 1909.
+[INFO] [1778682924.528395401] [gait_logger]: Started fast backwards walk at tick 1909.
+[INFO] [1778682929.027127981] [gait_logger]: Stopped fast backwards walk at tick 4146.
+[INFO] [1778682929.027213097] [gait_logger]: Started medium forwards walk at tick 4146.
+[INFO] [1778682935.919024274] [gait_logger]: Stopped medium forwards walk at tick 7548.
+[INFO] [1778682935.919053424] [gait_logger]: Started medium backwards walk at tick 7548.
+[INFO] [1778682943.238250337] [gait_logger]: Stopped medium backwards walk at tick 11162.
+[INFO] [1778682943.238302448] [gait_logger]: Started slow forwards walk at tick 11162.
+[INFO] [1778682960.387915551] [gait_logger]: Stopped slow forwards walk at tick 19648.
+[INFO] [1778682960.387980672] [gait_logger]: Started slow backwards walk at tick 19648.
+[INFO] [1778682976.262939257] [gait_logger]: Stopped slow backwards walk at tick 27481.
