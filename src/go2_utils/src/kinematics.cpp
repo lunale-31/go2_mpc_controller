@@ -34,7 +34,7 @@ namespace go2_utils::kinematics {
         // Adapt L_1 to account for inverted hip direction on the right side
         const float L_1_adapted = (side == robot::LegSide::LEFT) ? L_1 : -L_1;
 
-        const float x = L_2 * s_2 + L_3 * sin(theta_2 + theta_3);
+        const float x = -L_2 * s_2 + L_3 * sin(theta_2 + theta_3);
         if (std::isnan(x)) {
             return std::nullopt;
         }
@@ -77,7 +77,7 @@ namespace go2_utils::kinematics {
      * @returns The angles of the thigh and calf joints, if a solution exists, otherwise None
      */
     static std::optional<std::pair<float, float>> compute_calf(const Eigen::Vector3f &target, robot::LegSide side, const float theta_1) {
-        const float &p_x = target.x(), &p_y = target.y(), &p_z = target.z();
+        const float &p_x = -target.x(), &p_y = target.y(), &p_z = target.z();
         const float L_1_adapted = (side == robot::LegSide::LEFT) ? L_1 : -L_1;
 
         const Eigen::Vector3f d_vec(p_x, p_y - L_1_adapted * cosf(theta_1), p_z - L_1_adapted * sinf(theta_1));
@@ -88,7 +88,6 @@ namespace go2_utils::kinematics {
         if (joint_valid(theta_3, THETA_3_MIN, THETA_3_MAX)) {
 
             // We found a solution for theta_3, so compute theta_2 now.
-            const float &p_x = target.x();
             const float d_len = sqrtf(d_len_squared);
 
             const float alpha = acosf(
