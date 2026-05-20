@@ -32,7 +32,7 @@ namespace go2_utils::interact::lowlevel {
         /**
          * Sets the angles (q) in the joint commands according to given vector.
          */
-        void command_joint_angles(Eigen::Vector3f &joints) const;
+        void command_joint_angles(const Eigen::Vector3f &joints) const;
 
         /**
          * Gets the joint angles of the leg.

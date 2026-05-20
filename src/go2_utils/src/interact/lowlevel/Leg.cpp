@@ -29,7 +29,7 @@ namespace go2_utils::interact::lowlevel {
         return pair_;
     }
 
-    void Leg::command_joint_angles(Eigen::Vector3f &joints) const {
+    void Leg::command_joint_angles(const Eigen::Vector3f &joints) const {
         hip_->cmd().q = joints.x();
         thigh_->cmd().q = joints.y();
         calf_->cmd().q = joints.z();
