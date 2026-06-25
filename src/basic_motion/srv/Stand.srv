@@ -1,0 +1,5 @@
+float64 height
+float64 x_offset
+float64 transition_time
+---
+basic_motion/Status status

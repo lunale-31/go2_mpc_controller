@@ -1,6 +1,6 @@
+lib/
 build/
-.vscode/
-.idea/
-cmake-build-*/
 log/
 install/
+.vscode/
+.idea/
