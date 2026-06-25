@@ -4,9 +4,9 @@ SHELL ["bash", "-lc"]
 
 RUN apt-get update && \
     apt-get upgrade -y --autoremove && \
-    apt-get install -y build-essential cmake git curl iproute2 gdb python3-ipykernel libyaml-cpp-dev python3-pandas openssh-client \
+    apt-get install -y build-essential cmake openssh-client git curl iproute2 gdb libyaml-cpp-dev python3-ipykernel python3-pandas python3-ipywidgets \
         ros-${ROS_DISTRO}-rmw-cyclonedds-cpp ros-${ROS_DISTRO}-rosidl-generator-dds-idl ros-${ROS_DISTRO}-ament-cmake-clang-format
-
+RUN pip install ipympl
 RUN rosdep update
 
 # Install Unitree Go2 ROS2 bindings

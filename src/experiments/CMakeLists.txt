@@ -21,10 +21,28 @@ find_package(go2_utils REQUIRED)
 
 include_directories(include)
 
-set(TARGETS gait-logger)
+set(TARGETS 
+  gait-logger
+  discontinuous-gait
+  lift-leg
+  rainbow
+)
+
+add_executable(discontinuous-gait
+    src/discontinuous-gait.cpp
+    src/discontinuous/LegController.cpp
+)
 
 add_executable(gait-logger
     src/gait-logger.cpp
+)
+
+add_executable(lift-leg
+    src/lift-leg.cpp
+)
+
+add_executable(rainbow
+    src/rainbow.cpp
 )
 
 foreach(TARGET IN LISTS TARGETS)
