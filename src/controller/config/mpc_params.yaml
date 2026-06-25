@@ -1,0 +1,14 @@
+go2_mpc_controller:
+  ros__parameters:
+
+    dt: 0.05
+
+    # FR hip thigh calf, FL 3, RR 3, RL 3
+    q_ref: [0.0, 0.7, -1.57, 0.0, 0.7, -1.57, 0.0, 0.8, -1.57, 0.0, 0.8, -1.57]
+
+    # roll, pitch, yaw, px, py, pz, wx, wy, wz, pdotx, pdoty, pdotz, g
+    x_ref: [0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -9.81]
+
+    gains: # joint PD controller gains 
+      kp: 30.0
+      kd: 1.0 
