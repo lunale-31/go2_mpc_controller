@@ -32,6 +32,7 @@ add_library(
   src/interact/HighLevelControl.cpp
   src/interact/HighLevelState.cpp
   src/interact/MotionSwitcher.cpp
+  src/interact/VuiControl.cpp
   src/interact/highlevel/UnitreeApi.cpp
   src/interact/LowLevelControl.cpp
   src/interact/lowlevel/Joint.cpp
