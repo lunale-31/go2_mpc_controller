@@ -41,4 +41,12 @@ namespace common
      * @returns The joint angle configuration(s) (hip, thigh, calf)'. Empty, if the position is unreachable.
      */
     std::vector<Eigen::Vector3f> inverse_kinematics(const Eigen::Vector3f &target, LegSide side);
+
+    /**
+     * Computes the Jacobian mapping matrix to map the linear velocity of the end effectors to the joint velocities of the leg. 
+     * @param joints The joint angle configuration (hip, thigh, calf)'
+     * @param side The side the leg is mounted on
+     * @returns The jacobian matrix for the given LegSide.
+     */
+    Eigen::Matrix3f jacobian_matrix(const Eigen::Vector3f &joints, LegSide side); 
 } // namespace common

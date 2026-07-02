@@ -56,6 +56,38 @@ namespace common {
         return Eigen::Vector3f(x, y, z);
     }
 
+    Eigen::Matrix3f jacobian_matrix(const Eigen::Vector3f &joints, LegSide side){
+    
+        const float theta_1 = joints.x(), theta_2 = joints.y(), theta_3 = joints.z();
+
+        const float s_1 = sinf(theta_1), c_1 = cosf(theta_1);
+        const float s_2 = sinf(theta_2), c_2 = cosf(theta_2);
+        const float c_23 = cosf(theta_2 + theta_3), s_23 = sinf(theta_2 + theta_3); 
+
+        // Adapt L_1 to account for inverted hip direction on the right side
+        const float L_1_adapted = (side == LegSide::LEFT) ? L_1 : -L_1;
+
+        Eigen::Matrix3f m_j;
+
+        const float x11 = 0;
+        const float x12 = (L_2 * c_2) + (L_3 * c_23); 
+        const float x13 = L_3 * c_23;
+
+        const float y21 = (-L_1_adapted * s_1) + (L_2 * c_1 * c_2) + (L_3 * c_1 * c_23);
+        const float y22 = (-L_2 * s_1 * s_2) - (L_3 * s_1 * s_23); 
+        const float y23 = -(L_3 * s_1 * s_23);
+
+        const float z31 = (L_1_adapted * c_1) + (L_2 * s_1 * c_2) + (L_3 * s_1 * c_23);
+        const float z32 = (L_2 * c_1 * s_2) + (L_3 * c_1 * s_23); 
+        const float z33 = L_3 * c_1 * s_23; 
+
+        m_j << x11, x12, x13, 
+               y21, y22, y23,
+               z31, z32, z33;
+        
+        return m_j; 
+    } 
+
     /**
      * Clamps values that are less than an epsilon outside the range [lower, upper] into that range.
      * Other values remain untouched.

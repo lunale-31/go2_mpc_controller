@@ -73,6 +73,9 @@ void Go2MPC::controller_callback(const unitree_go::msg::LowState::SharedPtr msg)
     // Current yaw
     double current_yaw = msg->imu_state.rpy[2]; 
 
+    // jacobian calculation
+    std::vector<Eigen::Matrix3f> leg_jacobians(4); 
+
     // r_i calculation
     std::vector<Eigen::Vector3d> foot_positions_world;
     Eigen::Matrix3d Rz = go2.getRotationMatrix(current_yaw);
@@ -93,9 +96,13 @@ void Go2MPC::controller_callback(const unitree_go::msg::LowState::SharedPtr msg)
             Eigen::Vector3d r_body = hip_offset[i] + d_fk; 
             Eigen::Vector3d r_world = Rz * r_body; 
             foot_positions_world.push_back(r_world);
+
+            // Store the leg jacobians
+            leg_jacobians[i] = common::jacobian_matrix(joint_angles, leg_sides[i]);
         } 
         else {
             RCLCPP_WARN_ONCE(this->get_logger(), "Leg %d returned invalid kinematics on startup!.", i);
+            leg_jacobians[i] = Eigen::Matrix3f::Identity(); // Safety to avoid crashes 
         } 
     }
 
