@@ -1,4 +1,4 @@
-#include "dynamics.h"
+#include "controller/dynamics.h"
 
 Dynamics::Dynamics(){
     mass = 15.206;
@@ -9,8 +9,7 @@ Dynamics::Dynamics(){
     body_inertia(2,2) = 0.107027; 
 
     m_C.setZero();
-    m_C.block<12,12>(0,0).setIdentity(); 
-    
+    m_C.block<12,12>(0,0) = Eigen::Matrix<double, 12, 12>::Identity();    
 }
 
 Eigen::Matrix3d Dynamics::getRotationMatrix(double yaw){
@@ -25,7 +24,31 @@ Eigen::Matrix3d Dynamics::getRotationMatrix(double yaw){
     return Rz; 
 }
 
-Eigen::Matrix3d Dynamics::getSkewSymMatrix(Eigen::Vector3d& r){
+Eigen::Matrix3d Dynamics::getRotationMatrixRoll(double roll){
+    Eigen::Matrix3d Rx; 
+    double c = std::cos(roll);
+    double s = std::sin(roll); 
+
+    Rx << 1, 0.0, 0.0,
+          0.0, c, -s,
+          0.0, s, c; 
+
+    return Rx; 
+}
+
+Eigen::Matrix3d Dynamics::getRotationMatrixPitch(double pitch){
+    Eigen::Matrix3d Ry; 
+    double c = std::cos(pitch);
+    double s = std::sin(pitch); 
+
+    Ry << c, 0.0, s,
+          0.0, 1.0, 0.0,
+          -s, 0.0, c; 
+
+    return Ry; 
+}
+
+Eigen::Matrix3d Dynamics::getSkewSymMatrix(const Eigen::Vector3d& r){
     Eigen::Matrix3d s; 
     s << 0, -r(2), r(1),
          r(2), 0, -r(0),

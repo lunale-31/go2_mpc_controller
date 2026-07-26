@@ -1,14 +1,24 @@
-go2_mpc_controller:
+state_estimator:
   ros__parameters:
+    # dt = 0.002 for observer and pd controller because lowstate is publishing at 500 hz
+    obs_dt: 0.002 
 
-    dt: 0.05
+high_level_control:
+  ros__parameters:
+  
+    crouch_transition_time: 5.0
 
-    # FR hip thigh calf, FL 3, RR 3, RL 3
-    q_ref: [0.0, 0.7, -1.57, 0.0, 0.7, -1.57, 0.0, 0.8, -1.57, 0.0, 0.8, -1.57]
+    joint_dt: 0.002
+    # mpc dt should be lower than state estimator for having steady inputs as well as it takes a lot of time to solve
+    # mpc_dt: 0.05
+    kf_warmup_time: 4.0
+
+    # FR hip thigh calf, FL 3, RR 3, RL 3, reference q for initial PD controller
+    q_ref: [0.2, 1.2, -2.3, 0.2, 1.2, -2.3, 0.2, 1.2, -2.3, 0.2, 1.2, -2.3]
 
     # roll, pitch, yaw, px, py, pz, wx, wy, wz, pdotx, pdoty, pdotz, g
-    x_ref: [0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -9.81]
+    # x_ref: [0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]
 
     gains: # joint PD controller gains 
-      kp: 30.0
-      kd: 1.0 
+      kp: 35.0
+      kd: 1.5
