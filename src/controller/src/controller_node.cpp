@@ -133,19 +133,18 @@ void HighLevelControl::controlLoop(){
             runSmoothRaise(command);
 
             if(boot_complete_ && idle_complete_ && 
-                smooth_raise_complete_ && kf_complete_ 
-                && latest_mpc_cmd_){
+                smooth_raise_complete_ && kf_complete_){
                     std_msgs::msg::Bool mpc_init_msg;
                     mpc_init_msg.data = true; 
                     mpc_initialize_pub_->publish(mpc_init_msg);
                     
                     auto elapsed_time_mpc = (this->now() - mpc_start_time.value()).seconds();
-                    
-                    auto ground_force = latest_mpc_cmd_->ground_force; 
 
-                    runMpcCommand(command, ground_force);
+                    if (latest_mpc_cmd_) {
+                        auto ground_force = latest_mpc_cmd_->ground_force;
+                        runMpcCommand(command, ground_force);
+                    }              
                 }
-            
             break;
         }
         

@@ -14,7 +14,7 @@ find_package(rclcpp REQUIRED)
 find_package(unitree_go REQUIRED)
 
 find_package(Eigen3 REQUIRED)
-
+find_package(std_msgs REQUIRED)
 find_package(go2_interfaces)
 
 if(BUILD_TESTING)
@@ -28,6 +28,28 @@ if(BUILD_TESTING)
   set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 endif()
+
+# MPC Controller
+add_executable(mpc_node
+  src/mpc_node.cpp
+  src/mpc_node_main.cpp
+  src/dynamics.cpp
+  src/kinematics.cpp
+  src/state_estimator.cpp)
+
+target_include_directories(mpc_node PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+target_link_libraries(mpc_node
+  Eigen3::Eigen   
+)
+
+ament_target_dependencies(mpc_node
+  rclcpp
+  unitree_go
+  go2_interfaces
+)
 
 # State Estimator
 add_executable(state_estimator_node
@@ -77,6 +99,7 @@ install(DIRECTORY
 # Executables 
 install(TARGETS 
   state_estimator_node
+  mpc_node
   controller_node
   DESTINATION lib/${PROJECT_NAME}
 )

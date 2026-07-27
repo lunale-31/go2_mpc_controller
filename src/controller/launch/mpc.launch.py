@@ -27,8 +27,19 @@ def generate_launch_description():
         output = 'screen', 
         emulate_tty = True
     )
+
+    mpc_node = Node(
+        package = 'controller',
+        executable = 'mpc_node',
+        name = 'mpc_node',
+        parameters = [config_file],
+        output = 'screen',
+        emulate_tty = True 
+    )
+
     return LaunchDescription([
         state_estimator_node,
         high_level_controller,
+        mpc_node,
     ])
 

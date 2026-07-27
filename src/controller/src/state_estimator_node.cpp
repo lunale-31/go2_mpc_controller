@@ -314,12 +314,12 @@ void StateEstimatorNode::controller_callback(const unitree_go::msg::LowState::Sh
                 x_hat[5],
                 1.0; 
         
-    RCLCPP_INFO_THROTTLE(this->get_logger(), *this->get_clock(), 500, 
-        "x_curr | RPY: [%.3f, %.3f, %.3f] | Pos: [%.3f, %.3f, %.3f] | Omg: [%.3f, %.3f, %.3f] | Vel: [%.3f, %.3f, %.3f] | g: %.1f",
-        x_curr(0), x_curr(1), x_curr(2),   // Roll, Pitch, Yaw
-        x_curr(3), x_curr(4), x_curr(5),   // X, Y, Z Position
-        x_curr(6), x_curr(7), x_curr(8),   // X, Y, Z Angular Velocity
-        x_curr(9), x_curr(10), x_curr(11), // X, Y, Z Linear Velocity
-        x_curr(12));                       // Gravity constant
+    // RCLCPP_INFO_THROTTLE(this->get_logger(), *this->get_clock(), 500, 
+    //     "x_curr | RPY: [%.3f, %.3f, %.3f] | Pos: [%.3f, %.3f, %.3f] | Omg: [%.3f, %.3f, %.3f] | Vel: [%.3f, %.3f, %.3f] | g: %.1f",
+    //     x_curr(0), x_curr(1), x_curr(2),   // Roll, Pitch, Yaw
+    //     x_curr(3), x_curr(4), x_curr(5),   // X, Y, Z Position
+    //     x_curr(6), x_curr(7), x_curr(8),   // X, Y, Z Angular Velocity
+    //     x_curr(9), x_curr(10), x_curr(11), // X, Y, Z Linear Velocity
+    //     x_curr(12));                       // Gravity constant
 
 }

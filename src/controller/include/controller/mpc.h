@@ -4,9 +4,20 @@
 
 #include <Eigen/Dense>
 #include <rclcpp/rclcpp.hpp>
+
 #include <unitree_go/msg/low_state.hpp>
 #include <unitree_go/msg/low_cmd.hpp>
+#include <std_msgs/msg/bool.hpp>
+
 #include <cmath>
+#include <array>
+#include <algorithm>
+#include <optional>
+#include <memory>
+#include <chrono>
+
+#include "go2_interfaces/msg/mpc_command.hpp"
+#include "go2_interfaces/msg/estimated_state.hpp"
 
 class MPC : public rclcpp::Node{
     /* TODO:
@@ -26,7 +37,10 @@ class MPC : public rclcpp::Node{
         static constexpr int inputs_nr = 12;  
         
         // Constructor to initialize params
-        MPC(); 
+        MPC(double dt); 
+
+        // Time varying matrices
+        void computeLTVMatrices(double dt, Dynamics& go2);
 
         // set Reference
         void setReference(Eigen::Matrix<double, 13,1>& x_ref);
@@ -35,7 +49,7 @@ class MPC : public rclcpp::Node{
         void setWeights(); 
 
         // Formulate and solve QP to obtain optimal control signal 
-        void solve();
+        void solve(Eigen::Matrix<double, 13,1>& x_ref, Eigen::Matrix<double, 13,1>& x);
 
         // Read-only member functions
         Eigen::Matrix<double,13,1> getReference(); 
@@ -45,13 +59,17 @@ class MPC : public rclcpp::Node{
         const int hp{5},hc{5};
         
         // Other constants related to sampling and constraints 
-        double dt_;
-        double mu_;
+        double mpc_dt_{0.05};
+        double mu_{0.4};
         double fz_min;
         double fz_max; 
 
-        // Reference
+        // State, Reference state, constraint matrix
         Eigen::Matrix<double, 13, 1> m_xref;
+        Eigen::Matrix<double, 13, 1> m_x; 
+        Eigen::Matrix<double, 3,6> m_constraint_matrix; 
+        Eigen::Matrix<double, 4,1> m_constraint_variable;
+        Eigen::Matrix<double, 6,1> m_constraint_output;
 
         // Weights
         Eigen::Matrix<double, states_nr, states_nr> Q1_; // State error weight
