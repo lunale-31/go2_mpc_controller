@@ -39,8 +39,9 @@ class MPC{
         // Constructor to initialize params
         MPC(double dt); 
 
-        // Time varying matrices
-        void computeLTVMatrices(double dt, Dynamics& go2, std::vector<Eigen::Vector3d> foot_pos_world, double current_yaw);
+        // Dynamics matrices
+        void computeDynamics(double dt, Dynamics& go2, std::vector<Eigen::Vector3d> foot_pos_world, double current_yaw);
+        void buildMatrix();
 
         // set Reference
         void setReference(Eigen::Matrix<double, 13,1>& x_ref);
@@ -48,7 +49,13 @@ class MPC{
         // Set Q1 and Q2 weights
         void setWeights(); 
 
-        // Formulate and solve QP to obtain optimal control signal 
+        // Build cost
+        void buildCost(Eigen::Matrix<double,13,1>& x_curr);
+
+        // Build constraints
+        void buildConstraints();
+
+        // solve QP to obtain optimal control signal 
         void solve(Eigen::Matrix<double, 13,1>& x_ref, Eigen::Matrix<double, 13,1>& x);
 
         // Read-only member functions
@@ -69,13 +76,33 @@ class MPC{
         Eigen::Matrix<double, 13, 1> m_x; 
         Eigen::Matrix<double, 12, 1> m_u;
         
+        Eigen::Matrix<double, 13, 13> m_Ad;
+        Eigen::MatrixXd m_Bd;
+        Eigen::Matrix<double, 12,13> m_C;
+
         Eigen::Matrix<double, 3,6> m_constraint_matrix; 
         Eigen::Matrix<double, 4,1> m_constraint_variable;
         Eigen::Matrix<double, 6,1> m_constraint_output;
 
+        // QP prediction matrices
+        /* As hp = hc = 5, Aqp = (13 x hp) x 13, Bqp = (13 x hp) x (12 x hc), X = (13 x hp) x 1, U = (12 x hc) x 1 */
+        Eigen::MatrixXd m_Aqp;
+        Eigen::MatrixXd m_Bqp;
+        Eigen::MatrixXd m_Xqp;
+        Eigen::MatrixXd m_Uqp;
+        Eigen::MatrixXd m_Xqpref;
+        Eigen::MatrixXd m_Q1qp; 
+        Eigen::MatrixXd m_Q2qp;
+
+        // QP cost vars
+        Eigen::Matrix<double, 60, 60> Hqp;
+        Eigen::Matrix<double, 60, 1> gqp;
+        double rho_qp; 
+
         // Weights
         Eigen::Matrix<double, states_nr, states_nr> Q1_; // State error weight
-        Eigen::Matrix<double, states_nr, inputs_nr> Q2_; // Control effort weight 
+        Eigen::Matrix<double, inputs_nr, inputs_nr> Q2_; // Control effort weight 
+        Eigen::Matrix<double, states_nr, states_nr> Qf_; // Terminal state weight
 
         // Dynamics object
         Dynamics go_2; 
