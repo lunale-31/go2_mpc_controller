@@ -33,6 +33,7 @@ endif()
 add_executable(mpc_node
   src/mpc_node.cpp
   src/mpc_node_main.cpp
+  src/mpc.cpp
   src/dynamics.cpp
   src/kinematics.cpp
   src/state_estimator.cpp)

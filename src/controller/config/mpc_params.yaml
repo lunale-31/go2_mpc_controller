@@ -3,6 +3,13 @@ state_estimator:
     # dt = 0.002 for observer and pd controller because lowstate is publishing at 500 hz
     obs_dt: 0.002 
 
+mpc_node:
+  ros__parameters:
+    # MPC should be slower than the state estimator.
+    mpc_dt: 0.05
+    stand_transition_time: 5.0
+    z_ref: 0.3 # Height reference
+
 high_level_control:
   ros__parameters:
   

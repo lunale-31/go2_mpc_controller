@@ -40,7 +40,7 @@ class MPCNode : public rclcpp::Node{
         void computeLTVMatrices(double dt);
 
         // Compute Smooth Reference State
-        void computeSmoothHeight();
+        std::pair<double,double>  computeSmoothHeight(Eigen::Matrix<double, 13,1> x_curr);
 
     private:
         // Load Params
@@ -73,8 +73,12 @@ class MPCNode : public rclcpp::Node{
         bool stand_initialized_{false};
         bool stand_complete_{false};
 
-        std::optional<rclcpp::Time> crouch_start_time_;
+        std::optional<rclcpp::Time> stand_start_time_;
         double stand_transition_time_{5.0};
+
+        double z_start{};
+        double z_ref{0.3};
+        Eigen::Matrix<double, 13,1> x_ref_;
 
         // Bool vars
         bool mpc_initialize_request{false};

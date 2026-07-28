@@ -19,7 +19,7 @@
 #include "go2_interfaces/msg/mpc_command.hpp"
 #include "go2_interfaces/msg/estimated_state.hpp"
 
-class MPC : public rclcpp::Node{
+class MPC{
     /* TODO:
     0) Read current robot state x0. (DONE)
     1) Create reference state vector Xref (time varying over prediction horizon Hp if needed or constant if not)
@@ -40,7 +40,7 @@ class MPC : public rclcpp::Node{
         MPC(double dt); 
 
         // Time varying matrices
-        void computeLTVMatrices(double dt, Dynamics& go2);
+        void computeLTVMatrices(double dt, Dynamics& go2, std::vector<Eigen::Vector3d> foot_pos_world, double current_yaw);
 
         // set Reference
         void setReference(Eigen::Matrix<double, 13,1>& x_ref);
@@ -67,6 +67,8 @@ class MPC : public rclcpp::Node{
         // State, Reference state, constraint matrix
         Eigen::Matrix<double, 13, 1> m_xref;
         Eigen::Matrix<double, 13, 1> m_x; 
+        Eigen::Matrix<double, 12, 1> m_u;
+        
         Eigen::Matrix<double, 3,6> m_constraint_matrix; 
         Eigen::Matrix<double, 4,1> m_constraint_variable;
         Eigen::Matrix<double, 6,1> m_constraint_output;
