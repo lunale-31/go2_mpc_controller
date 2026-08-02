@@ -112,6 +112,9 @@ void MPCNode::mpcControlLoop(){
     // r_foot in base frame wrt world frame
     std::vector<Eigen::Vector3d> foot_pos_world(4);
 
+    // Jacobians
+    std::vector<Eigen::Matrix3d> leg_jacobians_world(4);
+
     if(!mpc_initialize_){
         if(!mpc_initialize_request){
             return;
@@ -121,7 +124,17 @@ void MPCNode::mpcControlLoop(){
                 foot_pos_world[leg][i] = latest_state_msg->foot_positions_world[leg*3 + i];
             }
         }
+        for (int leg = 0; leg < 4; leg++) {
+            for (int row = 0; row < 3; row++) {
+                for (int col = 0; col < 3; col++) {
+                    const int index =
+                        leg * 9 + row * 3 + col;
 
+                    leg_jacobians_world[leg](row, col) = latest_state_msg->leg_jacobians_world[index];
+                }
+            }
+        }
+        
         // Initialization code for MPC
         mpc_initialize_ = true; 
 

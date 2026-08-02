@@ -15,6 +15,7 @@
 #include <optional>
 #include <memory>
 #include <chrono>
+#include <limits>
 
 #include "go2_interfaces/msg/mpc_command.hpp"
 #include "go2_interfaces/msg/estimated_state.hpp"
@@ -53,7 +54,7 @@ class MPC{
         void buildCost(Eigen::Matrix<double,13,1>& x_curr);
 
         // Build constraints
-        void buildConstraints();
+        void buildConstraints(std::vector<Eigen::Matrix3d>& leg_jacobians_world);
 
         // solve QP to obtain optimal control signal 
         void solve(Eigen::Matrix<double, 13,1>& x_ref, Eigen::Matrix<double, 13,1>& x);
@@ -68,9 +69,11 @@ class MPC{
         // Other constants related to sampling and constraints 
         double mpc_dt_{0.05};
         double mu_{0.4};
-        double fz_min;
-        double fz_max; 
-
+        double fz_min{0.0};
+        double fz_max{100.0}; 
+        double tau_min{}, tau_max{};
+        double negInf = -std::numeric_limits<double>::infinity();
+        
         // State, Reference state, constraint matrix
         Eigen::Matrix<double, 13, 1> m_xref;
         Eigen::Matrix<double, 13, 1> m_x; 
