@@ -83,4 +83,10 @@ class MPCNode : public rclcpp::Node{
         // Bool vars
         bool mpc_initialize_request{false};
         bool mpc_initialize_{false};
+        bool hold_reference_initialized_{false};
+
+        // Hold state
+        double x_hold_{0.0};
+        double y_hold_{0.0};
+        double yaw_hold_{0.0};
 };

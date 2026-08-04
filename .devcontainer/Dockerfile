@@ -12,6 +12,12 @@ RUN apt-get update && \
 RUN pip install ipympl
 RUN rosdep update
 
+# Install OSQP solver
+# Google C++ wrapper
+RUN git clone --depth 1 \
+    https://github.com/google/osqp-cpp.git \
+    /opt/osqp-cpp
+
 # Install Unitree Go2 ROS2 bindings
 WORKDIR /tmp
 RUN git clone https://github.com/unitreerobotics/unitree_ros2.git -b v0.3.0

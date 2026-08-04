@@ -68,7 +68,7 @@ void MPC::setReference(Eigen::Matrix<double,13,1>& xref){
     m_xref = xref;
 }
 
-void MPC::computeDynamics(double dt, Dynamics& go2, std::vector<Eigen::Vector3d> foot_pos_world, double current_yaw){
+void MPC::computeDynamics(Dynamics& go2, std::vector<Eigen::Vector3d> foot_pos_world, double current_yaw){
     go2.computeA(current_yaw);
     go2.computeB(foot_pos_world, current_yaw);
     go2.discretize(mpc_dt_);
@@ -130,8 +130,8 @@ void MPC::buildConstraints(std::vector<Eigen::Matrix3d>& leg_jacobians_world){
 
     // 1) Friction
     Eigen::Matrix<double, 5,3> C_f_leg;
-    Eigen::Matrix<double, 5,1> l_f_leg;
-    Eigen::Matrix<double, 5,1> u_f_leg;
+    Eigen::Vector<double, 5> l_f_leg;
+    Eigen::Vector<double, 5> u_f_leg;
     
     C_f_leg.setZero();
     C_f_leg << 1.0, 0.0, -mu_,
@@ -155,8 +155,8 @@ void MPC::buildConstraints(std::vector<Eigen::Matrix3d>& leg_jacobians_world){
                fz_max;
                
     Eigen::Matrix<double, 20, 12> C_f; 
-    Eigen::Matrix<double, 20,1> l_f;
-    Eigen::Matrix<double, 20,1> u_f;
+    Eigen::Vector<double, 20> l_f;
+    Eigen::Vector<double, 20> u_f;
 
     C_f.setZero();
     l_f.setZero();
@@ -171,12 +171,12 @@ void MPC::buildConstraints(std::vector<Eigen::Matrix3d>& leg_jacobians_world){
     // Over the prediction/control horizon, 
     // 20 x 5 and 12 x 5 as hc=5
     Eigen::MatrixXd A_friction; 
-    Eigen::MatrixXd l_friction;
-    Eigen::MatrixXd u_friction;
+    Eigen::VectorXd l_friction;
+    Eigen::VectorXd u_friction;
 
     A_friction.resize(20 * hc, inputs_nr * hc);
-    l_friction.resize(20 * hc,1);
-    u_friction.resize(20 * hc,1);
+    l_friction.resize(20 * hc);
+    u_friction.resize(20 * hc);
 
     A_friction.setZero();
     l_friction.setZero();
@@ -190,21 +190,21 @@ void MPC::buildConstraints(std::vector<Eigen::Matrix3d>& leg_jacobians_world){
 
     // Torque
     Eigen::Matrix<double, 12, 12> torque_jacobian_legs; 
-    Eigen::Matrix<double, 3, 1> torque_l_;
-    Eigen::Matrix<double, 3, 1> torque_u_;
+    Eigen::Vector<double, 3> torque_l_;
+    Eigen::Vector<double, 3> torque_u_;
     
     torque_l_ << tau_min, 
                  tau_min, 
-                 tau_min; 
+                 tau_min_calf; 
 
     torque_u_ << tau_max,
                  tau_max,
-                 tau_max;
+                 tau_max_calf;
 
     torque_jacobian_legs.setZero();
 
-    Eigen::Matrix<double, 12, 1> torque_l_legs;
-    Eigen::Matrix<double, 12, 1> torque_u_legs;
+    Eigen::Vector<double, 12> torque_l_legs;
+    Eigen::Vector<double, 12> torque_u_legs;
 
     for(int leg=0; leg<4; leg++){
         torque_jacobian_legs.block(leg*3, leg*3, 3, 3) = -leg_jacobians_world[leg].transpose();
@@ -213,12 +213,12 @@ void MPC::buildConstraints(std::vector<Eigen::Matrix3d>& leg_jacobians_world){
     }
 
     Eigen::MatrixXd A_torque;
-    Eigen::MatrixXd l_torque;
-    Eigen::MatrixXd u_torque;
+    Eigen::VectorXd l_torque;
+    Eigen::VectorXd u_torque;
 
-    A_torque.resize(12*hc, 12*hc);
-    l_torque.resize(12*hc, 1); 
-    u_torque.resize(12*hc, 1); 
+    A_torque.resize(12*hc, inputs_nr*hc);
+    l_torque.resize(12*hc); 
+    u_torque.resize(12*hc); 
     
     A_torque.setZero();
     l_torque.setZero();
@@ -229,4 +229,106 @@ void MPC::buildConstraints(std::vector<Eigen::Matrix3d>& leg_jacobians_world){
         l_torque.block(12*i, 0, 12,1) = torque_l_legs;
         u_torque.block(12*i, 0, 12,1) = torque_u_legs;
     }
+
+    const int friction_rows = 20 * hc;
+    const int torque_rows = 12 * hc;
+    const int variable_count = inputs_nr * hc;
+    const int constraint_count = friction_rows + torque_rows;
+
+    m_constraint_matrix.resize(constraint_count, variable_count);
+    m_constraint_matrix.setZero();
+
+    m_constraint_matrix.block(0, 0, friction_rows, variable_count) = A_friction;
+    m_constraint_matrix.block(friction_rows, 0, torque_rows, variable_count) = A_torque;
+
+    m_lower_bounds.resize(constraint_count);
+    m_upper_bounds.resize(constraint_count);
+
+    m_lower_bounds.setZero();
+    m_upper_bounds.setZero();
+
+    m_lower_bounds.segment(0, friction_rows) = l_friction;
+    m_lower_bounds.segment(friction_rows, torque_rows) = l_torque;
+
+    m_upper_bounds.segment(0, friction_rows) = u_friction;
+    m_upper_bounds.segment(friction_rows, torque_rows) = u_torque;
+}
+
+bool MPC::solve(){
+    // Values stored as double, column major sparse storage, and integer type used for row/column index. 
+    using SparseMatrix = Eigen::SparseMatrix<double, Eigen::ColMajor, osqp::c_int>;
+
+    Eigen::MatrixXd P_dense = Hqp; 
+
+    // Remove small numerical asymmetry. 
+    P_dense = 0.5 * (P_dense + P_dense.transpose());
+
+    // Convert dense matrices to sparse matrices.
+    SparseMatrix P_sparse = P_dense.sparseView();
+    SparseMatrix A_sparse = m_constraint_matrix.sparseView();
+
+    // Required by osqp-cpp.
+    P_sparse.makeCompressed();
+    A_sparse.makeCompressed();
+    
+    // Check official git repo to see how to use the solver step-by-step. 
+    // Create the solver instance
+    osqp::OsqpInstance instance;
+
+    // Update the vars
+    instance.constraint_matrix = A_sparse;
+    instance.lower_bounds = m_lower_bounds; 
+    instance.upper_bounds = m_upper_bounds;
+
+    instance.objective_matrix = P_sparse;
+    instance.objective_vector = gqp;
+
+    // Solver settings
+    osqp::OsqpSettings settings;
+    settings.verbose = false;
+
+    // Initialize solver
+    osqp::OsqpSolver solver;
+
+    const auto init_status = solver.Init(instance, settings);
+
+    if(!init_status.ok()){
+        std::cerr << "OSQP initialization failed"<< init_status.ToString() << std::endl;
+        m_u.setZero();
+        return false;
+    }
+
+    // Solve the QP
+    const osqp::OsqpExitCode exit_code = solver.Solve();
+    if(exit_code != osqp::OsqpExitCode::kOptimal){
+        std::cerr<< "Osqp solver failed" << osqp::ToString(exit_code) << std::endl;
+        m_u.setZero();
+        return false;
+    }
+
+    // Full solution
+    Eigen::VectorXd solution = solver.primal_solution();
+
+    // Check
+    if (solution.size() != inputs_nr * hc ||
+        !solution.allFinite())
+    {
+        std::cerr
+            << "OSQP returned an invalid solution."
+            << std::endl;
+
+        m_u.setZero();
+        return false;
+    }
+
+    m_Uqp = solution;
+
+    // MPC applying first output
+    m_u = solution.head<inputs_nr>();
+
+    return true;
+}
+
+Eigen::Matrix<double, 12, 1> MPC::getControlSignal(){
+    return m_u;
 }

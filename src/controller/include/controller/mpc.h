@@ -3,6 +3,8 @@
 #include "dynamics.h"
 
 #include <Eigen/Dense>
+#include <Eigen/Sparse>
+
 #include <rclcpp/rclcpp.hpp>
 
 #include <unitree_go/msg/low_state.hpp>
@@ -16,9 +18,12 @@
 #include <memory>
 #include <chrono>
 #include <limits>
+#include <iostream>
 
 #include "go2_interfaces/msg/mpc_command.hpp"
 #include "go2_interfaces/msg/estimated_state.hpp"
+
+#include "osqp++.h"
 
 class MPC{
     /* TODO:
@@ -41,7 +46,7 @@ class MPC{
         MPC(double dt); 
 
         // Dynamics matrices
-        void computeDynamics(double dt, Dynamics& go2, std::vector<Eigen::Vector3d> foot_pos_world, double current_yaw);
+        void computeDynamics(Dynamics& go2, std::vector<Eigen::Vector3d> foot_pos_world, double current_yaw);
         void buildMatrix();
 
         // set Reference
@@ -57,11 +62,12 @@ class MPC{
         void buildConstraints(std::vector<Eigen::Matrix3d>& leg_jacobians_world);
 
         // solve QP to obtain optimal control signal 
-        void solve(Eigen::Matrix<double, 13,1>& x_ref, Eigen::Matrix<double, 13,1>& x);
+        bool solve();
 
         // Read-only member functions
         Eigen::Matrix<double,13,1> getReference(); 
-        
+        Eigen::Matrix<double, 12, 1> getControlSignal();
+
     private:
         // Constants related to prediction and control horizon
         const int hp{5},hc{5};
@@ -71,7 +77,7 @@ class MPC{
         double mu_{0.4};
         double fz_min{0.0};
         double fz_max{100.0}; 
-        double tau_min{}, tau_max{};
+        double tau_min{-23.7}, tau_max{23.7}, tau_min_calf{-45.43}, tau_max_calf{45.43};
         double negInf = -std::numeric_limits<double>::infinity();
         
         // State, Reference state, constraint matrix
@@ -83,9 +89,9 @@ class MPC{
         Eigen::MatrixXd m_Bd;
         Eigen::Matrix<double, 12,13> m_C;
 
-        Eigen::Matrix<double, 3,6> m_constraint_matrix; 
-        Eigen::Matrix<double, 4,1> m_constraint_variable;
-        Eigen::Matrix<double, 6,1> m_constraint_output;
+        Eigen::MatrixXd m_constraint_matrix; 
+        Eigen::VectorXd m_lower_bounds;
+        Eigen::VectorXd m_upper_bounds;
 
         // QP prediction matrices
         /* As hp = hc = 5, Aqp = (13 x hp) x 13, Bqp = (13 x hp) x (12 x hc), X = (13 x hp) x 1, U = (12 x hc) x 1 */

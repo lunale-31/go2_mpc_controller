@@ -11,6 +11,8 @@ MPCNode::MPCNode() : rclcpp::Node("mpc_node"){
 
     loadParams(); 
 
+    mpc_ = std::make_unique<MPC>(mpc_dt_);
+
     force_control_timer_ = this->create_wall_timer(std::chrono::duration<double>(mpc_dt_),
                                 std::bind(&MPCNode::mpcControlLoop, this));
 }   
@@ -115,26 +117,26 @@ void MPCNode::mpcControlLoop(){
     // Jacobians
     std::vector<Eigen::Matrix3d> leg_jacobians_world(4);
 
+    for(int leg = 0; leg<4; leg++){
+        for(int i=0; i<3; i++){
+            foot_pos_world[leg][i] = latest_state_msg->foot_positions_world[leg*3 + i];
+        }
+    }
+    for (int leg = 0; leg < 4; leg++) {
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 3; col++) {
+                const int index =
+                    leg * 9 + row * 3 + col;
+
+                leg_jacobians_world[leg](row, col) = latest_state_msg->leg_jacobians_world[index];
+            }
+        }
+    }
+
     if(!mpc_initialize_){
         if(!mpc_initialize_request){
             return;
         }
-        for(int leg = 0; leg<4; leg++){
-            for(int i=0; i<3; i++){
-                foot_pos_world[leg][i] = latest_state_msg->foot_positions_world[leg*3 + i];
-            }
-        }
-        for (int leg = 0; leg < 4; leg++) {
-            for (int row = 0; row < 3; row++) {
-                for (int col = 0; col < 3; col++) {
-                    const int index =
-                        leg * 9 + row * 3 + col;
-
-                    leg_jacobians_world[leg](row, col) = latest_state_msg->leg_jacobians_world[index];
-                }
-            }
-        }
-        
         // Initialization code for MPC
         mpc_initialize_ = true; 
 
@@ -157,13 +159,35 @@ void MPCNode::mpcControlLoop(){
                 latest_state_msg->velocity[2],
                 1.0; 
 
+    if (!hold_reference_initialized_) {
+        x_hold_ = x_curr(3);
+        y_hold_ = x_curr(4);
+        yaw_hold_ = x_curr(2);
+
+        hold_reference_initialized_ = true;
+
+        RCLCPP_INFO(
+            this->get_logger(),
+            "Holding reference: x=%.3f, y=%.3f, yaw=%.3f",
+            x_hold_,
+            y_hold_,
+            yaw_hold_);
+    }
+
     const auto [z_traj, zdot_traj] = computeSmoothHeight(x_curr);
-    
+    // if (!stand_initialized_) {
+    //     z_start = x_curr(5);
+    //     stand_initialized_ = true;
+    // }
+
+    // const double z_traj = z_start;
+    // const double zdot_traj = 0.0;
+
     x_ref_ <<   0.0,        // desired roll
                 0.0,        // desired pitch
-                x_curr(2),  // desired yaw, or fixed initial yaw
-                x_curr(3),  // desired x position
-                x_curr(4),  // desired y position
+                yaw_hold_,  // desired yaw, or fixed initial yaw
+                x_hold_,  // desired x position
+                y_hold_,  // desired y position
                 z_traj,  // desired body height
                 0.0,        // desired wx
                 0.0,        // desired wy
@@ -173,30 +197,56 @@ void MPCNode::mpcControlLoop(){
                 zdot_traj, // desired vertical velocity
                 1.0;        // gravity state
 
+    /* MPC Set reference */
+    mpc_->setReference(x_ref_);
+
     /*Dynamics computations*/  
-    go2.computeA(current_yaw);
-    go2.computeB(foot_pos_world, current_yaw);
-    go2.discretize(mpc_dt_);
+    mpc_->computeDynamics(go2, foot_pos_world, current_yaw);
 
-    auto A_d = go2.getA();
-    auto B_d = go2.getB();
-    auto C_d = go2.getC();
+    /* Cost building */
+    mpc_->buildCost(x_curr);
 
-    /* Matrix building */
+    /* Constraints building */
+    mpc_->buildConstraints(leg_jacobians_world);
 
     /* Solve */
-    mpc_cmd.ground_force[0] = 0.0;
-    mpc_cmd.ground_force[1] = 0.0;
-    mpc_cmd.ground_force[2] = 0.0;
-    mpc_cmd.ground_force[3] = 0.0;
-    mpc_cmd.ground_force[4] = 0.0;
-    mpc_cmd.ground_force[5] = 0.0;
-    mpc_cmd.ground_force[6] = 0.0;
-    mpc_cmd.ground_force[7] = 0.0;
-    mpc_cmd.ground_force[8] = 0.0;
-    mpc_cmd.ground_force[9] = 0.0;
-    mpc_cmd.ground_force[10] = 0.0;
-    mpc_cmd.ground_force[11] = 0.0;
+    const bool solved = mpc_->solve();
 
+    if(!solved){
+        RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 1000, "MPC Solver failed.");
+        return;
+    }
+
+    const Eigen::Matrix<double, 12,1> u_opt = mpc_->getControlSignal();
+
+    // Debug msg
+    const double total_fx =
+        u_opt(0) + u_opt(3) + u_opt(6) + u_opt(9);
+
+    const double total_fy =
+        u_opt(1) + u_opt(4) + u_opt(7) + u_opt(10);
+
+    const double total_fz =
+        u_opt(2) + u_opt(5) + u_opt(8) + u_opt(11);
+
+    RCLCPP_INFO_THROTTLE(
+        this->get_logger(),
+        *this->get_clock(),
+        500,
+        "MPC force sum: Fx=%.2f, Fy=%.2f, Fz=%.2f | "
+        "position=[%.3f %.3f %.3f] ref=[%.3f %.3f %.3f]",
+        total_fx,
+        total_fy,
+        total_fz,
+        x_curr(3),
+        x_curr(4),
+        x_curr(5),
+        x_ref_(3),
+        x_ref_(4),
+        x_ref_(5));
+        
+    for(int i=0; i<12; i++){
+        mpc_cmd.ground_force[i] = u_opt[i];
+    }
     mpc_cmd_pub_->publish(mpc_cmd);
 }

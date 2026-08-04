@@ -1,6 +1,7 @@
 #pragma once
 
 #include <rclcpp/rclcpp.hpp>
+#include <Eigen/Dense>
 
 #include <unitree_go/msg/low_state.hpp>
 #include <unitree_go/msg/low_cmd.hpp>
@@ -12,6 +13,7 @@
 #include <optional>
 #include <memory>
 #include <chrono>
+#include <vector>
 
 #include "go2_interfaces/msg/estimator_debug.hpp"
 #include "go2_interfaces/msg/estimated_state.hpp"
@@ -65,7 +67,7 @@ class HighLevelControl : public rclcpp::Node{
         bool sensorsValid();
         void runSmoothRaise(unitree_go::msg::LowCmd &cmd);
         void runEmergencyStop(unitree_go::msg::LowCmd &cmd); 
-        void runMpcCommand(unitree_go::msg::LowCmd &cmd, std::array<double,12> ground_force);
+        void runMpcCommand(unitree_go::msg::LowCmd &cmd, std::array<double,12> ground_force, const go2_interfaces::msg::EstimatedState::SharedPtr msg);
 
         // Time variables
         std::optional<rclcpp::Time> kf_start_time;
@@ -104,7 +106,9 @@ class HighLevelControl : public rclcpp::Node{
         bool smooth_raise_complete_{false};
         bool kf_complete_{false};
         bool mpc_initialize_{false}; 
-
+        bool mpc_posture_initialized_{false};
+        
+        std::array<double, 12> mpc_q_hold_{};
         // Read current state
         ControlState getCurrentState() const;
         std::string getStateName() const;

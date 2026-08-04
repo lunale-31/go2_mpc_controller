@@ -128,25 +128,54 @@ void HighLevelControl::controlLoop(){
             break;
         }
 
-        case ControlState::MPC_INITIALIZE:
+    case ControlState::MPC_INITIALIZE:
+    {
+        if (boot_complete_ &&
+            idle_complete_ &&
+            smooth_raise_complete_ &&
+            kf_complete_)
         {
-            runSmoothRaise(command);
+            // Publish initialization only once.
+            if (!mpc_initialize_) {
+                std_msgs::msg::Bool mpc_init_msg;
+                mpc_init_msg.data = true;
+                mpc_initialize_pub_->publish(mpc_init_msg);
 
-            if(boot_complete_ && idle_complete_ && 
-                smooth_raise_complete_ && kf_complete_){
-                    std_msgs::msg::Bool mpc_init_msg;
-                    mpc_init_msg.data = true; 
-                    mpc_initialize_pub_->publish(mpc_init_msg);
-                    
-                    auto elapsed_time_mpc = (this->now() - mpc_start_time.value()).seconds();
+                mpc_initialize_ = true;
+            }
 
-                    if (latest_mpc_cmd_) {
-                        auto ground_force = latest_mpc_cmd_->ground_force;
-                        runMpcCommand(command, ground_force);
-                    }              
+            if (latest_mpc_cmd_ &&
+                latest_est_state_ &&
+                latest_low_state_)
+            {
+                std::array<double, 12> test_force{};
+
+                const double force_per_leg =
+                    15.206 * 9.81 / 4.0;
+
+                for (int leg = 0; leg < 4; leg++) {
+                    test_force[leg * 3 + 0] = 0.0;
+                    test_force[leg * 3 + 1] = 0.0;
+                    test_force[leg * 3 + 2] = force_per_leg;
                 }
-            break;
+
+                // runMpcCommand(
+                //     command,
+                //     test_force,
+                //     latest_est_state_);
+                runMpcCommand(
+                    command,
+                    latest_mpc_cmd_->ground_force,
+                    latest_est_state_);
+            }
+            else {
+                // Continue holding the crouch until the first MPC result arrives.
+                runSmoothRaise(command);
+            }
         }
+
+        break;
+    }
         
         default:{
             runSmoothRaise(command);
@@ -278,8 +307,72 @@ void HighLevelControl::runSmoothRaise(unitree_go::msg::LowCmd &cmd_msg){
     cmd_pub_->publish(cmd_msg);
 }
 
-void HighLevelControl::runMpcCommand(unitree_go::msg::LowCmd &cmd, std::array<double,12> ground_force){
+void HighLevelControl::runMpcCommand(unitree_go::msg::LowCmd &cmd, std::array<double,12> ground_force,  const go2_interfaces::msg::EstimatedState::SharedPtr msg){
+
+    if (!msg || !latest_low_state_) {
+        return;
+    }
+
+    // Capture the joint posture once when MPC begins
+    if (!mpc_posture_initialized_) {
+        for (int motor = 0; motor < 12; motor++) {
+            mpc_q_hold_[motor] =
+                latest_low_state_->motor_state[motor].q;
+        }
+
+        mpc_posture_initialized_ = true;
+
+        RCLCPP_INFO(
+            this->get_logger(),
+            "Captured MPC stance posture.");
+    }
+
+    // Low-gain posture stabilization + MPC feedforward torque
+    for (int motor = 0; motor < 12; motor++) {
+        cmd.motor_cmd[motor].q =
+            mpc_q_hold_[motor];
+
+        cmd.motor_cmd[motor].dq = 0.0;
+
+        cmd.motor_cmd[motor].kp = 30.0;
+        cmd.motor_cmd[motor].kd = 1.5;
+
+        cmd.motor_cmd[motor].tau = 0.0;
+    }
     
+    // Jacobians
+    std::vector<Eigen::Matrix3d> leg_jacobians_world(4);
+
+    for (int leg = 0; leg < 4; leg++) {
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 3; col++) {
+                const int index =
+                    leg * 9 + row * 3 + col;
+
+                leg_jacobians_world[leg](row, col) = msg->leg_jacobians_world[index];
+            }
+        }
+    }
+
+    // MPC force command to torque
+    for(int leg=0; leg<4; leg++){
+        Eigen::Vector3d force_world;
+        
+        force_world << ground_force[leg*3 + 0],
+                       ground_force[leg*3 + 1],
+                       ground_force[leg*3 + 2];
+
+        const Eigen::Vector3d tau_leg = -leg_jacobians_world[leg].transpose() * force_world;
+
+        // Copy the three leg torques into LowCmd
+        for (int joint = 0; joint < 3; joint++) {
+            const int motor_index = leg * 3 + joint;
+
+            cmd.motor_cmd[motor_index].tau =
+                tau_leg(joint);
+        }
+    }
+    cmd_pub_->publish(cmd);
 }
 
 void HighLevelControl::runEmergencyStop(unitree_go::msg::LowCmd &cmd){
