@@ -4,8 +4,8 @@
 #include <unitree_go/msg/low_cmd.hpp>
 #include <unitree_go/msg/low_state.hpp>
 
-#include "lowlevel/Leg.h"
 #include "lowlevel/Joint.h"
+#include "lowlevel/Leg.h"
 
 namespace go2_utils::interact {
     class LowLevelControl {
@@ -62,7 +62,7 @@ namespace go2_utils::interact {
         bool was_state_received();
 
         /**
-         * Sends all current joint commands to the robot. 
+         * Sends all current joint commands to the robot.
          */
         void publish();
 
@@ -88,11 +88,14 @@ namespace go2_utils::interact {
 
         // IMU state
         unitree_go::msg::IMUState imu_state_;
-        
+
         // BMS state
         unitree_go::msg::BmsState bms_state_;
+
+        // Foot forces
+        std::shared_ptr<uint16_t> foot_forces_[4];
 
         // command
         std::unique_ptr<unitree_go::msg::LowCmd> low_command_;
     };
-} // namespace interface
+} // namespace go2_utils::interact

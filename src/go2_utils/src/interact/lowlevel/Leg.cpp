@@ -4,8 +4,8 @@
 
 namespace go2_utils::interact::lowlevel {
     Leg::Leg(Joint::SharedPtr &hip, Joint::SharedPtr &thigh, Joint::SharedPtr &calf,
-             robot::LegPair pair, robot::LegSide side)
-        : hip_(hip), thigh_(thigh), calf_(calf), side_(side), pair_(pair) {
+             std::shared_ptr<uint16_t> &foot_force, robot::LegPair pair, robot::LegSide side)
+        : hip_(hip), thigh_(thigh), calf_(calf), foot_force_(foot_force), side_(side), pair_(pair) {
         // empty
     }
 
@@ -27,6 +27,10 @@ namespace go2_utils::interact::lowlevel {
 
     robot::LegPair Leg::pair() const {
         return pair_;
+    }
+
+    uint16_t Leg::foot_force() const {
+        return *foot_force_;
     }
 
     void Leg::command_joint_angles(const Eigen::Vector3f &joints) const {
