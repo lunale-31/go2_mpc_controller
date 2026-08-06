@@ -106,6 +106,9 @@ namespace go2_utils::interact {
         }
 
         // Distribute foot force state to leg wrappers
+        for (unsigned i = 0U; i <= robot::LEG_MAX; ++i) {
+            *foot_forces_[i] = state.foot_force[i];
+        }
 
         // Update IMU state
         imu_state_ = state.imu_state;

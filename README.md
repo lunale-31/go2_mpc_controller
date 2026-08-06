@@ -19,9 +19,12 @@ The code in this repository is seperated into several directories.
 - 📂 **config**: Configuration files for experiments
 - 📂 **docs**: Documentation and guides (CURRENTLY OUTDATED!!!)
 - 📂 **src**: Main source code (organized in ROS2 packages)
+    - 📂 **go2_utils**: Library for Go2 robot interaction, used by most other packages
     - 📂 **go2_cli**: Collection of CLI tools for Go2 robot interaction
-    - 📂 **go2_utils**: Library for Go2 robot interaction
+    - 📂 **experiments**: Loose collection of experiments
     - 📂 **stand_height**: Experiment for letting the robot stand at a fixed height
+    - 📂 **mpc_control**: Unfinished implementation of a MPC controller for walking
+    - 📂 **basic_motion**: Unfinished implementation of a suite of motion controllers
 - 📂 **old**: Old code snippets waiting for deletion
 - 📂 **theory**: Notes and scratchpad code
 
