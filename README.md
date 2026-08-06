@@ -75,4 +75,8 @@ The settings will be kept until you close the terminal.
 Finally, you can run the code using `ros2`, for example:
 ```bash
 ros2 run go2_cli hl-stand-up
-``` 
+```
+
+### Starting you own Development
+
+Head over to [this page](/docs/getting-started.md) to get started with development.
