@@ -19,7 +19,7 @@ We can interface with the robot via the DDS middleware.
 The middleware is configured using environment variables.
 You can run one of the following commands to configure the environment:
 
-```
+```sh
 # Configures DDS to communicate with the robot via ethernet.
 source dds-robot
 
@@ -28,6 +28,19 @@ source dds-loopback
 ```
 
 You need to correctly set the environment before running any programs in this repository.
+
+## Enabling the ROS2 Environment
+
+The code in this repository is a collection of ROS2 packages.
+To run it, you first need to activate them by sourcing the setup script:
+```sh
+source install/setup.bash 
+```
+
+If this script does not exist, you first need to build the code using `colcon`:
+```sh
+colcon build
+```
 
 ## High- and Low-level Control
 
