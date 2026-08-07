@@ -64,14 +64,24 @@ void StateEstimatorNode::controller_callback(const unitree_go::msg::LowState::Sh
     double current_roll = msg->imu_state.rpy[0];
 
     // jacobian calculation
-    std::vector<Eigen::Matrix3f> leg_jacobians(4); 
+    // std::vector<Eigen::Matrix3f> leg_jacobians(4); 
 
+    // // r_body calculation (position vector from body to foot wrt to the body frame)
+    // std::vector<Eigen::Vector3d> foot_positions_body(4); 
+
+    // // r_i calculation 
+    // std::vector<Eigen::Vector3d> foot_positions_world(4); //position vector from body to foot wrt world frame (small angle approximation - MPC)
+    // std::vector<Eigen::Vector3d> est_foot_positions_world(4);//position vector from body to foot wrt world frame (No approximations - KF)
+
+    // jacobian calculation C
+    auto &leg_jacobians = leg_jacobians_;
+ 
     // r_body calculation (position vector from body to foot wrt to the body frame)
-    std::vector<Eigen::Vector3d> foot_positions_body(4); 
-
+    auto &foot_positions_body = foot_positions_body_;
+ 
     // r_i calculation 
-    std::vector<Eigen::Vector3d> foot_positions_world(4); //position vector from body to foot wrt world frame (small angle approximation - MPC)
-    std::vector<Eigen::Vector3d> est_foot_positions_world(4);//position vector from body to foot wrt world frame (No approximations - KF)
+    auto &foot_positions_world = foot_positions_world_; //position vector from body to foot wrt world frame (small angle approximation - MPC)
+    auto &est_foot_positions_world = est_foot_positions_world_; //position vector from body to foot wrt world frame (No approximations - KF)
 
     // r_i dot calculation variable
     std::vector<Eigen::Vector3d> est_foot_velocities_world(4); 
@@ -101,7 +111,8 @@ void StateEstimatorNode::controller_callback(const unitree_go::msg::LowState::Sh
                 Eigen::Vector3d r_body = hip_offset[i] + d_fk; 
                 foot_positions_body[i] = r_body;
 
-                Eigen::Vector3d r_world = Rz * r_body; 
+                // Eigen::Vector3d r_world = Rz * r_body; 
+                Eigen::Vector3d r_world = R_w * r_body; 
                 foot_positions_world[i] = r_world;
                 
                 // TODO: Build filter functions that accounts for foot contacts. If no contact, need to rebuild C and R2 matrix.  
@@ -113,8 +124,17 @@ void StateEstimatorNode::controller_callback(const unitree_go::msg::LowState::Sh
         }
         else {
             // TODO: compute fk and r_i based on contacts here. 
-            RCLCPP_WARN_ONCE(this->get_logger(), "Leg %d returned invalid kinematics on startup!.", i);
-            leg_jacobians[i] = Eigen::Matrix3f::Identity(); // Safety to avoid crashes 
+            RCLCPP_WARN_THROTTLE(
+                this->get_logger(), *this->get_clock(), 500,
+                "Leg %d returned invalid kinematics (holding last known-valid value). "
+                "q = [%.4f, %.4f, %.4f]  limits: theta1[%.2f,%.2f] theta2[%.2f,%.2f] theta3[%.2f,%.2f]",
+                i,
+                joint_angles.x(), joint_angles.y(), joint_angles.z(),
+                common::theta_1_min, common::theta_1_max,
+                common::theta_2_min, common::theta_2_max,
+                common::theta_3_min, common::theta_3_max);
+
+            // leg_jacobians[i] = Eigen::Matrix3f::Identity(); // Safety to avoid crashes 
         }
     }
 
@@ -150,7 +170,8 @@ void StateEstimatorNode::controller_callback(const unitree_go::msg::LowState::Sh
                             msg->imu_state.gyroscope[1],
                             msg->imu_state.gyroscope[2]}; 
 
-    Eigen::Vector3d omega_world = Rz * omega_body;
+    // Eigen::Vector3d omega_world = Rz * omega_body;
+    Eigen::Vector3d omega_world = R_w * omega_body;
 
     Eigen::Vector3d imu_accln; 
     Eigen::Vector3d accln_world; 

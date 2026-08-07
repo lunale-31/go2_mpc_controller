@@ -6,7 +6,8 @@ state_estimator:
 mpc_node:
   ros__parameters:
     # MPC should be slower than the state estimator.
-    mpc_dt: 0.05
+    # mpc_dt: 0.05
+    mpc_dt: 0.02
     stand_transition_time: 5.0
     z_ref: 0.3 # Height reference
 
@@ -21,7 +22,8 @@ high_level_control:
     kf_warmup_time: 4.0
 
     # FR hip thigh calf, FL 3, RR 3, RL 3, reference q for initial PD controller
-    q_ref: [0.2, 1.2, -2.3, 0.2, 1.2, -2.3, 0.2, 1.2, -2.3, 0.2, 1.2, -2.3]
+    q_ref: [0.2, 1.2, -2.3, -0.2, 1.2, -2.3, 0.2, 1.2, -2.3, -0.2, 1.2, -2.3]
+    # q_ref: [0.0, 1.2, -2.3, -0.0, 1.2, -2.3, 0.0, 1.2, -2.3, -0.0, 1.2, -2.3]
 
     # roll, pitch, yaw, px, py, pz, wx, wy, wz, pdotx, pdoty, pdotz, g
     # x_ref: [0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]

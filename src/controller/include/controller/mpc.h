@@ -70,12 +70,12 @@ class MPC{
 
     private:
         // Constants related to prediction and control horizon
-        const int hp{5},hc{5};
+        const int hp{10},hc{10};
         
         // Other constants related to sampling and constraints 
         double mpc_dt_{0.05};
         double mu_{0.4};
-        double fz_min{0.0};
+        double fz_min{5.0};
         double fz_max{100.0}; 
         double tau_min{-23.7}, tau_max{23.7}, tau_min_calf{-45.43}, tau_max_calf{45.43};
         double negInf = -std::numeric_limits<double>::infinity();
@@ -104,8 +104,8 @@ class MPC{
         Eigen::MatrixXd m_Q2qp;
 
         // QP cost vars
-        Eigen::Matrix<double, 60, 60> Hqp;
-        Eigen::Matrix<double, 60, 1> gqp;
+        Eigen::MatrixXd Hqp;
+        Eigen::VectorXd gqp;
         double rho_qp; 
 
         // Weights

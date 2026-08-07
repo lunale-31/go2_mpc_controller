@@ -6,7 +6,7 @@
 namespace common
 {
     // Define limb lengths (in meters)
-    const float L_1 = 0.095f, L_2 = 0.213f, L_3 = 0.230f;
+    const float L_1 = 0.095f, L_2 = 0.213f, L_3 = 0.2130f;
 
     // Define hip joint limits (in radians)
     const float theta_1_min = -0.85f, theta_1_max = 0.85f;

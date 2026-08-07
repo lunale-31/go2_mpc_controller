@@ -4,6 +4,9 @@ MPCNode::MPCNode() : rclcpp::Node("mpc_node"){
     x_sub_ = this->create_subscription<go2_interfaces::msg::EstimatedState>("/estimated_state", 10, 
                     std::bind(&MPCNode::stateCallback, this, std::placeholders::_1));
 
+    lowstate_sub = this->create_subscription<unitree_go::msg::LowState>("/lowstate", 10, 
+                    std::bind(&MPCNode::lowStateCallback, this, std::placeholders::_1));
+                
     mpc_initialize_sub = this->create_subscription<std_msgs::msg::Bool>("/mpc_initialize", 10,
                     std::bind(&MPCNode::mpcInitializeCallback, this, std::placeholders::_1));
 
@@ -32,6 +35,10 @@ void MPCNode::loadParams(){
 
 void MPCNode::stateCallback(go2_interfaces::msg::EstimatedState::SharedPtr msg){
     latest_state_msg = msg; 
+}
+
+void MPCNode::lowStateCallback(unitree_go::msg::LowState::SharedPtr msg){
+    latest_low_state = msg; 
 }
 
 void MPCNode::mpcInitializeCallback(std_msgs::msg::Bool::SharedPtr msg){
@@ -163,6 +170,8 @@ void MPCNode::mpcControlLoop(){
         x_hold_ = x_curr(3);
         y_hold_ = x_curr(4);
         yaw_hold_ = x_curr(2);
+        roll_hold_  = x_curr(0);
+        pitch_hold_ = x_curr(1);
 
         hold_reference_initialized_ = true;
 
@@ -183,8 +192,8 @@ void MPCNode::mpcControlLoop(){
     // const double z_traj = z_start;
     // const double zdot_traj = 0.0;
 
-    x_ref_ <<   0.0,        // desired roll
-                0.0,        // desired pitch
+    x_ref_ <<   0,        // desired roll
+                0,        // desired pitch
                 yaw_hold_,  // desired yaw, or fixed initial yaw
                 x_hold_,  // desired x position
                 y_hold_,  // desired y position
@@ -200,17 +209,53 @@ void MPCNode::mpcControlLoop(){
     /* MPC Set reference */
     mpc_->setReference(x_ref_);
 
-    /*Dynamics computations*/  
-    mpc_->computeDynamics(go2, foot_pos_world, current_yaw);
+    const auto t0 = std::chrono::steady_clock::now();
 
-    /* Cost building */
+    mpc_->computeDynamics(
+        go2,
+        foot_pos_world,
+        current_yaw
+    );
+
+    const auto t1 = std::chrono::steady_clock::now();
+
     mpc_->buildCost(x_curr);
 
-    /* Constraints building */
-    mpc_->buildConstraints(leg_jacobians_world);
+    const auto t2 = std::chrono::steady_clock::now();
 
-    /* Solve */
+    mpc_->buildConstraints(
+        leg_jacobians_world
+    );
+
+    const auto t3 = std::chrono::steady_clock::now();
+
     const bool solved = mpc_->solve();
+
+    const auto t4 = std::chrono::steady_clock::now();
+
+    /* MPC timing debug */
+    const double dynamics_ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
+
+    const double cost_ms =std::chrono::duration<double, std::milli>(t2 - t1).count();
+
+    const double constraints_ms = std::chrono::duration<double, std::milli>(t3 - t2).count();
+
+    const double solve_ms = std::chrono::duration<double, std::milli>(t4 - t3).count();
+
+    const double total_ms = std::chrono::duration<double, std::milli>(t4 - t0).count();
+
+    RCLCPP_INFO_THROTTLE(
+        this->get_logger(),
+        *this->get_clock(),
+        500,
+        "MPC TIMING: dyn=%.2f | cost=%.2f | "
+        "constraints=%.2f | solve=%.2f | TOTAL=%.2f ms",
+        dynamics_ms,
+        cost_ms,
+        constraints_ms,
+        solve_ms,
+        total_ms
+    );
 
     if(!solved){
         RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 1000, "MPC Solver failed.");
@@ -230,6 +275,20 @@ void MPCNode::mpcControlLoop(){
         u_opt(2) + u_opt(5) + u_opt(8) + u_opt(11);
 
     RCLCPP_INFO_THROTTLE(
+        get_logger(),
+        *get_clock(),
+        500,
+        "F | "
+        "FR=[%.1f %.1f %.1f] "
+        "FL=[%.1f %.1f %.1f] "
+        "RR=[%.1f %.1f %.1f] "
+        "RL=[%.1f %.1f %.1f]",
+        u_opt(0), u_opt(1), u_opt(2),
+        u_opt(3), u_opt(4), u_opt(5),
+        u_opt(6), u_opt(7), u_opt(8),
+        u_opt(9), u_opt(10), u_opt(11));
+        
+    RCLCPP_INFO_THROTTLE(
         this->get_logger(),
         *this->get_clock(),
         500,
@@ -244,7 +303,7 @@ void MPCNode::mpcControlLoop(){
         x_ref_(3),
         x_ref_(4),
         x_ref_(5));
-        
+
     for(int i=0; i<12; i++){
         mpc_cmd.ground_force[i] = u_opt[i];
     }

@@ -26,6 +26,10 @@ namespace common {
             return std::nullopt;
         }
 
+        // if (!joints.allFinite()) {
+        //     return std::nullopt;
+        // }
+        
         const float theta_1 = joints.x(), theta_2 = joints.y(), theta_3 = joints.z();
 
         const float s_1 = sinf(theta_1), c_1 = cosf(theta_1);
@@ -34,7 +38,8 @@ namespace common {
         // Adapt L_1 to account for inverted hip direction on the right side
         const float L_1_adapted = (side == LegSide::LEFT) ? L_1 : -L_1;
 
-        const float x = L_2 * s_2 + L_3 * sin(theta_2 + theta_3);
+        // const float x = L_2 * s_2 + L_3 * sin(theta_2 + theta_3);
+        const float x = -L_2 * s_2 - L_3 * sin(theta_2 + theta_3);
         if (std::isnan(x)) {
             return std::nullopt;
         }
@@ -70,8 +75,8 @@ namespace common {
         Eigen::Matrix3f m_j;
 
         const float x11 = 0;
-        const float x12 = (L_2 * c_2) + (L_3 * c_23); 
-        const float x13 = L_3 * c_23;
+        const float x12 = -(L_2 * c_2) - (L_3 * c_23); 
+        const float x13 = -L_3 * c_23;
 
         const float y21 = (-L_1_adapted * s_1) + (L_2 * c_1 * c_2) + (L_3 * c_1 * c_23);
         const float y22 = (-L_2 * s_1 * s_2) - (L_3 * s_1 * s_23); 

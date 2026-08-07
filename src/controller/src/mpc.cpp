@@ -21,6 +21,12 @@ MPC::MPC(double dt){
     m_Q1qp.resize(states_nr * hp, states_nr * hp);
     m_Q2qp.resize(inputs_nr * hc, inputs_nr * hc);
 
+    Hqp.resize(inputs_nr * hc, inputs_nr * hc);
+    gqp.resize(inputs_nr * hc);
+
+    Hqp.setZero();
+    gqp.setZero();
+
     m_Xqpref.setZero();
     m_Q1qp.setZero();
     m_Q2qp.setZero();
@@ -52,10 +58,7 @@ void MPC::setWeights(){
 
         0.0;    // gravity state
 
-    Q2_.diagonal() << 1e-3, 1e-3, 1e-3, // FR forces
-                      1e-3, 1e-3, 1e-3, // FL forces
-                      1e-3, 1e-3, 1e-3, // RR forces
-                      1e-3, 1e-3, 1e-3; // RL forces
+    Q2_.diagonal().setConstant(1e-5);
 
     Qf_ = Q1_;
     Qf_(0,0) *= 2.0; // Roll

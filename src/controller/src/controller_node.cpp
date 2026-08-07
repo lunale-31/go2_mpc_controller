@@ -135,7 +135,7 @@ void HighLevelControl::controlLoop(){
             smooth_raise_complete_ &&
             kf_complete_)
         {
-            // Publish initialization only once.
+            // Publish initialization.
             if (!mpc_initialize_) {
                 std_msgs::msg::Bool mpc_init_msg;
                 mpc_init_msg.data = true;
@@ -148,25 +148,7 @@ void HighLevelControl::controlLoop(){
                 latest_est_state_ &&
                 latest_low_state_)
             {
-                std::array<double, 12> test_force{};
-
-                const double force_per_leg =
-                    15.206 * 9.81 / 4.0;
-
-                for (int leg = 0; leg < 4; leg++) {
-                    test_force[leg * 3 + 0] = 0.0;
-                    test_force[leg * 3 + 1] = 0.0;
-                    test_force[leg * 3 + 2] = force_per_leg;
-                }
-
-                // runMpcCommand(
-                //     command,
-                //     test_force,
-                //     latest_est_state_);
-                runMpcCommand(
-                    command,
-                    latest_mpc_cmd_->ground_force,
-                    latest_est_state_);
+                runMpcCommand(command, latest_mpc_cmd_->ground_force, latest_est_state_);
             }
             else {
                 // Continue holding the crouch until the first MPC result arrives.
@@ -334,8 +316,8 @@ void HighLevelControl::runMpcCommand(unitree_go::msg::LowCmd &cmd, std::array<do
 
         cmd.motor_cmd[motor].dq = 0.0;
 
-        cmd.motor_cmd[motor].kp = 30.0;
-        cmd.motor_cmd[motor].kd = 1.5;
+        cmd.motor_cmd[motor].kp = 0.0;
+        cmd.motor_cmd[motor].kd = 0.0;
 
         cmd.motor_cmd[motor].tau = 0.0;
     }
@@ -355,6 +337,8 @@ void HighLevelControl::runMpcCommand(unitree_go::msg::LowCmd &cmd, std::array<do
     }
 
     // MPC force command to torque
+    const std::array<double,3> torque_limits = {23.7, 23.7, 45.43};
+    
     for(int leg=0; leg<4; leg++){
         Eigen::Vector3d force_world;
         
@@ -367,9 +351,12 @@ void HighLevelControl::runMpcCommand(unitree_go::msg::LowCmd &cmd, std::array<do
         // Copy the three leg torques into LowCmd
         for (int joint = 0; joint < 3; joint++) {
             const int motor_index = leg * 3 + joint;
+            const double limit = torque_limits[joint];
 
-            cmd.motor_cmd[motor_index].tau =
-                tau_leg(joint);
+            const double tau_ff_min = -limit;
+            const double tau_ff_max =  limit;
+
+            cmd.motor_cmd[motor_index].tau = std::clamp(tau_leg(joint),tau_ff_min, tau_ff_max);
         }
     }
     cmd_pub_->publish(cmd);

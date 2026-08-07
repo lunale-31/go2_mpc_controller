@@ -55,6 +55,20 @@ class StateEstimatorNode : public rclcpp::Node{
         // Gait planner variables
         std::vector<bool> planned_contacts;
 
+        // Hold kinematics
+        std::vector<Eigen::Matrix3f> leg_jacobians_{
+            Eigen::Matrix3f::Identity(), Eigen::Matrix3f::Identity(),
+            Eigen::Matrix3f::Identity(), Eigen::Matrix3f::Identity()};
+        std::vector<Eigen::Vector3d> foot_positions_body_{
+            Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero(),
+            Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero()};
+        std::vector<Eigen::Vector3d> foot_positions_world_{
+            Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero(),
+            Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero()};
+        std::vector<Eigen::Vector3d> est_foot_positions_world_{
+            Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero(),
+            Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero()};
+ 
         // MPC computation components 
         std::unique_ptr<KalmanFilter> filter_; // unique_ptr makes the controller class to exclusively own this object/member
         Dynamics go2; 

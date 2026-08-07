@@ -58,17 +58,20 @@ class MPCNode : public rclcpp::Node{
 
         rclcpp::Publisher<go2_interfaces::msg::MpcCommand>::SharedPtr mpc_cmd_pub_; 
         rclcpp::Subscription<go2_interfaces::msg::EstimatedState>::SharedPtr x_sub_; 
-        
+        rclcpp::Subscription<unitree_go::msg::LowState>::SharedPtr lowstate_sub;
+
         rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr mpc_initialize_sub; 
 
         // ROS2 callbacks
         void stateCallback(go2_interfaces::msg::EstimatedState::SharedPtr msg);
+        void lowStateCallback(unitree_go::msg::LowState::SharedPtr msg);
         void mpcInitializeCallback(std_msgs::msg::Bool::SharedPtr msg); 
         void mpcControlLoop();
 
         // Latest vars
         go2_interfaces::msg::EstimatedState::SharedPtr latest_state_msg;
-
+        unitree_go::msg::LowState::SharedPtr latest_low_state;
+        
         // Smooth trajectory vars
         bool stand_initialized_{false};
         bool stand_complete_{false};
@@ -89,4 +92,6 @@ class MPCNode : public rclcpp::Node{
         double x_hold_{0.0};
         double y_hold_{0.0};
         double yaw_hold_{0.0};
+        double roll_hold_{0.0};
+        double pitch_hold_{0.0};
 };

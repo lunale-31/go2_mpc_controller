@@ -1,24 +1,517 @@
-# Controller Package
+# Unitree Go2 Ground-Reaction-Force MPC + Kalman Filter
+
+This repository contains a ROS 2 controller for the Unitree Go2 in MuJoCo. The main goal of the current implementation is to bring the robot into a known crouched posture, initialize a leg-kinematics-based Kalman filter, and then use a convex Model Predictive Controller (MPC) to calculate ground-reaction forces for standing and body stabilization.
 
 This package implements a ground force-based Convex Model Predictive Control (MPC) for the Unitree Go2 quadruped robot. The controller architecture and state-space dynamics are derived from the MIT Cheetah 3 paper:
 
 > Di Carlo, J., Wensing, P. M., Katz, B., Bledt, G., & Kim, S. (2018). **"Dynamic Locomotion in the MIT Cheetah 3 Through Convex Model-Predictive Control."** *IEEE International Conference on Intelligent Robots and Systems (IROS).*
 
-## Overview
-The controller computes optimal ground reaction forces using a convex MPC formulation and tracks a reference state trajectory for stand-up/locomotion. 
-The package is implemented using ROS2 (majorly C++ except launch files) and consists of dynamics, kinematics, MPC and ROS2 interface for controller callback. 
+This repository is still a research and learning project rather than a finished locomotion stack. It currently focuses on a four-foot standing case; gait generation, swing-leg control, contact handling, and hardware safety are still under development.
 
-## Walkthrough 
+> **Safety note:** Run this in simulation only. The current controller is not ready for a physical Go2. In particular, the emergency-stop, contact switching, and several whole-body safety checks are not complete.
 
-### 1) Config (config/mpc_params.yaml) 
- - Contains all the parameters that is required for the controller to run. (For example: Reference signal)
- 
-### 2) Launch (launch/mpc_launch.py) 
- - Contains the code to launch the "go2_mpc_controller" node with config param file, which contains the main callback loop. 
+---
 
-### 3) Source code (src)
-- **dynamics**: Contains the code related to the state-space model that has been discussed mathematically in the paper. 
-- **go2_mpc**: Contains the code related to the controller command loop. 
-- **kinematics**: Contains the code related to the go2 robot's forward and inverse kinematics. 
-- **main**: Entry point for the ros2 node.  
+## What the repository contains
 
+The workspace contains two ROS 2 packages:
+
+```text
+src/
+├── controller/       # Estimator, MPC, high-level supervisor and Go2 model
+└── go2_interfaces/   # Custom ROS 2 messages shared between the nodes
+```
+
+The `controller` package builds three executable nodes:
+
+| Node | Executable | Main job |
+|---|---|---|
+| State estimator | `state_estimator_node` | Uses IMU, joint states and leg kinematics to estimate body position and velocity |
+| MPC | `mpc_node` | Builds and solves the ground-reaction-force QP using OSQP |
+| High-level controller | `controller_node` | State machines to ensure a proper control flow |
+
+All three nodes are started by:
+
+```bash
+ros2 launch controller mpc.launch.py
+```
+
+---
+
+## Controller data flow
+
+In normal operation:
+
+1. MuJoCo publishes the robot sensor data on `/lowstate`.
+2. The high-level controller smoothly moves the joints to the configured crouched posture.
+3. The high-level controller requests Kalman-filter initialization through `/kf_initialize`.
+4. The estimator publishes `/estimated_state` after initialization.
+5. After the estimator warm-up period, the controller enables the MPC through `/mpc_initialize`.
+6. The MPC builds a reference, predicts the body dynamics, solves the QP, and publishes twelve foot-force values on `/mpc_command`.
+7. The high-level controller maps each world-frame foot force to joint torque using `-Jᵀf`, adds posture PD control, and publishes `/lowcmd` to MuJoCo.
+
+---
+
+## Current startup sequence
+
+The high-level controller contains the following state-machine states:
+
+```text
+BOOT
+  ↓
+IDLE
+  ↓
+SMOOTH_RAISE
+  ↓
+KF_INITIALIZE
+  ↓
+MPC_INITIALIZE
+```
+
+The enum also contains `MPC_RUNNING`, `STOP`, and `EMERGENCY_STOP`, but the current source does not yet transition into a separate `MPC_RUNNING` state. MPC commands are presently applied inside `MPC_INITIALIZE`.
+
+The current sequence is:
+
+- **BOOT:** Wait for the first `/lowstate` message.
+- **IDLE:** Check that the twelve joint measurements and the configured reference are finite and valid.
+- **SMOOTH_RAISE:** Use quintic interpolation to move from the measured startup posture to `q_ref`.
+- **KF_INITIALIZE:** Initialize the Kalman filter and keep holding the joint posture during the warm-up time.
+- **MPC_INITIALIZE:** Enable the MPC, receive foot forces, convert them to torque, and publish the motor command.
+
+The configured `q_ref` currently represents the initial PD-controlled crouched posture.
+
+Check the REPOGUIDE.md to understand the full repository's code structure and functionalities. 
+---
+
+## Dependencies
+
+The code is currently set up for the following environment:
+
+- ROS 2 Humble
+- C++17
+- Eigen3
+- Unitree ROS 2 messages (`unitree_go`)
+- The local `go2_interfaces` package
+- `osqp-cpp`
+- Unitree MuJoCo simulator
+- Cyclone DDS/your project DDS loopback configuration
+
+The controller CMake file currently expects `osqp-cpp` at:
+
+```text
+/opt/osqp-cpp
+```
+
+This path is hard-coded in `controller/CMakeLists.txt`:
+
+```cmake
+add_subdirectory(
+  /opt/osqp-cpp
+  ${CMAKE_BINARY_DIR}/osqp-cpp
+  EXCLUDE_FROM_ALL
+)
+```
+
+If `osqp-cpp` is installed elsewhere, update this path before building.
+
+You can also use the DockerFile and devcontainer to load the environment without installing anything extra / from the source. 
+---
+
+# Build tutorial
+
+The commands below assume the ROS 2 workspace is `/workspace` and the packages are located in `/workspace/src`.
+
+## 1. Enter the workspace
+
+```bash
+cd /workspace
+```
+
+## 2. Source ROS 2
+
+```bash
+source /opt/ros/humble/setup.bash
+```
+
+## 3. Build the message and controller packages
+
+```bash
+colcon build \
+  --symlink-install \
+  --packages-select go2_interfaces controller
+```
+
+`go2_interfaces` must be built because the three controller nodes use its custom messages.
+
+## 4. Source the workspace
+
+```bash
+source install/setup.bash
+```
+
+You must repeat this in every new terminal, unless your shell setup does it automatically.
+
+After changing a `.cpp`, `.h`, `.msg`, `CMakeLists.txt`, or `package.xml` file, rebuild the affected packages and source the workspace again.
+
+---
+
+# Run tutorial
+
+The controller and simulator are normally run in two terminal windows.
+
+## Terminal 1 — Start the ROS 2 controller
+
+```bash
+cd /workspace
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+source dds-loopback
+ros2 launch controller mpc.launch.py
+```
+
+In this project, `source dds-loopback` applies the local DDS configuration used for communication between the ROS 2 controller and the simulator.
+
+The launch command starts:
+
+```text
+/state_estimator
+/high_level_control
+/mpc_node
+```
+
+It is normal for the nodes to wait for `/lowstate` before the simulator starts.
+
+## Terminal 2 — Start MuJoCo
+
+Open a second terminal window and go to the simulator directory containing `start.sh`:
+
+```bash
+cd <path-to-the-unitree-mujoco-directory>
+./start.sh
+```
+
+After MuJoCo starts publishing `/lowstate`, the controller should automatically proceed through its startup sequence.
+
+## Expected terminal progression
+
+You should see messages similar to:
+
+```text
+Controller active! Waiting for simulation ticks...
+Control supervisor started
+BOOT successful. IDLING and checking sensors/references.
+Checks successful. Starting PD smooth raise.
+Starting 5.00-second smooth crouch transition.
+Smooth crouch transition completed.
+PD smooth raise completed. Initializing Kalman filter.
+KF initialization requested
+Kalman filter initialized.
+KF warmup completed. Initializing MPC.
+Starting 5.00-second smooth stand transition.
+```
+
+The MPC node also prints the summed optimized forces and the current/reference body position.
+
+---
+
+## Useful ROS 2 checks
+
+Run these commands in a terminal where ROS, the workspace, and DDS loopback have been sourced.
+
+### Confirm that all nodes are running
+
+```bash
+ros2 node list
+```
+
+Expected controller nodes:
+
+```text
+/high_level_control
+/mpc_node
+/state_estimator
+```
+
+### Inspect the available topics
+
+```bash
+ros2 topic list
+```
+
+### Check whether the simulator is publishing sensor data
+
+```bash
+ros2 topic hz /lowstate
+```
+
+The expected rate in the current setup is approximately 500 Hz.
+
+### Check the estimator output rate
+
+```bash
+ros2 topic hz /estimated_state
+```
+
+### View the current estimated state
+
+```bash
+ros2 topic echo /estimated_state
+```
+
+### View the MPC forces
+
+```bash
+ros2 topic echo /mpc_command
+```
+
+The force order is FR, FL, RR, RL, with x/y/z components for each foot.
+
+### View detailed estimator diagnostics
+
+```bash
+ros2 topic echo /estimator
+```
+
+For longer tests, PlotJuggler or Foxglove is usually easier than printing this message directly.
+
+### Inspect connections
+
+```bash
+ros2 node info /state_estimator
+ros2 node info /mpc_node
+ros2 node info /high_level_control
+```
+
+---
+
+## Main parameters to tune
+
+For most experiments, begin with `controller/config/mpc_params.yaml`.
+
+| Parameter | Current value | Purpose |
+|---|---:|---|
+| `obs_dt` | `0.002` | Estimator timestep; intended for 500 Hz `/lowstate` |
+| `joint_dt` | `0.002` | High-level motor-command loop period |
+| `mpc_dt` | `0.02` | MPC solve period; 50 Hz |
+| `crouch_transition_time` | `5.0` | Time used to interpolate from startup joints to `q_ref` |
+| `stand_transition_time` | `5.0` | Time used to interpolate body height toward `z_ref` |
+| `kf_warmup_time` | `4.0` | Estimator settling time before enabling MPC |
+| `z_ref` | `0.3` | Desired body-height reference |
+| `gains.kp` | `35.0` | PD position gain during the initial smooth transition |
+| `gains.kd` | `1.5` | PD velocity gain during the initial smooth transition |
+| `q_ref` | 12 values | Initial joint reference in FR, FL, RR, RL order |
+
+The posture gains used after MPC starts are currently hard-coded in `runMpcCommand()` rather than loaded from YAML.
+
+---
+
+## How the MPC works
+
+At every MPC tick:
+
+1. Read the latest estimated body state, foot positions, and Jacobians.
+2. Hold the x, y, and yaw values captured when MPC starts.
+3. Generate a smooth height reference from the initial estimated height to `z_ref`.
+4. Build the continuous simplified rigid-body A and B matrices.
+5. Discretize them using zero-order hold.
+6. Unroll the model over five prediction steps.
+7. Build a quadratic state-tracking and force-effort cost.
+8. Add friction-pyramid, normal-force, and joint-torque constraints.
+9. Solve the QP with OSQP.
+10. Publish only the first force vector from the optimized horizon.
+
+The optimized forces are not motor torques. The high-level controller performs the conversion using each leg Jacobian.
+
+---
+
+## Known limitations and unfinished work
+
+This is the most important section for anyone modifying the repository.
+
+### Standing only
+
+All four feet are currently treated as contacts. There is no gait planner, swing-foot trajectory, or contact schedule.
+
+### No swing-leg force constraint
+
+The MPC TODO explicitly notes that forces for swing legs still need to be forced to zero when gait support is added.
+
+### Contact flags are not yet dynamic
+
+The estimator publishes contact information, but the current planned-contact vector is initialized to four `true` values and is not updated from measured contact forces.
+
+### Posture stabilization is still required
+
+The MPC controls body motion through ground forces. It does not uniquely control the internal leg posture. The high-level controller therefore keeps joint PD active while applying MPC feedforward torque. Setting both posture gains to zero removes this joint-level stabilization and can cause uncontrolled leg motion.
+
+### Incomplete state machine
+
+`MPC_RUNNING`, `STOP`, and `EMERGENCY_STOP` exist in the enum, but the current active path remains in `MPC_INITIALIZE`. `runEmergencyStop()` is empty.
+
+### Solver-failure fallback is incomplete
+
+The MPC sets its local force vector to zero when OSQP fails, but `mpc_node.cpp` currently returns without publishing a replacement command. A command timestamp, validity flag, timeout, and safe fallback should be added.
+
+### Simplified rigid-body model
+
+The MPC uses a small-angle, single-rigid-body approximation. It is intended for near-upright motion and does not model complete leg dynamics.
+
+### Fixed model and limits
+
+Robot mass, inertia, link dimensions, friction, force limits, and torque limits are defined in source files rather than loaded from YAML.
+
+### No hardware-ready command safety
+
+Final motor torque clamping, LowCmd mode initialization, CRC handling, stale-command checks, and tested physical emergency behaviour must be completed before hardware use.
+
+### License is not set
+
+`controller/package.xml` currently contains `TODO: License declaration`. Add a real repository license before public release.
+
+---
+
+## Troubleshooting
+
+### `Package 'controller' not found`
+
+The workspace has not been sourced in the current terminal:
+
+```bash
+cd /workspace
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+```
+
+### CMake cannot find `osqp-cpp`
+
+Check that this directory exists:
+
+```bash
+ls /opt/osqp-cpp
+```
+
+If OSQP is located elsewhere, update the path in `controller/CMakeLists.txt`.
+
+### The controller keeps saying `Waiting for /estimated_state...`
+
+Check:
+
+```bash
+ros2 topic hz /lowstate
+ros2 topic echo /kf_initialize
+ros2 topic hz /estimated_state
+```
+
+The estimator does not initialize until the high-level controller finishes the initial smooth joint transition and publishes `/kf_initialize`.
+
+### The MPC keeps saying `Waiting for /mpc_initialize...`
+
+The high-level controller has not completed the KF warm-up phase. Check whether `/estimated_state` contains:
+
+```text
+initialized: true
+valid: true
+```
+
+### No `/lowstate` messages
+
+- Confirm that MuJoCo is running.
+- Confirm that `source dds-loopback` was run in the controller terminal.
+- Check that the simulator and ROS 2 processes are using compatible DDS settings.
+
+### OSQP reports failure
+
+Inspect:
+
+- Whether all estimated-state values are finite
+- Foot positions and Jacobians
+- Force and torque bounds
+- Whether the QP constraints are mutually feasible
+- Whether the body has already left the small-angle operating region
+
+### The robot jumps, rolls, or flies
+
+Do not immediately set all PD gains to zero. First check:
+
+- The joint order and signs in `q_ref`
+- The Go2 link dimensions and joint limits
+- The foot-force sign convention
+- Whether the total vertical MPC force is close to robot weight
+- Whether all feet are actually in contact
+- Whether the state estimate is stable before enabling MPC
+- Whether the body-height reference is compatible with the held joint posture
+
+For the current mass of `15.206 kg`, the static total vertical support force should be near:
+
+```text
+15.206 × 9.81 ≈ 149.2 N
+```
+
+That is approximately `37.3 N` per foot for an evenly loaded four-foot stand.
+
+### Message definitions changed but the build behaves strangely
+
+Rebuild both packages:
+
+```bash
+cd /workspace
+rm -rf build/controller build/go2_interfaces
+rm -rf install/controller install/go2_interfaces
+colcon build --symlink-install --packages-select go2_interfaces controller
+source install/setup.bash
+```
+
+---
+
+## Suggested development order
+
+A practical next-step order for this repository is:
+
+1. Validate the Go2 kinematic parameters and joint ordering.
+2. Verify the estimator in simulation without MPC torque.
+3. Verify constant gravity-support forces before enabling state feedback.
+4. Add force, torque, finite-value, and command-age safety checks.
+5. Add a real solver-failure fallback.
+6. Add measured contact detection.
+7. Move post-MPC posture gains and model limits into the YAML file.
+8. Implement and test `MPC_RUNNING` and `EMERGENCY_STOP`.
+9. Add gait and swing-leg handling.
+10. Replace or extend the direct Jacobian-transpose mapping with a proper whole-body controller.
+
+---
+
+## Reference
+
+The controller structure is inspired by:
+
+> J. Di Carlo, P. M. Wensing, B. Katz, G. Bledt, and S. Kim, “Dynamic Locomotion in the MIT Cheetah 3 Through Convex Model-Predictive Control,” IEEE/RSJ International Conference on Intelligent Robots and Systems, 2018.
+
+---
+
+## Quick command summary
+
+### Build
+
+```bash
+cd /workspace
+source /opt/ros/humble/setup.bash
+colcon build --symlink-install --packages-select go2_interfaces controller
+source install/setup.bash
+```
+
+### Run the controller
+
+```bash
+cd /workspace
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+source dds-loopback
+ros2 launch controller mpc.launch.py
+```
+
+### Run the simulator in a new terminal
+
+```bash
+cd <path-to-the-unitree-mujoco-directory>
+./start.sh
+```
