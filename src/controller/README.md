@@ -301,8 +301,6 @@ For most experiments, begin with `controller/config/mpc_params.yaml`.
 | `gains.kd` | `1.5` | PD velocity gain during the initial smooth transition |
 | `q_ref` | 12 values | Initial joint reference in FR, FL, RR, RL order |
 
-The posture gains used after MPC starts are currently hard-coded in `runMpcCommand()` rather than loaded from YAML.
-
 ---
 
 ## How the MPC works
@@ -340,10 +338,6 @@ The MPC TODO explicitly notes that forces for swing legs still need to be forced
 
 The estimator publishes contact information, but the current planned-contact vector is initialized to four `true` values and is not updated from measured contact forces.
 
-### Posture stabilization is still required
-
-The MPC controls body motion through ground forces. It does not uniquely control the internal leg posture. The high-level controller therefore keeps joint PD active while applying MPC feedforward torque. Setting both posture gains to zero removes this joint-level stabilization and can cause uncontrolled leg motion.
-
 ### Incomplete state machine
 
 `MPC_RUNNING`, `STOP`, and `EMERGENCY_STOP` exist in the enum, but the current active path remains in `MPC_INITIALIZE`. `runEmergencyStop()` is empty.
@@ -352,131 +346,13 @@ The MPC controls body motion through ground forces. It does not uniquely control
 
 The MPC sets its local force vector to zero when OSQP fails, but `mpc_node.cpp` currently returns without publishing a replacement command. A command timestamp, validity flag, timeout, and safe fallback should be added.
 
-### Simplified rigid-body model
-
-The MPC uses a small-angle, single-rigid-body approximation. It is intended for near-upright motion and does not model complete leg dynamics.
-
 ### Fixed model and limits
 
-Robot mass, inertia, link dimensions, friction, force limits, and torque limits are defined in source files rather than loaded from YAML.
+Robot mass, inertia, link dimensions, friction, force limits, and torque limits are defined in source files rather than loaded from YAML or lib like pinocchio.
 
 ### No hardware-ready command safety
 
 Final motor torque clamping, LowCmd mode initialization, CRC handling, stale-command checks, and tested physical emergency behaviour must be completed before hardware use.
-
-### License is not set
-
-`controller/package.xml` currently contains `TODO: License declaration`. Add a real repository license before public release.
-
----
-
-## Troubleshooting
-
-### `Package 'controller' not found`
-
-The workspace has not been sourced in the current terminal:
-
-```bash
-cd /workspace
-source /opt/ros/humble/setup.bash
-source install/setup.bash
-```
-
-### CMake cannot find `osqp-cpp`
-
-Check that this directory exists:
-
-```bash
-ls /opt/osqp-cpp
-```
-
-If OSQP is located elsewhere, update the path in `controller/CMakeLists.txt`.
-
-### The controller keeps saying `Waiting for /estimated_state...`
-
-Check:
-
-```bash
-ros2 topic hz /lowstate
-ros2 topic echo /kf_initialize
-ros2 topic hz /estimated_state
-```
-
-The estimator does not initialize until the high-level controller finishes the initial smooth joint transition and publishes `/kf_initialize`.
-
-### The MPC keeps saying `Waiting for /mpc_initialize...`
-
-The high-level controller has not completed the KF warm-up phase. Check whether `/estimated_state` contains:
-
-```text
-initialized: true
-valid: true
-```
-
-### No `/lowstate` messages
-
-- Confirm that MuJoCo is running.
-- Confirm that `source dds-loopback` was run in the controller terminal.
-- Check that the simulator and ROS 2 processes are using compatible DDS settings.
-
-### OSQP reports failure
-
-Inspect:
-
-- Whether all estimated-state values are finite
-- Foot positions and Jacobians
-- Force and torque bounds
-- Whether the QP constraints are mutually feasible
-- Whether the body has already left the small-angle operating region
-
-### The robot jumps, rolls, or flies
-
-Do not immediately set all PD gains to zero. First check:
-
-- The joint order and signs in `q_ref`
-- The Go2 link dimensions and joint limits
-- The foot-force sign convention
-- Whether the total vertical MPC force is close to robot weight
-- Whether all feet are actually in contact
-- Whether the state estimate is stable before enabling MPC
-- Whether the body-height reference is compatible with the held joint posture
-
-For the current mass of `15.206 kg`, the static total vertical support force should be near:
-
-```text
-15.206 × 9.81 ≈ 149.2 N
-```
-
-That is approximately `37.3 N` per foot for an evenly loaded four-foot stand.
-
-### Message definitions changed but the build behaves strangely
-
-Rebuild both packages:
-
-```bash
-cd /workspace
-rm -rf build/controller build/go2_interfaces
-rm -rf install/controller install/go2_interfaces
-colcon build --symlink-install --packages-select go2_interfaces controller
-source install/setup.bash
-```
-
----
-
-## Suggested development order
-
-A practical next-step order for this repository is:
-
-1. Validate the Go2 kinematic parameters and joint ordering.
-2. Verify the estimator in simulation without MPC torque.
-3. Verify constant gravity-support forces before enabling state feedback.
-4. Add force, torque, finite-value, and command-age safety checks.
-5. Add a real solver-failure fallback.
-6. Add measured contact detection.
-7. Move post-MPC posture gains and model limits into the YAML file.
-8. Implement and test `MPC_RUNNING` and `EMERGENCY_STOP`.
-9. Add gait and swing-leg handling.
-10. Replace or extend the direct Jacobian-transpose mapping with a proper whole-body controller.
 
 ---
 

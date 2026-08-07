@@ -136,8 +136,8 @@ Contains the MPC dimensions and limits.
 The current values include:
 
 ```text
-Prediction horizon hp = 5
-Control horizon    hc = 5
+Prediction horizon hp = 10
+Control horizon    hc = 10
 Friction coefficient  = 0.4
 Normal force range    = 0 to 100 N per foot
 Hip/thigh torque      = ±23.7 Nm
