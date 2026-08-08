@@ -21,6 +21,8 @@ The code in this repository is seperated into several directories.
 - 📂 **src**: Main source code (organized in ROS2 packages)
     - 📂 **go2_cli**: Collection of CLI tools for Go2 robot interaction
     - 📂 **go2_utils**: Library for Go2 robot interaction
+    - 📂 **go2_interfaces**: Collection of custom messages for Go2 robot
+    - 📂 **controller**: Ground reaction force MPC controller for Go2 robot
     - 📂 **stand_height**: Experiment for letting the robot stand at a fixed height
 - 📂 **old**: Old code snippets waiting for deletion
 - 📂 **theory**: Notes and scratchpad code
