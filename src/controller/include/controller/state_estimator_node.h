@@ -4,9 +4,11 @@
 #include "kinematics.h"
 #include "state_estimator.h"
 #include "foot_index.h"
+#include "controller/validation_metrics.h"
 
 #include <rclcpp/rclcpp.hpp>
 
+#include <unitree_go/msg/sport_mode_state.hpp>
 #include <unitree_go/msg/low_state.hpp>
 #include <unitree_go/msg/low_cmd.hpp>
 #include <std_msgs/msg/bool.hpp>
@@ -26,11 +28,10 @@ class StateEstimatorNode : public rclcpp::Node{
 
     private:
         void loadParams();
-        void controller_callback(const unitree_go::msg::LowState::SharedPtr msg); 
+        void state_callback(const unitree_go::msg::LowState::SharedPtr msg); 
         void initialize_callback(const std_msgs::msg::Bool::SharedPtr msg); 
 
         // Ros2 communication variables initialization 
-        rclcpp::Publisher<unitree_go::msg::LowCmd>::SharedPtr publisher_; 
         rclcpp::Subscription<unitree_go::msg::LowState>::SharedPtr subscriber_;  
 
         rclcpp::Publisher<go2_interfaces::msg::EstimatorDebug>::SharedPtr est_debug_; 
@@ -39,15 +40,10 @@ class StateEstimatorNode : public rclcpp::Node{
         rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr kf_initialize_sub;
 
         // Initializations of member variables 
-        std::vector<double> q_ref; 
-        std::vector<double> x_ref;
-        
         std::vector<common::LegSide> leg_sides;
         std::vector<Eigen::Vector3d> hip_offset; 
         
         double obs_dt{};
-
-        bool valid{false};
 
         bool kf_init_requested{false};
         bool kf_initialized{false};
@@ -73,4 +69,9 @@ class StateEstimatorNode : public rclcpp::Node{
         std::unique_ptr<KalmanFilter> filter_; // unique_ptr makes the controller class to exclusively own this object/member
         Dynamics go2; 
         Eigen::Matrix<double,13,1> x_curr; 
+
+        // Validation metrics
+        rclcpp::Subscription<unitree_go::msg::SportModeState>::SharedPtr sim_state_sub_;
+        unitree_go::msg::SportModeState::SharedPtr latest_sim_state_;
+        ValidationMetrics validation_;
 };

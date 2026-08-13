@@ -4,9 +4,9 @@ Dynamics::Dynamics(){
     mass = 15.206;
     body_inertia = Eigen::Matrix3d::Zero();
 
-    body_inertia(0,0) = 0.0244531;
-    body_inertia(1,1) = 0.0980771;
-    body_inertia(2,2) = 0.107027; 
+    // body_inertia(0,0) = 0.0244531;
+    // body_inertia(1,1) = 0.0980771;
+    // body_inertia(2,2) = 0.107027; 
 
     m_C.setZero();
     m_C.block<12,12>(0,0) = Eigen::Matrix<double, 12, 12>::Identity();    
@@ -68,21 +68,25 @@ void Dynamics::computeA(double yaw){
     m_A.block<3,1>(9,12) = g; 
 }
 
-void Dynamics::computeB(std::vector<Eigen::Vector3d>& foot_positions_world, double yaw){
-    int n = foot_positions_world.size(); // number of legs that has contact on ground
+void Dynamics::computeB(const std::vector<Eigen::Vector3d>& foot_positions_com_world,const Eigen::Matrix3d& inertia_body,double mass, double yaw)
+{
+    const int n = foot_positions_com_world.size();
 
-    m_B.resize(13, 3 * n); // resizing column to number of foot contact because originally declared as Xd 
+    m_B.resize(13, 3 * n);
     m_B.setZero();
+
     Eigen::Matrix3d Rz = getRotationMatrix(yaw); 
 
-    Eigen::Matrix3d I_world = Rz*body_inertia*(Rz.transpose());
+    Eigen::Matrix3d I_world = Rz*inertia_body*(Rz.transpose());
     Eigen::Matrix3d I_inv = I_world.inverse();
 
-    for(int i = 0; i<n; i++){
-        Eigen::Matrix3d r_skew = getSkewSymMatrix(foot_positions_world[i]);
-        m_B.block<3,3>(6,i*3) = I_inv*r_skew; // 6, i*3 : for 1st leg, i = 0 , and it takes 3 columns from 0(0,1,2).
-        // for 2nd leg, i = 1, it takes 3 columns from 3 (3,4,5). These 3 columns are basically related to 3 forces per foot (fx, fy, fz)
-        m_B.block<3,3>(9,i*3) = Eigen::Matrix3d::Identity()/mass; 
+    for (int i = 0; i < n; ++i)
+    {
+        const Eigen::Matrix3d r_skew = getSkewSymMatrix(foot_positions_com_world[i]);
+
+        m_B.block<3,3>(6, i * 3) = I_inv * r_skew;
+
+        m_B.block<3,3>(9, i * 3) = Eigen::Matrix3d::Identity() / mass;
     }
 }
 

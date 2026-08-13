@@ -3,8 +3,7 @@
 
 StateEstimatorNode::StateEstimatorNode() : rclcpp::Node("state_estimator")
 {
-    publisher_ = this->create_publisher<unitree_go::msg::LowCmd>("/lowcmd",10);
-    subscriber_ = this->create_subscription<unitree_go::msg::LowState>("/lowstate", 10, std::bind(&StateEstimatorNode::controller_callback, this, std::placeholders::_1));
+    subscriber_ = this->create_subscription<unitree_go::msg::LowState>("/lowstate", 10, std::bind(&StateEstimatorNode::state_callback, this, std::placeholders::_1));
     
     est_debug_ = this->create_publisher<go2_interfaces::msg::EstimatorDebug>("/estimator", 10);
     est_state_pub = this->create_publisher<go2_interfaces::msg::EstimatedState>("/estimated_state", 10);
@@ -12,6 +11,11 @@ StateEstimatorNode::StateEstimatorNode() : rclcpp::Node("state_estimator")
     kf_initialize_sub = this->create_subscription<std_msgs::msg::Bool>("/kf_initialize",10, std::bind(&StateEstimatorNode::initialize_callback, this, std::placeholders::_1));
     RCLCPP_INFO(this->get_logger(), "Controller active! Waiting for simulation ticks...");
 
+    // Validation
+    sim_state_sub_ = this->create_subscription<unitree_go::msg::SportModeState>("/sportmodestate",10,[this]
+        (unitree_go::msg::SportModeState::SharedPtr msg){latest_sim_state_ = msg;});
+    
+    // Load params
     loadParams(); 
 
     filter_ = std::make_unique<KalmanFilter>(obs_dt); // dt = 0.002, because lowstate publishes at 500hz
@@ -55,23 +59,13 @@ void StateEstimatorNode::initialize_callback(const std_msgs::msg::Bool::SharedPt
     }
 }
 
-void StateEstimatorNode::controller_callback(const unitree_go::msg::LowState::SharedPtr msg){
+void StateEstimatorNode::state_callback(const unitree_go::msg::LowState::SharedPtr msg){
 
     /*Kinematics related calculation*/
     // Current RPY
     double current_yaw = msg->imu_state.rpy[2]; 
     double current_pitch = msg->imu_state.rpy[1];
     double current_roll = msg->imu_state.rpy[0];
-
-    // jacobian calculation
-    // std::vector<Eigen::Matrix3f> leg_jacobians(4); 
-
-    // // r_body calculation (position vector from body to foot wrt to the body frame)
-    // std::vector<Eigen::Vector3d> foot_positions_body(4); 
-
-    // // r_i calculation 
-    // std::vector<Eigen::Vector3d> foot_positions_world(4); //position vector from body to foot wrt world frame (small angle approximation - MPC)
-    // std::vector<Eigen::Vector3d> est_foot_positions_world(4);//position vector from body to foot wrt world frame (No approximations - KF)
 
     // jacobian calculation C
     auto &leg_jacobians = leg_jacobians_;
@@ -133,8 +127,6 @@ void StateEstimatorNode::controller_callback(const unitree_go::msg::LowState::Sh
                 common::theta_1_min, common::theta_1_max,
                 common::theta_2_min, common::theta_2_max,
                 common::theta_3_min, common::theta_3_max);
-
-            // leg_jacobians[i] = Eigen::Matrix3f::Identity(); // Safety to avoid crashes 
         }
     }
 
@@ -159,12 +151,7 @@ void StateEstimatorNode::controller_callback(const unitree_go::msg::LowState::Sh
         est_foot_velocities_world[j] = R_w * (go2.getSkewSymMatrix(joint_omegas_body) * foot_positions_body[j] + 
                                               leg_jacobians[j].cast<double>() * joint_dq[j]);
     }
-    
-    // /*Dynamics computations*/  
-    // go2.computeA(current_yaw);
-    // go2.computeB(foot_positions_world, current_yaw);
-    // go2.discretize(obs_dt); 
-    
+
     /*State Estimator*/
     Eigen::Vector3d omega_body{msg->imu_state.gyroscope[0],
                             msg->imu_state.gyroscope[1],
@@ -225,6 +212,66 @@ void StateEstimatorNode::controller_callback(const unitree_go::msg::LowState::Sh
     Eigen::Matrix<double, 28,1> s_diagonal = filter_->getInnovationCovarianceDiag();
 
     double nis = filter_->getNIS(); 
+
+    if (latest_sim_state_) {
+
+        ValidationMetrics::BodyState kf_state;
+        kf_state <<
+            x_hat(0),
+            x_hat(1),
+            x_hat(2),
+            x_hat(3),
+            x_hat(4),
+            x_hat(5);
+
+        ValidationMetrics::BodyState sim_state;
+        sim_state <<
+            latest_sim_state_->position[0],
+            latest_sim_state_->position[1],
+            latest_sim_state_->position[2],
+            latest_sim_state_->velocity[0],
+            latest_sim_state_->velocity[1],
+            latest_sim_state_->velocity[2];
+
+        validation_.updateKalmanState(
+            kf_state,
+            sim_state,
+            residual,
+            this->now().seconds()
+        );
+    }
+
+    // Metrics
+    const auto metrics =
+        validation_.getKFSummary();
+
+    RCLCPP_INFO_THROTTLE(
+        this->get_logger(),
+        *this->get_clock(),
+        2000,
+
+        "KF VALIDATION | "
+        "pRMSE=[%.4f %.4f %.4f] m | "
+        "vRMSE=[%.4f %.4f %.4f] m/s | "
+        "resPos=%.4f | "
+        "resVel=%.4f | "
+        "NIS=%.2f | "
+        "conv=%.2f s",
+
+        metrics.state_rmse(0),
+        metrics.state_rmse(1),
+        metrics.state_rmse(2),
+
+        metrics.state_rmse(3),
+        metrics.state_rmse(4),
+        metrics.state_rmse(5),
+
+        metrics.foot_position_residual_rms,
+        metrics.foot_velocity_residual_rms,
+
+        metrics.mean_nis,
+        metrics.convergence_time
+    );
 
     // Estimated state publisher
     go2_interfaces::msg::EstimatedState est_state_msg; 
@@ -334,7 +381,7 @@ void StateEstimatorNode::controller_callback(const unitree_go::msg::LowState::Sh
                 x_hat[4],
                 x_hat[5],
                 1.0; 
-        
+
     // RCLCPP_INFO_THROTTLE(this->get_logger(), *this->get_clock(), 500, 
     //     "x_curr | RPY: [%.3f, %.3f, %.3f] | Pos: [%.3f, %.3f, %.3f] | Omg: [%.3f, %.3f, %.3f] | Vel: [%.3f, %.3f, %.3f] | g: %.1f",
     //     x_curr(0), x_curr(1), x_curr(2),   // Roll, Pitch, Yaw
@@ -342,5 +389,4 @@ void StateEstimatorNode::controller_callback(const unitree_go::msg::LowState::Sh
     //     x_curr(6), x_curr(7), x_curr(8),   // X, Y, Z Angular Velocity
     //     x_curr(9), x_curr(10), x_curr(11), // X, Y, Z Linear Velocity
     //     x_curr(12));                       // Gravity constant
-
 }

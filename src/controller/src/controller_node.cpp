@@ -13,6 +13,12 @@ HighLevelControl::HighLevelControl() : rclcpp::Node("high_level_control"){
 
     kf_initialize_pub_ = this->create_publisher<std_msgs::msg::Bool>("/kf_initialize", 10);     
     mpc_initialize_pub_ = this->create_publisher<std_msgs::msg::Bool>("/mpc_initialize", 10); 
+    
+    sim_state_sub_ =
+        this->create_subscription<unitree_go::msg::SportModeState>("/sportmodestate",10, [this](unitree_go::msg::SportModeState::SharedPtr msg)
+            {
+                latest_sim_state_ = msg;
+            });
 
     loadParams(); 
 
@@ -317,7 +323,7 @@ void HighLevelControl::runMpcCommand(unitree_go::msg::LowCmd &cmd, std::array<do
         cmd.motor_cmd[motor].dq = 0.0;
 
         cmd.motor_cmd[motor].kp = 0.0;
-        cmd.motor_cmd[motor].kd = 0.0;
+        cmd.motor_cmd[motor].kd = 0.1;
 
         cmd.motor_cmd[motor].tau = 0.0;
     }
@@ -359,6 +365,66 @@ void HighLevelControl::runMpcCommand(unitree_go::msg::LowCmd &cmd, std::array<do
             cmd.motor_cmd[motor_index].tau = std::clamp(tau_leg(joint),tau_ff_min, tau_ff_max);
         }
     }
+
+    ValidationMetrics::JointTorque torque;
+
+    for (int i = 0; i < 12; ++i) {
+        torque(i) =
+            cmd.motor_cmd[i].tau;
+    }
+
+    validation_.updateControlInput(torque, joint_dt_);
+
+    if (latest_sim_state_ && latest_mpc_cmd_) {
+
+        Eigen::Vector3d sim_position(
+            latest_sim_state_->position[0],
+            latest_sim_state_->position[1],
+            latest_sim_state_->position[2]
+        );
+
+        validation_.updateControllerState(
+            sim_position,
+            latest_mpc_cmd_->reference_height,
+            latest_sim_state_->imu_state.rpy[0],
+            latest_sim_state_->imu_state.rpy[1],
+            latest_mpc_cmd_->steady_state
+        );
+    }
+
+    // Print accumulated validation results
+    const auto metrics = validation_.getMPCSummary();
+
+    RCLCPP_INFO_THROTTLE(
+        this->get_logger(),
+        *this->get_clock(),
+        2000,
+
+        "CTRL VALIDATION | "
+        "zRMSE=%.4f m | "
+        "zSS=%.4f m | "
+        "roll=%.2f deg | "
+        "pitch=%.2f deg | "
+        "XYdrift=%.4f m | "
+        "tauRMS=%.2f Nm | "
+        "tauRateRMS=%.2f Nm/s |"
+        "Pitch reading=%.2f deg |"
+        "Pitch reading from lowstate = %.2f deg",
+
+        metrics.height_rmse,
+        metrics.steady_state_height_error,
+
+        metrics.roll_rms * 180.0 / M_PI,
+        metrics.pitch_rms * 180.0 / M_PI,
+
+        metrics.xy_drift,
+        metrics.torque_rms,
+        metrics.torque_rate_rms,
+  
+        latest_est_state_->rpy[1] * 180.0 / M_PI,
+        latest_low_state_->imu_state.rpy[1] * 180.0 / M_PI
+    );
+    
     cmd_pub_->publish(cmd);
 }
 
@@ -402,12 +468,6 @@ void HighLevelControl::changeState(ControlState new_state)
                 "KF warmup completed. Initializing MPC.");
             break;
 
-        case ControlState::MPC_RUNNING:
-            RCLCPP_INFO(
-                this->get_logger(),
-                "MPC initialized. MPC control is running.");
-            break;
-
         case ControlState::STOP:
             RCLCPP_WARN(
                 this->get_logger(),
@@ -436,7 +496,6 @@ std::string HighLevelControl::getStateName() const{
         case ControlState::SMOOTH_RAISE: return "SMOOTH_RAISE"; 
         case ControlState::KF_INITIALIZE: return "KF_INITALIZE"; 
         case ControlState::MPC_INITIALIZE: return "MPC_INITALIZE";
-        case ControlState::MPC_RUNNING: return "MPC_RUNNING";
         default: return "Unknown";
     }
 }

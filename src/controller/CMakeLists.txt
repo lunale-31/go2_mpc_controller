@@ -32,6 +32,8 @@ find_package(rclcpp REQUIRED)
 find_package(unitree_go REQUIRED)
 
 find_package(Eigen3 REQUIRED)
+find_package(pinocchio REQUIRED)
+
 find_package(std_msgs REQUIRED)
 find_package(go2_interfaces REQUIRED)
 
@@ -64,7 +66,8 @@ add_executable(mpc_node
   src/mpc.cpp
   src/dynamics.cpp
   src/kinematics.cpp
-  src/state_estimator.cpp)
+  src/state_estimator.cpp
+  src/validation_metrics.cpp)
 
 target_include_directories(mpc_node PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -73,6 +76,7 @@ target_include_directories(mpc_node PUBLIC
 target_link_libraries(mpc_node
   Eigen3::Eigen   
   osqp-cpp
+  pinocchio::pinocchio
 )
 
 ament_target_dependencies(mpc_node
@@ -92,7 +96,8 @@ add_executable(state_estimator_node
   src/state_estimator_main.cpp
   src/dynamics.cpp
   src/kinematics.cpp
-  src/state_estimator.cpp)
+  src/state_estimator.cpp
+  src/validation_metrics.cpp)
 
 target_include_directories(state_estimator_node PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -116,6 +121,7 @@ target_compile_options(state_estimator_node PRIVATE
 add_executable(controller_node
   src/controller_node.cpp
   src/controller_main.cpp
+  src/validation_metrics.cpp
   )
 
 target_include_directories(controller_node PUBLIC

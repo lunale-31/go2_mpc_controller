@@ -22,7 +22,8 @@ high_level_control:
     kf_warmup_time: 4.0
 
     # FR hip thigh calf, FL 3, RR 3, RL 3, reference q for initial PD controller
-    q_ref: [0.2, 1.2, -2.3, -0.2, 1.2, -2.3, 0.2, 1.2, -2.3, -0.2, 1.2, -2.3]
+    # q_ref: [0.2, 1.2, -2.3, -0.2, 1.2, -2.3, 0.2, 1.2, -2.3, -0.2, 1.2, -2.3]
+    q_ref: [0.2, 1.1, -2.1, -0.2, 1.1, -2.1, 0.2, 1.1, -2.1, -0.2, 1.1, -2.1]
     # q_ref: [0.0, 1.2, -2.3, -0.0, 1.2, -2.3, 0.0, 1.2, -2.3, -0.0, 1.2, -2.3]
 
     # roll, pitch, yaw, px, py, pz, wx, wy, wz, pdotx, pdoty, pdotz, g

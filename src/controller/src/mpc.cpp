@@ -15,7 +15,7 @@ MPC::MPC(double dt){
     m_Aqp.resize(states_nr * hp, states_nr);
     m_Bqp.resize(states_nr * hp, inputs_nr * hc);
     m_Xqp.resize(states_nr * hp, 1);
-    m_Uqp.resize(inputs_nr * hc, 1); 
+    m_Uqp.resize(inputs_nr * hc); 
     
     m_Xqpref.resize(states_nr * hp, 1);
     m_Q1qp.resize(states_nr * hp, states_nr * hp);
@@ -40,29 +40,42 @@ MPC::MPC(double dt){
 }
 
 void MPC::setWeights(){
-    Q1_.diagonal() <<  50.0,   // roll
-        50.0,   // pitch
-        5.0,    // yaw
+    // Q1_.diagonal() <<  50.0,   // roll
+    //     100.0,   // pitch
+    //     25.0,    // yaw
 
-        2.0,    // position x
-        2.0,    // position y
-        200.0,  // position z
+    //     25.0,    // position x
+    //     25.0,    // position y
+    //     200.0,  // position z
 
-        5.0,    // omega x
-        5.0,    // omega y
-        1.0,    // omega z
+    //     5.0,    // omega x
+    //     5.0,    // omega y
+    //     1.0,    // omega z
 
-        10.0,   // linear velocity x
-        10.0,   // linear velocity y
-        20.0,   // linear velocity z
+    //     10.0,   // linear velocity x
+    //     10.0,   // linear velocity y
+    //     20.0,   // linear velocity z
 
-        0.0;    // gravity state
+    //     0.0;    // gravity state
 
-    Q2_.diagonal().setConstant(1e-5);
+    // Q2_.diagonal().setConstant(1e-4);
+
+    // Bryson's rule
+    Q1_.diagonal() <<  2500.0, 2500.0, 111111.0,  
+           3460.0, 3460.0,   400.0,  
+            100.0,  100.0,   100.0, 
+             25.0,   25.0,    25.0;
+
+    Q2_.diagonal() << 0.01, 0.01, 0.0016,  
+           0.01, 0.01, 0.0016,  
+           0.01, 0.01, 0.0016,  
+           0.01, 0.01, 0.0016;
 
     Qf_ = Q1_;
     Qf_(0,0) *= 2.0; // Roll
     Qf_(1,1) *= 2.0; // Pitch
+    Qf_(3,3) *= 2.0; // x
+    Qf_(4,4) *= 2.0; // y
     Qf_(5,5) *= 3.0; // Height
     Qf_(11,11) *=  2.0; // Vertical velocity   
 }
@@ -71,9 +84,11 @@ void MPC::setReference(Eigen::Matrix<double,13,1>& xref){
     m_xref = xref;
 }
 
-void MPC::computeDynamics(Dynamics& go2, std::vector<Eigen::Vector3d> foot_pos_world, double current_yaw){
+void MPC::computeDynamics(Dynamics& go2,const std::vector<Eigen::Vector3d>& foot_pos_com_world,
+                          double current_yaw,const Eigen::Matrix3d& inertia_body,double mass)
+{
     go2.computeA(current_yaw);
-    go2.computeB(foot_pos_world, current_yaw);
+    go2.computeB(foot_pos_com_world,inertia_body,mass,current_yaw);
     go2.discretize(mpc_dt_);
 
     m_Ad = go2.getA();
@@ -334,4 +349,28 @@ bool MPC::solve(){
 
 Eigen::Matrix<double, 12, 1> MPC::getControlSignal(){
     return m_u;
+}
+
+const Eigen::MatrixXd&
+MPC::getConstraintMatrix() const
+{
+    return m_constraint_matrix;
+}
+
+const Eigen::VectorXd&
+MPC::getLowerBounds() const
+{
+    return m_lower_bounds;
+}
+
+const Eigen::VectorXd&
+MPC::getUpperBounds() const
+{
+    return m_upper_bounds;
+}
+
+const Eigen::VectorXd&
+MPC::getFullSolution() const
+{
+    return m_Uqp;
 }

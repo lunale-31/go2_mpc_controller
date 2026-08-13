@@ -8,7 +8,8 @@ RUN apt-get update && \
         ros-${ROS_DISTRO}-rmw-cyclonedds-cpp ros-${ROS_DISTRO}-rosidl-generator-dds-idl ros-${ROS_DISTRO}-ament-cmake-clang-format \
         ros-${ROS_DISTRO}-rmw-cyclonedds-cpp ros-${ROS_DISTRO}-rosidl-generator-dds-idl ros-${ROS_DISTRO}-ament-cmake-clang-format \
         ros-${ROS_DISTRO}-foxglove-bridge ros-${ROS_DISTRO}-plotjuggler-ros \ 
-        ros-${ROS_DISTRO}-rosbag2-storage-mcap
+        ros-${ROS_DISTRO}-rosbag2-storage-mcap \
+        ros-${ROS_DISTRO}-pinocchio
 RUN pip install ipympl
 RUN rosdep update
 

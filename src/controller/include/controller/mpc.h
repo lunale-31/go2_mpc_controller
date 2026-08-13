@@ -26,17 +26,6 @@
 #include "osqp++.h"
 
 class MPC{
-    /* TODO:
-    0) Read current robot state x0. (DONE)
-    1) Create reference state vector Xref (time varying over prediction horizon Hp if needed or constant if not)
-    --For every time step--  
-    2) Pre-compute A0, A1, A2.. B0, B1, B2... matrices by using Xref (for stand-up, all the matrices are same as xref is constant)
-    3) Unroll the dynamics for Hp prediction horizon to create a big Aqp and Bqp matrices (X = Aqp(X0) + Bqp(U)).
-    4) Create the cost function J and use Xref for it. Then, compute H and g matrix from the paper to define simplified QP equation. 
-    5) Create constraints related to friction and actuator limits, combine them as a single matrix inequality.
-    6) Use solver to obtain the solution for the given QP equation and constraint matrix.
-    7) Send the control signal u0 to the taw formula. */
-
     public:
         // States and inputs number
         static constexpr int states_nr = 13; 
@@ -46,7 +35,7 @@ class MPC{
         MPC(double dt); 
 
         // Dynamics matrices
-        void computeDynamics(Dynamics& go2, std::vector<Eigen::Vector3d> foot_pos_world, double current_yaw);
+        void computeDynamics(Dynamics& go2,const std::vector<Eigen::Vector3d>& foot_pos_com_world,double current_yaw,const Eigen::Matrix3d& inertia_body,double mass);
         void buildMatrix();
 
         // set Reference
@@ -67,6 +56,11 @@ class MPC{
         // Read-only member functions
         Eigen::Matrix<double,13,1> getReference(); 
         Eigen::Matrix<double, 12, 1> getControlSignal();
+
+        const Eigen::MatrixXd& getConstraintMatrix() const;
+        const Eigen::VectorXd& getLowerBounds() const;
+        const Eigen::VectorXd& getUpperBounds() const;
+        const Eigen::VectorXd& getFullSolution() const;
 
     private:
         // Constants related to prediction and control horizon
@@ -98,7 +92,7 @@ class MPC{
         Eigen::MatrixXd m_Aqp;
         Eigen::MatrixXd m_Bqp;
         Eigen::MatrixXd m_Xqp;
-        Eigen::MatrixXd m_Uqp;
+        Eigen::VectorXd m_Uqp;
         Eigen::MatrixXd m_Xqpref;
         Eigen::MatrixXd m_Q1qp; 
         Eigen::MatrixXd m_Q2qp;

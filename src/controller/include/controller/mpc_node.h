@@ -2,6 +2,17 @@
 
 #include "dynamics.h"
 #include "mpc.h"
+#include "controller/validation_metrics.h"
+#include "controller/kinematics.h"
+
+#include <pinocchio/fwd.hpp>
+
+#include <pinocchio/parsers/mjcf.hpp>
+#include <pinocchio/algorithm/centroidal.hpp>
+#include <pinocchio/algorithm/center-of-mass.hpp>
+#include <pinocchio/algorithm/frames.hpp>
+#include <pinocchio/algorithm/joint-configuration.hpp>
+#include <pinocchio/algorithm/rnea.hpp>
 
 #include <Eigen/Dense>
 #include <rclcpp/rclcpp.hpp>
@@ -22,7 +33,7 @@
 
 class MPCNode : public rclcpp::Node{
     /* TODO:
-    0) Read current robot state x0. (DONE)
+    0) Read current robot state x0.
     1) Create reference state vector Xref (time varying over prediction horizon Hp if needed or constant if not)
     --For every time step--  
     2) Pre-compute A0, A1, A2.. B0, B1, B2... matrices by using Xref (for stand-up, all the matrices are same as xref is constant)
@@ -36,11 +47,8 @@ class MPCNode : public rclcpp::Node{
         // Constructor
         MPCNode();
 
-        // Time varying matrices
-        void computeLTVMatrices(double dt);
-
         // Compute Smooth Reference State
-        std::pair<double,double>  computeSmoothHeight(Eigen::Matrix<double, 13,1> x_curr);
+        std::pair<double,double>  computeSmoothHeight(double current_base_height);
 
     private:
         // Load Params
@@ -74,7 +82,6 @@ class MPCNode : public rclcpp::Node{
         
         // Smooth trajectory vars
         bool stand_initialized_{false};
-        bool stand_complete_{false};
 
         std::optional<rclcpp::Time> stand_start_time_;
         double stand_transition_time_{5.0};
@@ -94,4 +101,27 @@ class MPCNode : public rclcpp::Node{
         double yaw_hold_{0.0};
         double roll_hold_{0.0};
         double pitch_hold_{0.0};
+
+        // Validation
+        ValidationMetrics validation_;
+
+        // Pinocchio model: Contains physical parameters of the robot fetched from xml file. 
+        pinocchio::Model pin_model_;
+
+        // Pinocchio data: Contains parameters that change in every control cycle, example: COM
+        std::unique_ptr<pinocchio::Data> pin_data_;
+
+        // pin_q and pin_v contains 12 joint positions + 12 velocities, 3 body position + 3 body velocity, 
+        // and 4 body quaternions for position + 4 quaternions velocity 
+        Eigen::VectorXd pin_q_;
+        Eigen::VectorXd pin_v_;
+
+        // Just to load joint and frame ids like FR, FL
+        std::array<pinocchio::JointIndex, 12> pin_joint_ids_;
+        std::array<pinocchio::FrameIndex, 4> pin_foot_frame_ids_;
+
+        // Path to xml file
+        std::string mjcf_path_;
+
+        void initializePinocchio();
 };

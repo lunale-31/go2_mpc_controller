@@ -1,8 +1,10 @@
 #pragma once
+#include "controller/validation_metrics.h"
 
 #include <rclcpp/rclcpp.hpp>
 #include <Eigen/Dense>
 
+#include <unitree_go/msg/sport_mode_state.hpp>
 #include <unitree_go/msg/low_state.hpp>
 #include <unitree_go/msg/low_cmd.hpp>
 #include <std_msgs/msg/bool.hpp>
@@ -25,7 +27,6 @@ enum class ControlState {
     SMOOTH_RAISE,
     KF_INITIALIZE,
     MPC_INITIALIZE,
-    MPC_RUNNING,
     STOP,
     EMERGENCY_STOP
 };
@@ -112,4 +113,9 @@ class HighLevelControl : public rclcpp::Node{
         // Read current state
         ControlState getCurrentState() const;
         std::string getStateName() const;
+
+        // Validation
+        rclcpp::Subscription<unitree_go::msg::SportModeState>::SharedPtr sim_state_sub_;
+        unitree_go::msg::SportModeState::SharedPtr latest_sim_state_;
+        ValidationMetrics validation_;
 };

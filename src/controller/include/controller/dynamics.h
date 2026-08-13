@@ -23,7 +23,7 @@ class Dynamics{
         Dynamics();
 
         void computeA(double yaw);
-        void computeB(std::vector<Eigen::Vector3d>& foot_positions_world, double yaw);
+        void computeB(const std::vector<Eigen::Vector3d>& foot_positions_com_world,const Eigen::Matrix3d& inertia_body,double mass,double yaw);
 
         // Discretize function
         void discretize(double dt);
