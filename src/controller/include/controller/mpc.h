@@ -48,7 +48,7 @@ class MPC{
         void buildCost(Eigen::Matrix<double,13,1>& x_curr);
 
         // Build constraints
-        void buildConstraints(std::vector<Eigen::Matrix3d>& leg_jacobians_world);
+        void buildConstraints(std::vector<Eigen::Matrix3d>& leg_jacobians_world, std::array<double, 12>& gravity_tau);
 
         // solve QP to obtain optimal control signal 
         bool solve();

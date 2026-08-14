@@ -104,7 +104,7 @@ bool KalmanFilter::initializeKF(const std::vector<Eigen::Vector3d>& foot_positio
             return false; 
         }
 
-        body_height += -foot_positions_world[i][2];
+        body_height += 0.022 -foot_positions_world[i][2];
     }
     // Initially the position of the z coordinate is 1/4th of summation of all the foot positions vector. 
     body_height = body_height / 4.0;
@@ -146,7 +146,7 @@ void KalmanFilter::filteringStep(const std::vector<Eigen::Vector3d>& foot_positi
             m_y.block<3,1>((i*3)+12, 0) = -foot_velocities_world[i];
             
             // 4 foot height = 0, assuming foot are in stance. 
-            m_y(24 + i) = 0.0;
+            m_y(24 + i) = 0.022;
         } 
     }
     else{

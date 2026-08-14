@@ -252,6 +252,15 @@ void MPCNode::mpcControlLoop(){
         foot_pos_com_world[leg] = p_foot - p_com;
     }
 
+    /* Gravity compensation based on the leg dynamics */
+    pinocchio::computeGeneralizedGravity(pin_model_, *pin_data_, pin_q_);
+
+    std::array<double, 12> gravity_tau{};
+
+    for(int motor = 0; motor<12; motor++){
+        const pinocchio::JointIndex jid = pin_joint_ids_[motor];
+        gravity_tau[motor] = pin_data_->g[pin_model_.joints[jid].idx_v()];
+    }
     /* Reference generator */
     Eigen::Matrix<double, 13,1> x_curr; 
     x_curr <<
@@ -351,9 +360,7 @@ void MPCNode::mpcControlLoop(){
 
     const auto t2 = std::chrono::steady_clock::now();
 
-    mpc_->buildConstraints(
-        leg_jacobians_world
-    );
+    mpc_->buildConstraints(leg_jacobians_world, gravity_tau);
 
     const auto t3 = std::chrono::steady_clock::now();
 
@@ -527,6 +534,7 @@ void MPCNode::mpcControlLoop(){
 
     for(int i=0; i<12; i++){
         mpc_cmd.ground_force[i] = u_opt[i];
+        mpc_cmd.gravity_torque[i] = gravity_tau[i];
     }
 
     mpc_cmd.reference_height = z_traj;

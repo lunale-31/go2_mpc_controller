@@ -58,18 +58,18 @@ void MPC::setWeights(){
 
     //     0.0;    // gravity state
 
-    // Q2_.diagonal().setConstant(1e-4);
+    Q2_.diagonal().setConstant(1e-3);
 
     // Bryson's rule
     Q1_.diagonal() <<  2500.0, 2500.0, 111111.0,  
-           3460.0, 3460.0,   400.0,  
+           3460.0, 3460.0,   2500.0,  
             100.0,  100.0,   100.0, 
-             25.0,   25.0,    25.0;
+            100.0,  100.0,  100.0;
 
-    Q2_.diagonal() << 0.01, 0.01, 0.0016,  
-           0.01, 0.01, 0.0016,  
-           0.01, 0.01, 0.0016,  
-           0.01, 0.01, 0.0016;
+    // Q2_.diagonal() << 0.01, 0.01, 0.0016,  
+    //        0.01, 0.01, 0.0016,  
+    //        0.01, 0.01, 0.0016,  
+    //        0.01, 0.01, 0.0016;
 
     Qf_ = Q1_;
     Qf_(0,0) *= 2.0; // Roll
@@ -142,7 +142,7 @@ void MPC::buildCost(Eigen::Matrix<double,13,1>& x_curr){
     rho_qp = (m_Aqp * x_curr - m_Xqpref).transpose() * m_Q1qp * (m_Aqp * x_curr - m_Xqpref);
 }
 
-void MPC::buildConstraints(std::vector<Eigen::Matrix3d>& leg_jacobians_world){
+void MPC::buildConstraints(std::vector<Eigen::Matrix3d>& leg_jacobians_world, std::array<double, 12>& gravity_tau){
     /* 2 Constraints: Friction and Torque.*/
     /* TODO: Add Swing-leg force constraint after adding gait, contact and trajectory planners.*/
 
@@ -226,8 +226,11 @@ void MPC::buildConstraints(std::vector<Eigen::Matrix3d>& leg_jacobians_world){
 
     for(int leg=0; leg<4; leg++){
         torque_jacobian_legs.block(leg*3, leg*3, 3, 3) = -leg_jacobians_world[leg].transpose();
-        torque_l_legs.block(leg*3, 0, 3, 1) = torque_l_;
-        torque_u_legs.block(leg*3, 0, 3, 1) = torque_u_; 
+        
+        const Eigen::Map<const Eigen::Matrix<double,12,1>> g_tau(gravity_tau.data());
+
+        torque_l_legs.block(leg*3, 0, 3, 1) = torque_l_ - g_tau.segment<3>(leg*3);;
+        torque_u_legs.block(leg*3, 0, 3, 1) = torque_u_ - g_tau.segment<3>(leg*3);; 
     }
 
     Eigen::MatrixXd A_torque;

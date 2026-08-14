@@ -362,7 +362,8 @@ void HighLevelControl::runMpcCommand(unitree_go::msg::LowCmd &cmd, std::array<do
             const double tau_ff_min = -limit;
             const double tau_ff_max =  limit;
 
-            cmd.motor_cmd[motor_index].tau = std::clamp(tau_leg(joint),tau_ff_min, tau_ff_max);
+            const double tau_total = tau_leg(joint) + latest_mpc_cmd_->gravity_torque[motor_index];
+            cmd.motor_cmd[motor_index].tau = std::clamp(tau_total,tau_ff_min, tau_ff_max);
         }
     }
 
