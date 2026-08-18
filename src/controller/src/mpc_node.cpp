@@ -379,18 +379,18 @@ void MPCNode::mpcControlLoop(){
 
     const double total_ms = std::chrono::duration<double, std::milli>(t4 - t0).count();
 
-    // RCLCPP_INFO_THROTTLE(
-    //     this->get_logger(),
-    //     *this->get_clock(),
-    //     500,
-    //     "MPC TIMING: dyn=%.2f | cost=%.2f | "
-    //     "constraints=%.2f | solve=%.2f | TOTAL=%.2f ms",
-    //     dynamics_ms,
-    //     cost_ms,
-    //     constraints_ms,
-    //     solve_ms,
-    //     total_ms
-    // );
+    RCLCPP_INFO_THROTTLE(
+        this->get_logger(),
+        *this->get_clock(),
+        500,
+        "MPC TIMING: dyn=%.2f | cost=%.2f | "
+        "constraints=%.2f | solve=%.2f | TOTAL=%.2f ms",
+        dynamics_ms,
+        cost_ms,
+        constraints_ms,
+        solve_ms,
+        total_ms
+    );
 
     if(!solved){
         RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 1000, "MPC Solver failed.");

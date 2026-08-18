@@ -65,7 +65,7 @@ class StateEstimatorNode : public rclcpp::Node{
             Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero(),
             Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero()};
  
-        // MPC computation components 
+        // KF computation components 
         std::unique_ptr<KalmanFilter> filter_; // unique_ptr makes the controller class to exclusively own this object/member
         Dynamics go2; 
         Eigen::Matrix<double,13,1> x_curr; 

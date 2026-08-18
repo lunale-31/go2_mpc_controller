@@ -146,6 +146,7 @@ void KalmanFilter::filteringStep(const std::vector<Eigen::Vector3d>& foot_positi
             m_y.block<3,1>((i*3)+12, 0) = -foot_velocities_world[i];
             
             // 4 foot height = 0, assuming foot are in stance. 
+            // 0.022 because of go2.xml
             m_y(24 + i) = 0.022;
         } 
     }
