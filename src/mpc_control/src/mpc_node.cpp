@@ -546,7 +546,7 @@ void MPCNode::mpcControlLoop(){
 
 void MPCNode::initializePinocchio()
 {
-    mjcf_path_ = "/workspace/src/controller/go2.xml";
+    mjcf_path_ = "/workspace/src/mpc_control/go2.xml";
 
     // Build model with go2.xml
     pinocchio::mjcf::buildModel(
