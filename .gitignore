@@ -3,4 +3,4 @@ build/
 log/
 install/
 .vscode/
-.idea/*.tar.gz
+*.tar.gz
