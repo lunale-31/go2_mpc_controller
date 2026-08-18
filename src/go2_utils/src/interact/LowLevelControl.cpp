@@ -59,6 +59,7 @@ namespace go2_utils::interact {
         return bms_state_;
     }
 
+
     void LowLevelControl::initialize_motors() {
         // initialize motors
         for (uint8_t i = 0; i <= robot::JOINT_MAX; ++i) {
@@ -67,25 +68,34 @@ namespace go2_utils::interact {
     }
 
     void LowLevelControl::initialize_legs() {
+        // initialize foot force sensors
+        for (uint8_t i = 0; i <= robot::LEG_MAX; ++i) {
+            foot_forces_[i] = std::make_shared<uint16_t>(0.0);
+        }
+
         legs_[robot::LEG_FRONT_LEFT] = std::make_shared<lowlevel::Leg>(
             motors_[robot::JOINT_FL_HIP],
             motors_[robot::JOINT_FL_THIGH],
             motors_[robot::JOINT_FL_CALF],
+            foot_forces_[robot::LEG_FRONT_LEFT],
             robot::LegPair::FRONT, robot::LegSide::LEFT);
         legs_[robot::LEG_FRONT_RIGHT] = std::make_shared<lowlevel::Leg>(
             motors_[robot::JOINT_FR_HIP],
             motors_[robot::JOINT_FR_THIGH],
             motors_[robot::JOINT_FR_CALF],
+            foot_forces_[robot::LEG_FRONT_RIGHT],
             robot::LegPair::FRONT, robot::LegSide::RIGHT);
         legs_[robot::LEG_BACK_LEFT] = std::make_shared<lowlevel::Leg>(
             motors_[robot::JOINT_BL_HIP],
             motors_[robot::JOINT_BL_THIGH],
             motors_[robot::JOINT_BL_CALF],
+            foot_forces_[robot::LEG_BACK_LEFT],
             robot::LegPair::BACK, robot::LegSide::LEFT);
         legs_[robot::LEG_BACK_RIGHT] = std::make_shared<lowlevel::Leg>(
             motors_[robot::JOINT_BR_HIP],
             motors_[robot::JOINT_BR_THIGH],
             motors_[robot::JOINT_BR_CALF],
+            foot_forces_[robot::LEG_BACK_RIGHT],
             robot::LegPair::BACK, robot::LegSide::RIGHT);
     }
 
@@ -93,6 +103,11 @@ namespace go2_utils::interact {
         // Distribute motor state to motor wrappers
         for (unsigned i = 0U; i <= robot::JOINT_MAX; ++i) {
             motors_[i]->state(state.motor_state[i]);
+        }
+
+        // Distribute foot force state to leg wrappers
+        for (unsigned i = 0U; i <= robot::LEG_MAX; ++i) {
+            *foot_forces_[i] = state.foot_force[i];
         }
 
         // Update IMU state

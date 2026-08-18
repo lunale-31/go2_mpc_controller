@@ -26,6 +26,7 @@ set(TARGETS
   discontinuous-gait
   lift-leg
   rainbow
+  foot-forces
 )
 
 add_executable(discontinuous-gait
@@ -43,6 +44,10 @@ add_executable(lift-leg
 
 add_executable(rainbow
     src/rainbow.cpp
+)
+
+add_executable(foot-forces
+    src/foot-forces.cpp
 )
 
 foreach(TARGET IN LISTS TARGETS)

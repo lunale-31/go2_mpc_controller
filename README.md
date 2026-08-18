@@ -17,20 +17,23 @@ This repository is a ROS2 workspace.
 The code in this repository is seperated into several directories.
 
 - 📂 **config**: Configuration files for experiments
-- 📂 **docs**: Documentation and guides (CURRENTLY OUTDATED!!!)
+- 📂 **docs**: Documentation and guides
 - 📂 **src**: Main source code (organized in ROS2 packages)
+    - 📂 **go2_utils**: Library for Go2 robot interaction, used by most other packages
     - 📂 **go2_cli**: Collection of CLI tools for Go2 robot interaction
-    - 📂 **go2_utils**: Library for Go2 robot interaction
+    - 📂 **experiments**: Loose collection of experiments
     - 📂 **go2_interfaces**: Collection of custom messages for Go2 robot
     - 📂 **controller**: Ground reaction force MPC controller for Go2 robot
     - 📂 **stand_height**: Experiment for letting the robot stand at a fixed height
+    - 📂 **mpc_control**: Unfinished implementation of a MPC controller for walking
+    - 📂 **basic_motion**: Unfinished implementation of a suite of motion controllers
 - 📂 **old**: Old code snippets waiting for deletion
 - 📂 **theory**: Notes and scratchpad code
 
 ## Quickstart Guide 
-You can run this code either in a development container (recommended) or natively on Ubuntu 22.04 with ROS2 Humble. Pick one
+You can run this code either in a development container (recommended) or natively on Ubuntu 22.04 with ROS2 Humble. Pick one of the following two options:
 
-### Installing Libraries (Dev Container)
+### Installing Libraries (Dev Container, _recommended_)
 Open the repository in an editor that supports Dev Containers (e.g., _Visual Studio Code_ with the _Dev Containers_ extension), and start the container (this might take a few minutes).
 
 Once the container is ready, you can compile the code using this command:
@@ -54,6 +57,7 @@ colcon build
 
 If this succeeds, you can continue to _Running the Code_.
 
+<!--
 ### Running the Code
 The code in this repository is a collection of ROS2 packages.
 As usual, to run them, you first need to activate them by sourcing the setup script:
@@ -74,4 +78,9 @@ The settings will be kept until you close the terminal.
 Finally, you can run the code using `ros2`, for example:
 ```bash
 ros2 run go2_cli hl-stand-up
-``` 
+```
+-->
+
+### Running the Code
+
+Head over to [this page](/docs/getting-started.md) to get started with development.

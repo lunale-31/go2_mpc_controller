@@ -12,7 +12,7 @@ namespace go2_utils::interact::lowlevel {
          * Only to be invoked by the LowLevelControl constructor.
          */
         Leg(Joint::SharedPtr &hip, Joint::SharedPtr &thigh, Joint::SharedPtr &calf, 
-            robot::LegPair pair, robot::LegSide side);
+            std::shared_ptr<uint16_t> &foot_force, robot::LegPair pair, robot::LegSide side);
 
         /**
          * Gets the hip (top-most) joint.
@@ -54,12 +54,19 @@ namespace go2_utils::interact::lowlevel {
          */
         robot::LegPair pair() const;
 
+        /**
+         * Gets the force measured at the foot.
+         */
+        uint16_t foot_force() const;
+
         using SharedPtr = std::shared_ptr<Leg>;
 
     private:
         Joint::SharedPtr &hip_;
         Joint::SharedPtr &thigh_;
         Joint::SharedPtr &calf_;
+
+        std::shared_ptr<uint16_t> foot_force_;
 
         robot::LegSide side_;
         robot::LegPair pair_;

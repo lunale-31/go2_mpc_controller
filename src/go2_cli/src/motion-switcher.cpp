@@ -8,7 +8,7 @@
 using namespace std::chrono_literals;
 
 /**
- * Main entry point for stand up tool
+ * Main entry point for motion switcher tool
  * @param argc Number of program arguments
  * @param argv Program arguments
  */
